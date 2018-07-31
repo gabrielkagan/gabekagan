@@ -38,7 +38,59 @@
   ga('send', 'pageview');
   </script>
   </head>
- <body>
+ <body>id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+    <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+          <i class="fa fa-bars"></i>
+        </button>
+        <a class="navbar-brand page-scroll" href="#page-top">
+          <span class="light">Steve</span> Jones
+        </a>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+        <ul class="nav navbar-nav">
+          <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+          <li class="hidden">
+            <a href="#page-top"></a>
+          </li>
+          <li>
+            <a class="page-scroll" href="#about">About</a>
+          </li>
+          <li>
+            <a class="page-scroll" href="#resume">Resume</a>
+          </li>
+          <li>
+            <a class="page-scroll" href="#portfolio">Portfolio</a>
+          </li>
+          <li>
+            <a class="page-scroll" href="#contact">Contact</a>
+          </li>
+        </ul>
+      </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+  </nav>
+
+  <!-- Intro Header -->
+  <section id="intro" class="intro text-center">
+    <div class="overlay">
+      <div class="intro-content">
+        <h1 class="brand-heading animated fadeInDown delay-05s">Steve Jones</h1>
+        <div class="picture hasPulse" id=picture></div>
+        <p class="intro-text animated fadeIn delay-2s">I'm a graduate student, designer, developer, and researcher</p>
+      </div>
+    </div>
+    <div class="scroll-arrow">
+      <a href="#about" class="fa fa-angle-down page-scroll">
+      <!-- <i class="fa fa-angle-down page-scroll"></i> -->
+      </a>
+    </div>
+  </section>
    <h1>This is my first Github Page<h1>
      </body>
      <style>
