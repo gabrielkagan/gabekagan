@@ -492,6 +492,12 @@ a.resume-btn:hover, a.resume-btn:active {
     background-color: rgba(254, 254, 254, 0.2);
     padding: 10px 30px;
 }
+#about h9 {
+  color: #9494AB;
+  font-weight: 200;
+  letter-spacing: 10px;
+  margin-bottom: 30px;
+}
 #book {
     background: url(../img/books.jpg);
     background-size: cover;
