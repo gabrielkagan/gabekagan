@@ -288,7 +288,7 @@ a.fa.fa-angle-down:focus {
   animation-delay: 1s;
   animation-timing-function: ease;
   animation-fill-mode: both;
- /* -ms-backface-visibility: hidden;*/
+ -ms-backface-visibility: hidden;
   -o-backface-visibility: hidden;
   backface-visibility: hidden
 }
