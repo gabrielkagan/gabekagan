@@ -436,13 +436,12 @@ a.fa.fa-angle-down:focus {
 }
 
 #resume {
-    background: url(../img/books2.PNG);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
-    background-color: #000;
-    color: #fff;
+    background-color: #F0F0F0;
+    color: #000;
 }
 #resume .resume-bg {
 
