@@ -436,7 +436,7 @@ a.fa.fa-angle-down:focus {
 }
 
 #resume {
-    background: url(../img/books.jpg);
+    background: url(../img/books2.png);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -500,7 +500,7 @@ a.resume-btn:hover, a.resume-btn:active {
   margin-bottom: 30px;
 }
 #book {
-    background: url(../img/books.jpg);
+    background: url(../img/books2.png);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
