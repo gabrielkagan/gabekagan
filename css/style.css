@@ -434,8 +434,8 @@ a.fa.fa-angle-down:focus {
 }
 
 #resume {
- padding-top: 20px;
-    padding-bottom: 20px;
+/* padding-top: 20px;
+    padding-bottom: 20px;*/
     background-color: #44364F;
     color: #000;
 }
