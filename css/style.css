@@ -462,7 +462,7 @@ padding-top: 60px;
 }
 
 a.resume-btn {
-    background: none;
+    background: rgb(68, 52, 76);
     display: inline-block;
     padding: 10px 20px;
     color: #ddd;
@@ -481,7 +481,7 @@ a.resume-btn:hover, a.resume-btn:active {
     color: #fff;
     /*font-weight: 400;*/
     border: 2px solid #ccc;
-    background-color: rgba(254, 254, 254, 0.2);
+    background-color: rgb(68, 52, 76);;
     padding: 10px 30px;
 }
 #about h9 {
