@@ -493,7 +493,7 @@ a.resume-btn:hover, a.resume-btn:active {
     padding: 10px 30px;
 }
 #book {
-    background: url(../img/resume-bg.png);
+    background: url(../img/books.jpg);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
