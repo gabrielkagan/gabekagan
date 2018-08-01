@@ -436,12 +436,10 @@ a.fa.fa-angle-down:focus {
 }
 
 #resume {
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
+ /*padding-top: 20px;
+    padding-bottom: 20px;
     background-color: #F0F0F0;
-    color: #000;
+    color: #000;*/
 }
 #resume .resume-bg {
 
