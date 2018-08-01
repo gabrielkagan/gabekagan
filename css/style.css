@@ -425,7 +425,12 @@ a.fa.fa-angle-down:focus {
     -webkit-animation-timing-function: ease-in-out;
     visibility: visible !important;
 }*/
-
+#about h9 {
+  color: #FFFFFF;
+  font-weight: 200;
+  letter-spacing: 10px;
+  margin-bottom: 30px;
+}
 #about h2 {
   color: #9494AB;
   font-weight: 200;
@@ -490,12 +495,6 @@ a.resume-btn:hover, a.resume-btn:active {
     border: 2px solid #ccc;
     background-color: rgba(254, 254, 254, 0.2);
     padding: 10px 30px;
-}
-#about h9 {
-  color: #9494AB;
-  font-weight: 200;
-  letter-spacing: 10px;
-  margin-bottom: 30px;
 }
 #book {
     background: url(../img/books3.PNG);
