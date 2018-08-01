@@ -436,10 +436,10 @@ a.fa.fa-angle-down:focus {
 }
 
 #resume {
- /*padding-top: 20px;
+ padding-top: 20px;
     padding-bottom: 20px;
     background-color: #44364F;
-    color: #000;*/
+    color: #000;
 }
 #resume .overlay {
     background: -moz-linear-gradient(top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.85) 17%, rgba(0, 0, 0, 0.8) 35%, rgba(0, 0, 0, 0.55) 62%, rgba(0, 0, 0, 0.4) 100%);
