@@ -278,7 +278,7 @@ a.fa.fa-angle-down:focus {
   height: calc(5vw + 5vh + 2vmin);
   width: calc(5vw + 5vh + 2vmin);
   border-radius: 500px;
-  background: url(/img/SteveJones.png) center center no-repeat;
+  background: url(/img/SteveJones.jpg) center center no-repeat;
   background-size: cover;
   box-shadow: 0 3px 12px rgba(0, 0, 0, .23), 0 3px 12px rgba(0, 0, 0, .16);
   transition: box-shadow .3s ease-in-out;
@@ -288,7 +288,7 @@ a.fa.fa-angle-down:focus {
   animation-delay: 1s;
   animation-timing-function: ease;
   animation-fill-mode: both;
- -ms-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
   -o-backface-visibility: hidden;
   backface-visibility: hidden
 }
