@@ -279,7 +279,7 @@ a.fa.fa-angle-down:focus {
   width: calc(5vw + 5vh + 2vmin);
   border-radius: 500px;
   background: url(/img/gabekagan.png) center center no-repeat;
-  background-size: contain;
+  background-size: cover;
   box-shadow: 0 3px 12px rgba(0, 0, 0, .23), 0 3px 12px rgba(0, 0, 0, .16);
   transition: box-shadow .3s ease-in-out;
   animation-name: bounceIn;
