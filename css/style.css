@@ -411,11 +411,9 @@ a.fa.fa-angle-down:focus {
 }
 
 #about .pro-pic {
- max-width:80%;
- max-height:auto;
   /*padding-top: 30px;*/
-  /*visibility: hidden;
-  position: absolute;*/
+  /*visibility: hidden;*/
+  position: absolute;
 }
 
 /*#about .fadeIt{
