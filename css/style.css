@@ -413,7 +413,7 @@ a.fa.fa-angle-down:focus {
 #about .pro-pic {
   /*padding-top: 30px;*/
   /*visibility: hidden;*/
-  position: absolute;
+  position: relative;
 }
 
 /*#about .fadeIt{
