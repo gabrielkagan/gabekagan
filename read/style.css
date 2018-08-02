@@ -466,7 +466,7 @@ a.read-btn:hover, a.portfolio-btn:active {
     background-color: rgba(254, 254, 254, 0.2);
     padding: 10px 30px;
 }
-a.portfolio-btn {
+a.read-btn {
     background: none;
     display: inline-block;
     padding: 10px 20px;
@@ -481,7 +481,7 @@ a.portfolio-btn {
     -moz-transition: all .3s ease-in-out;
     transition: all .3s ease-in-out
 }
-a.portfolio-btn:hover, a.portfolio-btn:active {
+a.read-btn:hover, a.portfolio-btn:active {
     /*background-position: -100% 100%;*/
     color: #000;
     /*font-weight: 400;*/
@@ -491,12 +491,12 @@ a.portfolio-btn:hover, a.portfolio-btn:active {
 }
 
 /* ===PORTFOLIO=== */
-#portfolio {
+#read {
     padding-top: 20px;
     padding-bottom: 20px;
     background: #fff;
 }
-#portfolio .portfolio-row {
+#read .read-row {
     margin-left: 50px;
     margin-right: 50px;
 }
@@ -506,15 +506,15 @@ a.portfolio-btn:hover, a.portfolio-btn:active {
         margin-right: 10px;
     }
 }
-#portfolio .portfolio-title {
+#read .read-title {
     padding-bottom: 0px;
     margin-bottom: 10px;
 }
-#portfolio .filter-text {
+#read .filter-text {
     margin-bottom: 16px;
     text-transform: lowercase;
 }
-#portfolio .portfolio-item {
+#read .read-item {
     margin: 0 0 15px 0;
     padding-right: 5px;
     padding-left: 5px;
@@ -525,7 +525,7 @@ a.portfolio-btn:hover, a.portfolio-btn:active {
     }
 }
 
-#portfolio .portfolio-image {
+#read .read-image {
     width: 100%;
     height: 180px;
     object-fit: cover;
@@ -540,7 +540,7 @@ a.portfolio-btn:hover, a.portfolio-btn:active {
         height: 100%;
     }
 }
-.portfolio-item .portfolio-hover {
+.read-item .read-hover {
     height: 180px;
     overflow: hidden;
     position: relative;
@@ -558,10 +558,10 @@ a.portfolio-btn:hover, a.portfolio-btn:active {
         height: 100%;
     }
 }
-.portfolio-item .portfolio-hover img {
+.read-item .read-hover img {
     margin: 0 auto;
 }
-.portfolio-hover .hover-text {
+.read-hover .hover-text {
     position: absolute;
     text-align: center;
     margin: 0 auto;
@@ -573,47 +573,47 @@ a.portfolio-btn:hover, a.portfolio-btn:active {
     opacity: 1;
     transition: all 0.5s;
 }
-.portfolio-hover .hover-text .hover-text-box {
+.read-hover .hover-text .hover-text-box {
     display: inline-block;
 }
-.portfolio-hover .hover-text .hover-text-box h6 {
+.read-hover .hover-text .hover-text-box h6 {
     margin: 0;
 }
-.portfolio-hover img {
+.read-hover img {
   max-width: 100%;
 
   -moz-transition: all 0.5s;
   -webkit-transition: all 0.5s;
   transition: all 0.5s;
 }
-.portfolio-hover:hover .hover-text {
+.read-hover:hover .hover-text {
     opacity: 0;
 }
-.portfolio-hover:hover img {
+.read-hover:hover img {
   -moz-transform: scale(1.03);
   -webkit-transform: scale(1.03);
   transform: scale(1.03);
 }
-.portfolio-hover h4 {
+.read-hover h4 {
   margin: 0;
 }
-.portfolio-hover hr {
+.read-hover hr {
   margin-top: 10px;
   margin-bottom: 5px;
 }
-.portfolio-hover .hover-text>h4 {
+.read-hover .hover-text>h4 {
     opacity: 1;
     -webkit-transform: translateY(0);
     transform: translateY(0);
     transition: all 0.3s;
 }
-.portfolio-hover:hover .hover-text>h4 {
+.read-hover:hover .hover-text>h4 {
     opacity: 0;
     -webkit-backface-visibility: hidden;
     -webkit-transform: translateY(100%);
     transform: translateY(100%);
 }
-.portfolio-hover .hover-text>h6 {
+.read-hover .hover-text>h6 {
     text-transform: capitalize;
     font-style: italic;
     font-weight: 300;
@@ -624,13 +624,13 @@ a.portfolio-btn:hover, a.portfolio-btn:active {
     transition: all 0.3s;
     padding-top: 15px;
 }
-.portfolio-hover:hover .hover-text>h6 {
+.read-hover:hover .hover-text>h6 {
     opacity: 0;
     -webkit-backface-visibility: hidden;
     -webkit-transform: translateY(0);
     transform: translateY(0);
 }
-#portfolio .portfolio-item .portfolio-link .portfolio-hover {
+#read .read-item .read-link .read-hover {
     position: absolute;
     width: 100%;
     height: 100%;
