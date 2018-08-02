@@ -412,7 +412,7 @@ a.fa.fa-angle-down:focus {
 
 #about .pro-pic {
  width: 100%;
-    height: auto;
+    height: 100%;
   /*padding-top: 30px;*/
   /*visibility: hidden;
   position: absolute;*/
