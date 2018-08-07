@@ -628,8 +628,8 @@ a.portfolio-btn:hover, a.portfolio-btn:active {
     }
 }
 #portfolio .portfolio-title {
-    padding-bottom: 0px;
-    margin-bottom: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
 }
 #portfolio .filter-text {
     margin-bottom: 16px;
