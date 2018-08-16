@@ -19,6 +19,40 @@ p.a {
     clear: both;
     display: table;
 }
+/* Below is new */    
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 4px;
+}
+
+/* Create four equal columns that sits next to each other */
+.column {
+  flex: 25%;
+  max-width: 25%;
+  padding: 0 4px;
+}
+
+.column img {
+  margin-top: 8px;
+  vertical-align: middle;
+}
+
+/* Responsive layout - makes a two column-layout instead of four columns */
+@media screen and (max-width: 800px) {
+  .column {
+    flex: 50%;
+    max-width: 50%;
+  }
+}
+
+/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+  .column {
+    flex: 100%;
+    max-width: 100%;
+  }
+}    
 </style>
 <head>
 
@@ -280,6 +314,31 @@ p.a {
            Personal fashion collection coming soon!
           </p>
 </div>
+    <div class="row"> 
+  <div class="column">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/512BblrQFqL._SX327_BO1,204,203,200_.jpg">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/41Tx6fl0%2B9L._SX330_BO1,204,203,200_.jpg">
+  </div>      
+        <div class="row"> 
+  <div class="column">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/41xQkhvrU8L._SX331_BO1,204,203,200_.jpg">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/41RtytNpsfL._SX332_BO1,204,203,200_.jpg">
+  </div>  
+            <div class="row"> 
+  <div class="column">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/51m%2BXj6mAwL._SX330_BO1,204,203,200_.jpg">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/41jNJ1FrUlL._SY291_BO1,204,203,200_QL40_.jpg">
+  </div>  
+                <div class="row"> 
+  <div class="column">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/41TPutq5FRL._SX322_BO1,204,203,200_.jpg">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/41zp0BW9o1L._SY291_BO1,204,203,200_QL40_.jpg">
+  </div>  
+                    <div class="row"> 
+  <div class="column">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/41Gkykc9b7L._SY291_BO1,204,203,200_QL40_.jpg">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/410cnlPnD7L._SX325_BO1,204,203,200_.jpg">
+  </div>  
 </div>
     </div>
   </div>
