@@ -39,28 +39,12 @@ p.a {
     height:auto:
   vertical-align: middle;
 }
-
-/* Responsive layout - makes a two column-layout instead of four columns */
-@media screen and (max-width: 800px) {
-  .column {
-    flex: 5%;
-    max-width: 50%;
-  }
-}
-
-/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
-@media screen and (max-width: 600px) {
-  .column {
-    flex: 5%;
-    max-width: 45%;
-  }
-}    
-/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
-@media screen and (max-width: 400px) {
-  .column {
-    flex: 10%;
-    max-width: 35%;
-  }
+/*Makes book images responsive to screen size*/
+@media screen and (max-width: 760px) {
+      #primary, #secondary { 
+       max-width: 100%;
+       display: block;
+    }
 }
 </style>
 <head>
