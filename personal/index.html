@@ -185,6 +185,16 @@ p.a {
 
   gtag('config', 'UA-124051281-1');
 </script>
+	<script>
+		jQuery(document).ready(function ($) {
+    $(window).load(function () {
+        setTimeout(function(){
+            $('#preloader').fadeOut('slow', function () {
+            });
+        },2000); // set the time here
+    });  
+});
+		</script>
   <style>
   #intro {
     background: url(rainbow3.jpg);
