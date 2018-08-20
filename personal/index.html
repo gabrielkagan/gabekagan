@@ -139,6 +139,34 @@ p.a {
 		transform: rotateY(360deg);
 	}
 }
+.loading-page {
+  background: #0d0d0d
+  width: 100vw
+  height: 100vh
+  display: flex
+  justify-content: center
+  align-items: center
+	}
+  .counter {
+    text-align: center	
+	 hr
+      background: #f60d54 
+      border: none
+      height: 1px
+	}
+  .counter {
+    position: relative
+    width: 200px
+    h1.abs
+      position: absolute
+      top: 0
+      width: 100%
+	}
+    .color{
+      width: 0px
+      overflow: hidden
+      color: #f60d54 
+	}
 </style>
 <head>
 
@@ -185,8 +213,28 @@ p.a {
 
   gtag('config', 'UA-124051281-1');
 </script>
+<script>
+$(document).ready(function() {
+  
+  var counter = 0;
+  var c = 0;
+  var i = setInterval(function(){
+      $(".loading-page .counter h1").html(c + "%");
+      $(".loading-page .counter hr").css("width", c + "%");
+      //$(".loading-page .counter").css("background", "linear-gradient(to right, #f60d54 "+ c + "%,#0d0d0d "+ c + "%)");
 
-
+    /*
+    $(".loading-page .counter h1.color").css("width", c + "%");
+    */
+    counter++;
+    c++;
+      
+    if(counter == 101) {
+        clearInterval(i);
+    }
+  }, 50);
+});
+	</script>
   <style>
   #intro {
     background: url(rainbow3.jpg);
@@ -209,7 +257,15 @@ p.a {
   <![endif]-->
 
 </head>
-
+	<div class="loading-page">
+		<div class="counter">
+   <p> loading </p>
+   <h1> 0%</h1>
+			
+   <hr></hr>
+	</div>
+</div>	
+		
 <body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
   <!-- Navigation -->
   <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
