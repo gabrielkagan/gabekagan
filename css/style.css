@@ -965,7 +965,7 @@ ul.banner-social-buttons li a:hover, ul.banner-social-buttons li a:active {
 .list-inline>li {
     padding: 0px !important;
 }
-#facebook, #twitter, #instagram, #linkedin, #codepen, #github, #pinterest {
+#facebook, #twitter, #instagram, #linkedin, #twitch, #codepen, #github, #pinterest {
     /*border: 1px solid #fff !important;*/
 }
 #facebook:hover {
@@ -978,6 +978,9 @@ ul.banner-social-buttons li a:hover, ul.banner-social-buttons li a:active {
     background-color: #517fa4;
 }
 #linkedin:hover {
+    background-color: #0077B5
+}
+#twitch:hover {
     background-color: #0077B5
 }
 #codepen:hover {
