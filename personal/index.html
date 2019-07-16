@@ -621,8 +621,8 @@ p.a {
 <p>Click the button to get the number of the number field.</p>
 
 <button onclick="myFunction()">Calculate</button>
-<p id="pm15"></p>
-<p id="pm60"></p>
+<p 15 Minute PM Ratio: id="pm15"></p>
+<p 60 Minute PM Ratio: id="pm60"></p>
 <script>
 function myFunction() {
   var x = document.getElementById("stockPrice").value;
@@ -635,10 +635,8 @@ var pm60 = (x/z)
 document.getElementById("pm15").innerHTML = pm15;
 document.getElementById("pm60").innerHTML = pm60;
 if ((y-w)<.1 && pm15 < 20 && pm60 <20)
-document.write('Enter Short Position');
 alert('Enter Short Position');
 else
-document.write('Do Not Enter Short Position');
 alert('Do Not Enter Short Position');
 }
 </script>
