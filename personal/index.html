@@ -631,7 +631,7 @@ var w = document.getElementById("trigger").value;
 var e = y-w
 var pm15 = (x/y)
 var pm60 = (x/z)
-if (e<.1 && pm15 > 20 && pm60 >20)
+if (e<.1 && pm15 < 20 && pm60 <20)
 alert('Enter Short Position');
 else
 alert('Do Not Enter Short Position');
