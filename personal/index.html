@@ -612,9 +612,24 @@ p.a {
     <div class="row">
       <div class="col-lg-12">
         <h2 class="portfolio-title"><span></span></h2>
-        <div class="project-text">
-	    <input type="number" id="myNumber" value="">
-	</div>
+        <h3>A demonstration of how to access a Number field</h3>
+
+<input type="number" id="myNumber" value="2">
+
+<p>Click the button to get the number of the number field.</p>
+
+<button onclick="myFunction()">Try it</button>
+
+<p><strong>Note:</strong> input elements with type="number" are not supported in IE 9 and earlier versions.</p>
+
+<p id="demo"></p>
+
+<script>
+function myFunction() {
+  var x = document.getElementById("myNumber").value;
+  document.getElementById("demo").innerHTML = x;
+}
+</script>
 
     </div>
   </div>
