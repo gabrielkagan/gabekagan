@@ -622,8 +622,6 @@ p.a {
 
 <button onclick="myFunction()">Try it</button>
 
-<p id="demo"></p>
-
 <script>
 function myFunction() {
   var x = document.getElementById("stockPrice").value;
@@ -631,7 +629,12 @@ var y = document.getElementById("MACD15").value;
 var z = document.getElementById("MACD60").value;
 var w = document.getElementById("trigger").value;
 var e = y-w
-  document.getElementById("demo").innerHTML = e;
+var pm15 = (x/y)
+var pm60 = (x/z)
+if (e>=.1)
+alert('Do not enter Short');
+else
+alert('Enter short position');
 }
 </script>
 
