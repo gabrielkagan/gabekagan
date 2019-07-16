@@ -634,14 +634,10 @@ var pm15 = (x/y)
 var pm60 = (x/z)
 document.getElementById("pm15").innerHTML = pm15;
 document.getElementById("pm60").innerHTML = pm60;
-if ((y-w)<.1 && pm15 < 20 && pm60 <20){
-greeting = "15 Minute PM Ratio:" pm15 "| 60 Minute PM Ratio:" pm60;
+if ((y-w)<.1 && pm15 < 20 && pm60 <20)
 alert('Enter Short Position');
-else{
-greeting = "15 Minute PM Ratio:" pm15 "| 60 Minute PM Ratio:" pm60;
+else
 alert('Do Not Enter Short Position');
-}
-document.getElementById("demo").innerHTML = greeting;
 }
 </script>
 
