@@ -627,7 +627,11 @@ p.a {
 <script>
 function myFunction() {
   var x = document.getElementById("stockPrice").value;
-  document.getElementById("demo").innerHTML = x;
+var y = document.getElementById("MACD15").value;
+var z = document.getElementById("MACD60").value;
+var w = document.getElementById("trigger").value;
+var e = y-z
+  document.getElementById("demo").innerHTML = e;
 }
 </script>
 
