@@ -460,6 +460,20 @@
     <div id="elBandit"><div class="empty">Learning…</div></div>
   </div>
 
+  <!-- Position Additions -->
+  <div class="cell stink-cell">
+    <div class="cell-label">Position Additions
+      <span class="tag" id="elStinkCount" style="background:var(--blue-bg);color:var(--blue-0);margin-left:6px">0 active</span>
+    </div>
+    <div class="s-grid" style="margin-bottom:8px">
+      <div class="s-box"><div class="s-val" id="elStinkPlaced">0</div><div class="s-lbl">Stink Placed</div></div>
+      <div class="s-box"><div class="s-val" id="elStinkFilled">0</div><div class="s-lbl">Stink Filled</div></div>
+      <div class="s-box"><div class="s-val" id="elStinkCancelled">0</div><div class="s-lbl">Cancelled</div></div>
+      <div class="s-box"><div class="s-val" id="elAdditions">0</div><div class="s-lbl">Active Adds</div></div>
+    </div>
+    <div id="elStinkList"><div class="empty">No stink bids</div></div>
+  </div>
+
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
@@ -644,6 +658,34 @@ function renderBandit(s) {
   }).join('');
 }
 
+function renderStinkBids(s) {
+  // Update counters
+  $('elStinkCount').textContent = (s.stink_bids_count || 0) + ' active';
+  $('elStinkPlaced').textContent = s.stink_bids_placed || 0;
+  $('elStinkFilled').textContent = s.stink_bids_filled || 0;
+  $('elStinkCancelled').textContent = s.stink_bids_cancelled || 0;
+  $('elAdditions').textContent = s.additions_placed || 0;
+  // Update list
+  const box = $('elStinkList');
+  const bids = s.stink_bids || [];
+  if (!bids.length) { box.innerHTML = '<div class="empty">No stink bids</div>'; return; }
+  box.innerHTML = bids.map(b => {
+    const rest = Math.round(b.rest_seconds || 0);
+    const restStr = rest > 60 ? Math.round(rest/60)+'m' : rest+'s';
+    const dir = (b.direction||'?').toUpperCase();
+    const colors = { yes: 'var(--green-0)', no: 'var(--red-0)' };
+    const dirColor = colors[(b.direction||'').toLowerCase()] || 'var(--dim)';
+    return `<div class="order-row">
+      <span class="ord-ticker">${(b.ticker||'?').slice(-15)}</span>
+      <span class="ord-side" style="color:${dirColor}">${dir}</span>
+      <span class="ord-price">${b.price_cents||0}¢</span>
+      <span class="ord-ct">${b.count||0}x</span>
+      <span class="ord-z">${b.label||''}</span>
+      <span class="ord-rest">${restStr}</span>
+    </div>`;
+  }).join('');
+}
+
 // ── Main update ──
 function update(s) {
   if (!s) return;
@@ -703,6 +745,7 @@ function update(s) {
   renderOrders(s);
   renderFeed(s);
   renderBandit(s);
+  renderStinkBids(s);
 }
 
 // ── Real-time listener ──
