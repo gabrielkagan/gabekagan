@@ -244,9 +244,9 @@
   .bn-wl { font-family: var(--mono); font-size: 9px; color: var(--text-3); min-width: 50px; text-align: right; }
 
   /* ═══ Activity Feed ═══ */
-  .feed-cell { grid-column: span 8; }
+  .feed-cell { grid-column: span 12; }
   .feed-scroll {
-    max-height: 400px; overflow-y: auto;
+    max-height: 500px; overflow-y: auto;
     scrollbar-width: thin; scrollbar-color: var(--border-1) transparent;
   }
   .feed-scroll::-webkit-scrollbar { width: 3px; }
@@ -267,12 +267,18 @@
     min-width: 50px; text-align: center; flex-shrink: 0;
   }
   .f-type.fill { background: var(--green-bg); color: var(--green-0); }
+  .f-type.win { background: var(--green-bg); color: var(--green-0); font-weight: 700; }
+  .f-type.loss { background: var(--red-bg); color: var(--red-0); font-weight: 700; }
   .f-type.order { background: var(--blue-bg); color: var(--blue-0); }
   .f-type.cancel { background: var(--red-bg); color: var(--red-0); }
   .f-type.settle { background: var(--violet-bg); color: var(--violet-0); }
   .f-type.endgame { background: var(--amber-bg); color: var(--amber-0); }
-  .f-type.scan { background: rgba(255,255,255,0.03); color: var(--text-3); }
+  .f-type.status { background: rgba(16,185,129,0.1); color: var(--green-0); font-weight: 700; }
   .f-type.decision { background: rgba(56,189,248,0.07); color: var(--blue-0); }
+  .f-type.garch { background: rgba(167,139,250,0.06); color: var(--violet-0); }
+  .f-type.warn { background: rgba(244,63,94,0.12); color: var(--red-0); font-weight: 700; }
+  .f-type.scan { background: rgba(255,255,255,0.03); color: var(--text-3); }
+  .f-type.log { background: rgba(255,255,255,0.02); color: var(--text-3); }
   .f-msg {
     font-family: var(--mono); font-size: 10px; color: var(--text-1);
     line-height: 1.5; word-break: break-word;
@@ -523,12 +529,18 @@ function cls(v) { return v > 0 ? 'up' : v < 0 ? 'dn' : 'flat'; }
 
 function typeClass(t) {
   if (/FILL/.test(t)) return 'fill';
-  if (/PLACE|BATCH_PLACE|BID|REPRICE/.test(t)) return 'order';
-  if (/CANCEL|EXPIRE/.test(t)) return 'cancel';
+  if (/WIN/.test(t)) return 'win';
+  if (/LOSS/.test(t)) return 'loss';
+  if (/ORDER|MARKET/.test(t)) return 'order';
+  if (/CANCEL|IOC/.test(t)) return 'cancel';
   if (/SETTLE/.test(t)) return 'settle';
   if (/ENDGAME/.test(t)) return 'endgame';
-  if (/DECISION|EVAL|SKIP/.test(t)) return 'decision';
-  return 'scan';
+  if (/EVAL|CORR/.test(t)) return 'decision';
+  if (/STATUS/.test(t)) return 'status';
+  if (/GARCH|FEED/.test(t)) return 'garch';
+  if (/WARN|ERROR/.test(t)) return 'warn';
+  if (/SCAN/.test(t)) return 'scan';
+  return 'log';
 }
 
 // ── Renderers ──
@@ -600,12 +612,12 @@ function renderFeed(s) {
   lastEventCount = evts.length;
   $('elEvtCount').textContent = evts.length;
   const box = $('elFeed');
-  const rev = [...evts].reverse().slice(0, 80);
+  const rev = [...evts].reverse().slice(0, 150);
   if (!rev.length) { box.innerHTML = '<div class="empty">Waiting for activity…</div>'; return; }
   box.innerHTML = rev.map(e => {
     const tc = typeClass(e.type || '');
-    const label = (e.type || 'EVENT').replace(/_/g, ' ').slice(0, 9);
-    const msg = e.msg || e.message || JSON.stringify(e).slice(0, 180);
+    const label = (e.type || 'LOG').replace(/_/g, ' ').slice(0, 9);
+    const msg = e.msg || e.message || JSON.stringify(e).slice(0, 300);
     return `<div class="f-item">
       <span class="f-time">${fmtTime(e.ts)}</span>
       <span class="f-type ${tc}">${label}</span>
