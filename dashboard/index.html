@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trading Dashboard — Gabe Kagan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-0: #06080d;
+    --bg-1: #0c1018;
+    --bg-2: #121822;
+    --bg-3: #1a2233;
+    --border-0: #1a2233;
+    --border-1: #243044;
+    --text-0: #e8ecf4;
+    --text-1: #a0aec0;
+    --text-2: #64748b;
+    --text-3: #475569;
+    --green-0: #10b981;
+    --green-1: #059669;
+    --green-bg: rgba(16,185,129,0.07);
+    --green-border: rgba(16,185,129,0.15);
+    --red-0: #f43f5e;
+    --red-1: #e11d48;
+    --red-bg: rgba(244,63,94,0.07);
+    --red-border: rgba(244,63,94,0.15);
+    --blue-0: #38bdf8;
+    --blue-bg: rgba(56,189,248,0.07);
+    --blue-border: rgba(56,189,248,0.15);
+    --amber-0: #fbbf24;
+    --amber-bg: rgba(251,191,36,0.07);
+    --amber-border: rgba(251,191,36,0.15);
+    --violet-0: #a78bfa;
+    --violet-bg: rgba(167,139,250,0.07);
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-0);
+    color: var(--text-0);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ═══ Noise texture overlay ═══ */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ═══ Header ═══ */
+  .hdr {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px;
+    background: rgba(6,8,13,0.85);
+    backdrop-filter: blur(16px) saturate(1.2);
+    border-bottom: 1px solid var(--border-0);
+  }
+  .hdr-left { display: flex; align-items: center; gap: 16px; }
+  .hdr-logo {
+    font-family: var(--mono); font-weight: 700; font-size: 15px;
+    letter-spacing: 1px; color: var(--text-2);
+  }
+  .hdr-logo b { color: var(--green-0); }
+  .hdr-pill {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    padding: 3px 10px; border-radius: 100px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .hdr-pill.live { background: var(--green-bg); color: var(--green-0); border: 1px solid var(--green-border); }
+  .hdr-pill.stale { background: var(--amber-bg); color: var(--amber-0); border: 1px solid var(--amber-border); }
+  .hdr-pill.off { background: var(--red-bg); color: var(--red-0); border: 1px solid var(--red-border); }
+  .hdr-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: currentColor;
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .hdr-right {
+    display: flex; align-items: center; gap: 14px;
+    font-family: var(--mono); font-size: 11px; color: var(--text-3);
+  }
+  .hdr-sep { color: var(--border-1); }
+
+  /* ═══ Grid layout ═══ */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1px;
+    background: var(--border-0);
+    margin-top: 1px;
+  }
+  .cell {
+    background: var(--bg-1);
+    padding: 20px 22px;
+    overflow: hidden;
+    min-width: 0;
+    animation: cellIn 0.4s ease both;
+  }
+  @keyframes cellIn { from { opacity: 0; transform: translateY(6px); } }
+  .cell:nth-child(1) { animation-delay: 0.05s; }
+  .cell:nth-child(2) { animation-delay: 0.1s; }
+  .cell:nth-child(3) { animation-delay: 0.15s; }
+  .cell:nth-child(4) { animation-delay: 0.2s; }
+  .cell:nth-child(5) { animation-delay: 0.25s; }
+  .cell:nth-child(6) { animation-delay: 0.3s; }
+  .cell:nth-child(7) { animation-delay: 0.35s; }
+  .cell:nth-child(8) { animation-delay: 0.4s; }
+
+  .cell-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--text-3); margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cell-label .tag {
+    font-size: 9px; padding: 2px 7px; border-radius: 4px;
+    font-weight: 600; letter-spacing: 0.5px; text-transform: none;
+  }
+
+  /* ═══ Hero — Balance ═══ */
+  .hero { grid-column: span 4; }
+  .bal-num {
+    font-family: var(--mono); font-size: 42px; font-weight: 700;
+    letter-spacing: -2px; line-height: 1;
+  }
+  .pnl-row { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; }
+  .pnl-abs { font-family: var(--mono); font-size: 22px; font-weight: 600; }
+  .pnl-pct { font-family: var(--mono); font-size: 14px; font-weight: 500; }
+  .up { color: var(--green-0); }
+  .dn { color: var(--red-0); }
+  .flat { color: var(--text-3); }
+  .bal-meta {
+    margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  }
+  .bm { font-size: 12px; color: var(--text-3); }
+  .bm span { font-family: var(--mono); color: var(--text-1); font-weight: 500; }
+
+  /* ═══ Stats row ═══ */
+  .stats-cell { grid-column: span 4; }
+  .s-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .s-box {
+    text-align: center; padding: 14px 8px; border-radius: 8px;
+    border: 1px solid var(--border-0); background: var(--bg-2);
+  }
+  .s-val { font-family: var(--mono); font-size: 24px; font-weight: 700; line-height: 1.2; }
+  .s-lbl {
+    font-size: 9px; color: var(--text-3); text-transform: uppercase;
+    letter-spacing: 0.8px; margin-top: 4px;
+  }
+
+  /* ═══ Win/Loss ═══ */
+  .wl-cell { grid-column: span 4; }
+  .wl-top { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .wl-nums { white-space: nowrap; }
+  .wl-big { font-family: var(--mono); font-size: 28px; font-weight: 700; }
+  .wl-lbl { font-size: 13px; color: var(--text-3); }
+  .wl-slash { color: var(--text-3); margin: 0 4px; font-size: 20px; }
+  .wl-track {
+    flex: 1; height: 6px; border-radius: 3px;
+    background: var(--red-bg); overflow: hidden;
+  }
+  .wl-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--green-1), var(--green-0));
+    transition: width 0.6s ease;
+  }
+  .wl-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+  /* ═══ Asset Prices ═══ */
+  .prices-cell { grid-column: span 3; }
+  .asset-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 10px; border-radius: 6px; margin-bottom: 3px;
+    transition: background 0.15s;
+  }
+  .asset-row:hover { background: var(--bg-3); }
+  .a-name { font-family: var(--mono); font-weight: 600; font-size: 12px; min-width: 36px; }
+  .a-name.btc { color: #f7931a; } .a-name.eth { color: #849dff; }
+  .a-name.sol { color: #b86eff; } .a-name.xrp { color: #23c4d8; }
+  .a-price { font-family: var(--mono); font-size: 14px; font-weight: 500; color: var(--text-0); }
+  .a-feed {
+    font-family: var(--mono); font-size: 9px; font-weight: 600;
+    padding: 2px 6px; border-radius: 3px;
+  }
+  .a-feed.ok { background: var(--green-bg); color: var(--green-0); }
+  .a-feed.bad { background: var(--red-bg); color: var(--red-0); }
+
+  /* ═══ Volatility ═══ */
+  .vol-cell { grid-column: span 5; }
+  .vol-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .vol-box {
+    padding: 10px 12px; border-radius: 6px;
+    border: 1px solid var(--border-0); background: var(--bg-2);
+  }
+  .vol-name { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--text-3); }
+  .vol-val { font-family: var(--mono); font-size: 20px; font-weight: 600; margin-top: 2px; }
+  .vol-sub { font-family: var(--mono); font-size: 9px; color: var(--text-3); margin-top: 2px; }
+
+  /* ═══ Orders ═══ */
+  .orders-cell { grid-column: span 4; grid-row: span 2; }
+  .ord-item {
+    padding: 10px 12px; border-radius: 6px; margin-bottom: 5px;
+    border: 1px solid var(--border-0); background: var(--bg-2);
+    transition: border-color 0.2s;
+  }
+  .ord-item:hover { border-color: var(--border-1); }
+  .ord-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+  .ord-ticker { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text-0); }
+  .ord-tag {
+    font-family: var(--mono); font-size: 9px; padding: 2px 6px;
+    border-radius: 3px; font-weight: 600;
+  }
+  .ord-tag.endgame { background: var(--amber-bg); color: var(--amber-0); }
+  .ord-tag.maker { background: var(--blue-bg); color: var(--blue-0); }
+  .ord-details {
+    display: flex; gap: 10px; font-family: var(--mono); font-size: 10px; color: var(--text-1);
+  }
+  .ord-details .dim { color: var(--text-3); }
+
+  /* ═══ Bandit ═══ */
+  .bandit-cell { grid-column: span 4; }
+  .bn-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px; border-radius: 5px; margin-bottom: 3px;
+    border: 1px solid var(--border-0); background: var(--bg-2);
+  }
+  .bn-name { font-family: var(--mono); font-weight: 600; font-size: 11px; min-width: 32px; }
+  .bn-mult { font-family: var(--mono); font-size: 14px; font-weight: 700; min-width: 40px; }
+  .bn-track { flex: 1; height: 3px; background: var(--border-0); border-radius: 2px; overflow: hidden; }
+  .bn-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+  .bn-wl { font-family: var(--mono); font-size: 9px; color: var(--text-3); min-width: 50px; text-align: right; }
+
+  /* ═══ Activity Feed ═══ */
+  .feed-cell { grid-column: span 8; }
+  .feed-scroll {
+    max-height: 400px; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: var(--border-1) transparent;
+  }
+  .feed-scroll::-webkit-scrollbar { width: 3px; }
+  .feed-scroll::-webkit-scrollbar-thumb { background: var(--border-1); border-radius: 2px; }
+  .f-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.025);
+    animation: fadeSlide 0.3s ease;
+  }
+  @keyframes fadeSlide { from { opacity: 0; transform: translateX(-4px); } }
+  .f-time {
+    font-family: var(--mono); font-size: 9px; color: var(--text-3);
+    min-width: 58px; flex-shrink: 0; padding-top: 2px;
+  }
+  .f-type {
+    font-family: var(--mono); font-size: 9px; font-weight: 600;
+    padding: 2px 5px; border-radius: 3px;
+    min-width: 50px; text-align: center; flex-shrink: 0;
+  }
+  .f-type.fill { background: var(--green-bg); color: var(--green-0); }
+  .f-type.order { background: var(--blue-bg); color: var(--blue-0); }
+  .f-type.cancel { background: var(--red-bg); color: var(--red-0); }
+  .f-type.settle { background: var(--violet-bg); color: var(--violet-0); }
+  .f-type.endgame { background: var(--amber-bg); color: var(--amber-0); }
+  .f-type.scan { background: rgba(255,255,255,0.03); color: var(--text-3); }
+  .f-type.decision { background: rgba(56,189,248,0.07); color: var(--blue-0); }
+  .f-msg {
+    font-family: var(--mono); font-size: 10px; color: var(--text-1);
+    line-height: 1.5; word-break: break-word;
+  }
+
+  /* ═══ Empty states ═══ */
+  .empty {
+    text-align: center; padding: 28px 12px;
+    color: var(--text-3); font-size: 12px;
+    font-family: var(--mono);
+  }
+  .empty.lg { font-size: 14px; padding: 60px 20px; }
+
+  /* ═══ Config banner ═══ */
+  .config-banner {
+    position: fixed; inset: 0; z-index: 10000;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(6,8,13,0.95); backdrop-filter: blur(20px);
+  }
+  .config-banner.hidden { display: none; }
+  .config-box {
+    max-width: 520px; width: 90%; padding: 40px;
+    background: var(--bg-2); border: 1px solid var(--border-1);
+    border-radius: 12px; text-align: center;
+  }
+  .config-box h2 {
+    font-family: var(--mono); font-size: 18px; font-weight: 600;
+    margin-bottom: 12px; color: var(--text-0);
+  }
+  .config-box p {
+    font-size: 13px; color: var(--text-2); margin-bottom: 20px; line-height: 1.6;
+  }
+  .config-box code {
+    background: var(--bg-3); padding: 2px 6px; border-radius: 4px;
+    font-family: var(--mono); font-size: 12px; color: var(--amber-0);
+  }
+
+  /* ═══ Responsive ═══ */
+  @media (max-width: 1100px) {
+    .grid { grid-template-columns: repeat(6, 1fr); }
+    .hero, .stats-cell, .wl-cell { grid-column: span 6; }
+    .prices-cell { grid-column: span 3; }
+    .vol-cell { grid-column: span 3; }
+    .orders-cell { grid-column: span 6; grid-row: auto; }
+    .bandit-cell { grid-column: span 6; }
+    .feed-cell { grid-column: span 6; }
+  }
+  @media (max-width: 700px) {
+    .grid { grid-template-columns: 1fr; }
+    .hero, .stats-cell, .wl-cell, .prices-cell, .vol-cell,
+    .orders-cell, .bandit-cell, .feed-cell { grid-column: 1 / -1; }
+    .bal-num { font-size: 32px; }
+    .vol-grid { grid-template-columns: repeat(2, 1fr); }
+    .hdr { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Config overlay (shown if Firebase not configured) -->
+<div class="config-banner hidden" id="configBanner">
+  <div class="config-box">
+    <h2>Dashboard Not Connected</h2>
+    <p>
+      Edit this file and replace the Firebase config at the bottom of the HTML
+      with your project's credentials from the Firebase console.
+      <br><br>
+      Look for <code>YOUR_VALUES_HERE</code> in the source.
+    </p>
+  </div>
+</div>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-logo"><b>◆</b> KALSHI BOT</div>
+    <div class="hdr-pill off" id="pill">
+      <div class="hdr-dot"></div>
+      <span id="pillText">CONNECTING</span>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <span id="elSession">—</span>
+    <span class="hdr-sep">·</span>
+    <span id="elScan">scan #0</span>
+    <span class="hdr-sep">·</span>
+    <span id="elMode">—</span>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- Balance -->
+  <div class="cell hero">
+    <div class="cell-label">
+      Balance
+      <span class="tag" id="elDDBadge" style="background:var(--green-bg);color:var(--green-0)">Kelly 1.00x</span>
+    </div>
+    <div class="bal-num" id="elBal">$—</div>
+    <div class="pnl-row">
+      <div class="pnl-abs flat" id="elPnl">$0.00</div>
+      <div class="pnl-pct flat" id="elPnlPct">(0.0%)</div>
+    </div>
+    <div class="bal-meta">
+      <div class="bm">Start <span id="elStart">$—</span></div>
+      <div class="bm">Peak <span id="elPeak">$—</span></div>
+      <div class="bm">Streak <span id="elStreak">0L</span></div>
+      <div class="bm">Interval <span id="elInterval">—</span></div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="cell stats-cell">
+    <div class="cell-label">Session</div>
+    <div class="s-grid">
+      <div class="s-box"><div class="s-val" id="elFills">0</div><div class="s-lbl">Fills</div></div>
+      <div class="s-box"><div class="s-val" id="elOrders">0</div><div class="s-lbl">Orders</div></div>
+      <div class="s-box"><div class="s-val" id="elFR">0%</div><div class="s-lbl">Fill Rate</div></div>
+      <div class="s-box"><div class="s-val" id="elMkts">0</div><div class="s-lbl">Markets</div></div>
+      <div class="s-box"><div class="s-val" id="elEG">0/0</div><div class="s-lbl">Endgame</div></div>
+      <div class="s-box"><div class="s-val" id="elRest">0</div><div class="s-lbl">Resting</div></div>
+    </div>
+  </div>
+
+  <!-- Win / Loss -->
+  <div class="cell wl-cell">
+    <div class="cell-label">Win / Loss</div>
+    <div class="wl-top">
+      <div class="wl-nums">
+        <span class="wl-big up" id="elW">0</span><span class="wl-lbl">W</span>
+        <span class="wl-slash">/</span>
+        <span class="wl-big dn" id="elL">0</span><span class="wl-lbl">L</span>
+      </div>
+      <div class="wl-track"><div class="wl-fill" id="elWLBar" style="width:50%"></div></div>
+    </div>
+    <div class="wl-meta">
+      <div class="bm">Settled W <span class="up" id="elSW">0</span></div>
+      <div class="bm">Settled L <span class="dn" id="elSL">0</span></div>
+      <div class="bm">Trades <span id="elTrades">0</span></div>
+      <div class="bm">Cancels <span id="elCancels">0</span></div>
+    </div>
+  </div>
+
+  <!-- Asset Prices -->
+  <div class="cell prices-cell">
+    <div class="cell-label">Prices</div>
+    <div id="elPrices"><div class="empty">Waiting…</div></div>
+  </div>
+
+  <!-- Volatility -->
+  <div class="cell vol-cell">
+    <div class="cell-label">
+      Volatility
+      <span class="tag" id="elVolSrc" style="background:var(--blue-bg);color:var(--blue-0)">EWMA</span>
+    </div>
+    <div class="vol-grid" id="elVol"><div class="empty" style="grid-column:1/-1">Warming up…</div></div>
+  </div>
+
+  <!-- Resting Orders -->
+  <div class="cell orders-cell">
+    <div class="cell-label">
+      Resting Orders
+      <span class="tag" id="elRestBadge" style="background:var(--blue-bg);color:var(--blue-0)">0</span>
+    </div>
+    <div id="elOrdersList"><div class="empty">No resting orders</div></div>
+  </div>
+
+  <!-- Activity Feed -->
+  <div class="cell feed-cell">
+    <div class="cell-label">
+      Activity
+      <span class="tag" id="elEvtCount" style="background:rgba(255,255,255,0.04);color:var(--text-3)">0</span>
+    </div>
+    <div class="feed-scroll" id="elFeed"><div class="empty">Waiting for activity…</div></div>
+  </div>
+
+  <!-- Asset Bandit -->
+  <div class="cell bandit-cell">
+    <div class="cell-label">Asset Bandit</div>
+    <div id="elBandit"><div class="empty">Learning…</div></div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- Firebase SDK (modular, from CDN — no build step needed)            -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+// ┌──────────────────────────────────────────────────────────────────┐
+// │  REPLACE THESE WITH YOUR FIREBASE PROJECT CONFIG                │
+// │  (Firebase Console → Project Settings → General → Your apps)    │
+// └──────────────────────────────────────────────────────────────────┘
+const firebaseConfig = {
+  apiKey: "AIzaSyBJbVGMyx7qRsY3H0ZAJI9eIpfw_4JlUNY",
+  authDomain: "kalshi-dashboard-de0ac.firebaseapp.com",
+  databaseURL: "https://kalshi-dashboard-de0ac-default-rtdb.firebaseio.com",
+  projectId: "kalshi-dashboard-de0ac",
+  storageBucket: "kalshi-dashboard-de0ac.firebasestorage.app",
+  messagingSenderId: "635502019270",
+  appId: "1:635502019270:web:bcd3e3bf604c1959668dc7"
+};
+
+// ── Check if configured ──
+if (firebaseConfig.apiKey === "YOUR_VALUES_HERE") {
+  document.getElementById('configBanner').classList.remove('hidden');
+}
+
+// ── Init Firebase ──
+let db;
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getDatabase(app);
+} catch (e) {
+  console.error("Firebase init failed:", e);
+  document.getElementById('configBanner').classList.remove('hidden');
+}
+
+// ── State ──
+let lastUpdate = 0;
+let lastEventCount = 0;
+
+// ── Helpers ──
+const $ = id => document.getElementById(id);
+const fmtMoney = v => v != null ? '$' + Math.abs(v).toFixed(2) : '$—';
+const fmtPct = v => v != null ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : '0.0%';
+
+function fmtPrice(v, asset) {
+  if (v == null) return 'N/A';
+  if (asset === 'BTC' || asset === 'ETH')
+    return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return '$' + v.toFixed(4);
+}
+
+function fmtTime(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+function fmtDuration(iso) {
+  if (!iso) return '—';
+  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m`;
+}
+
+function cls(v) { return v > 0 ? 'up' : v < 0 ? 'dn' : 'flat'; }
+
+function typeClass(t) {
+  if (/FILL/.test(t)) return 'fill';
+  if (/PLACE|BATCH_PLACE|BID|REPRICE/.test(t)) return 'order';
+  if (/CANCEL|EXPIRE/.test(t)) return 'cancel';
+  if (/SETTLE/.test(t)) return 'settle';
+  if (/ENDGAME/.test(t)) return 'endgame';
+  if (/DECISION|EVAL|SKIP/.test(t)) return 'decision';
+  return 'scan';
+}
+
+// ── Renderers ──
+function renderPrices(s) {
+  const box = $('elPrices');
+  const ap = s.asset_prices || {};
+  const fh = s.feed_health || {};
+  if (!Object.keys(ap).length) return;
+  box.innerHTML = Object.entries(ap).map(([n, p]) => {
+    const ok = (fh[n] || {}).healthy !== false;
+    return `<div class="asset-row">
+      <span class="a-name ${n.toLowerCase()}">${n}</span>
+      <span class="a-price">${fmtPrice(p, n)}</span>
+      <span class="a-feed ${ok ? 'ok' : 'bad'}">${ok ? 'OK' : 'DOWN'}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderVol(s) {
+  const box = $('elVol');
+  const g = s.garch_vol || {};
+  if (!Object.keys(g).length && s.volatility == null) return;
+  if (Object.keys(g).length) {
+    box.innerHTML = Object.entries(g).map(([a, i]) => {
+      const v = i.vol != null ? (i.vol * 100).toFixed(1) + '%' : '—';
+      const vr = i.vol_ratio != null ? i.vol_ratio.toFixed(2) + 'x' : '—';
+      return `<div class="vol-box">
+        <div class="vol-name">${a}</div>
+        <div class="vol-val">${v}</div>
+        <div class="vol-sub">VR ${vr} · ${i.source || 'ewma'} · n=${i.n_returns || 0}</div>
+      </div>`;
+    }).join('');
+  } else {
+    const v = s.volatility != null ? (s.volatility * 100).toFixed(1) + '%' : '—';
+    box.innerHTML = `<div class="vol-box" style="grid-column:1/-1">
+      <div class="vol-name">BTC (EWMA)</div><div class="vol-val">${v}</div>
+    </div>`;
+  }
+  $('elVolSrc').textContent = s.vol_source ? s.vol_source.toUpperCase() : 'EWMA';
+}
+
+function renderOrders(s) {
+  const box = $('elOrdersList');
+  const ords = s.resting_orders || [];
+  $('elRestBadge').textContent = ords.length;
+  if (!ords.length) { box.innerHTML = '<div class="empty">No resting orders</div>'; return; }
+  box.innerHTML = ords.map(o => {
+    const eg = o.endgame || o.price_cents >= 99;
+    const tk = o.ticker || '??';
+    const short = tk.length > 22 ? '…' + tk.slice(-17) : tk;
+    return `<div class="ord-item">
+      <div class="ord-top">
+        <span class="ord-ticker">${short}</span>
+        <span class="ord-tag ${eg ? 'endgame' : 'maker'}">${eg ? 'ENDGAME' : (o.tier_name || 'MAKER')}</span>
+      </div>
+      <div class="ord-details">
+        <span><span class="dim">bid</span> ${o.price_cents || '?'}¢</span>
+        <span><span class="dim">qty</span> ${o.count || '?'}</span>
+        <span><span class="dim">z</span> ${(o.z_score || 0).toFixed(1)}</span>
+        <span>${o.direction || '?'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderFeed(s) {
+  const evts = s.events || [];
+  if (evts.length === lastEventCount) return;
+  lastEventCount = evts.length;
+  $('elEvtCount').textContent = evts.length;
+  const box = $('elFeed');
+  const rev = [...evts].reverse().slice(0, 80);
+  if (!rev.length) { box.innerHTML = '<div class="empty">Waiting for activity…</div>'; return; }
+  box.innerHTML = rev.map(e => {
+    const tc = typeClass(e.type || '');
+    const label = (e.type || 'EVENT').replace(/_/g, ' ').slice(0, 9);
+    const msg = e.msg || e.message || JSON.stringify(e).slice(0, 180);
+    return `<div class="f-item">
+      <span class="f-time">${fmtTime(e.ts)}</span>
+      <span class="f-type ${tc}">${label}</span>
+      <span class="f-msg">${msg}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderBandit(s) {
+  const box = $('elBandit');
+  const bn = s.asset_bandit || {};
+  if (!Object.keys(bn).length) return;
+  const colors = { BTC: '#f7931a', ETH: '#849dff', SOL: '#b86eff', XRP: '#23c4d8' };
+  box.innerHTML = Object.entries(bn).map(([a, i]) => {
+    const m = (i.multiplier || 1).toFixed(1);
+    const p = i.posterior || 0.5;
+    const c = colors[a] || 'var(--blue-0)';
+    return `<div class="bn-row">
+      <span class="bn-name" style="color:${c}">${a}</span>
+      <span class="bn-mult">${m}x</span>
+      <div class="bn-track"><div class="bn-fill" style="width:${Math.round(p*100)}%;background:${c}"></div></div>
+      <span class="bn-wl">${i.wins||0}W / ${i.losses||0}L</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Main update ──
+function update(s) {
+  if (!s) return;
+  lastUpdate = Date.now();
+
+  // Status pill
+  const pill = $('pill');
+  pill.className = 'hdr-pill live';
+  $('pillText').textContent = 'LIVE';
+
+  // Header
+  $('elSession').textContent = fmtDuration(s.session_start);
+  $('elScan').textContent = 'scan #' + (s.scan_count || 0);
+  $('elMode').textContent = s.mode || '—';
+
+  // Balance
+  const bal = s.balance || 0;
+  const pnl = s.pnl || 0;
+  const pp = s.pnl_pct || 0;
+  $('elBal').textContent = '$' + bal.toFixed(2);
+  $('elPnl').textContent = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2);
+  $('elPnl').className = 'pnl-abs ' + cls(pnl);
+  $('elPnlPct').textContent = '(' + fmtPct(pp) + ')';
+  $('elPnlPct').className = 'pnl-pct ' + cls(pp);
+  $('elStart').textContent = '$' + (s.starting_balance || 0).toFixed(2);
+  $('elPeak').textContent = '$' + (s.session_high_balance || 0).toFixed(2);
+  $('elStreak').textContent = (s.consecutive_losses || 0) + 'L';
+  $('elInterval').textContent = (s.scan_interval || 0).toFixed(1) + 's';
+
+  const dd = s.drawdown_kelly_mult || 1;
+  const badge = $('elDDBadge');
+  badge.textContent = 'Kelly ' + dd.toFixed(2) + 'x';
+  badge.style.background = dd >= 1 ? 'var(--green-bg)' : dd >= 0.5 ? 'var(--amber-bg)' : 'var(--red-bg)';
+  badge.style.color = dd >= 1 ? 'var(--green-0)' : dd >= 0.5 ? 'var(--amber-0)' : 'var(--red-0)';
+
+  // Stats
+  $('elFills').textContent = s.fills_today || 0;
+  $('elOrders').textContent = s.orders_placed || 0;
+  $('elFR').textContent = (s.fill_rate || 0).toFixed(0) + '%';
+  $('elMkts').textContent = s.markets_seen || 0;
+  $('elEG').textContent = (s.endgame_fills || 0) + '/' + (s.endgame_bids || 0);
+  $('elRest').textContent = (s.resting_orders || []).length;
+
+  // Win/Loss
+  const w = s.wins || 0, l = s.losses || 0, tot = w + l;
+  $('elW').textContent = w;
+  $('elL').textContent = l;
+  $('elWLBar').style.width = (tot > 0 ? w / tot * 100 : 50) + '%';
+  $('elSW').textContent = s.settled_wins || 0;
+  $('elSL').textContent = s.settled_losses || 0;
+  $('elTrades').textContent = s.trades_today || 0;
+  $('elCancels').textContent = s.cancels || 0;
+
+  // Cards
+  renderPrices(s);
+  renderVol(s);
+  renderOrders(s);
+  renderFeed(s);
+  renderBandit(s);
+}
+
+// ── Real-time listener ──
+if (db) {
+  const dashRef = ref(db, 'dashboard');
+  onValue(dashRef, snap => {
+    const data = snap.val();
+    if (data) update(data);
+  }, err => {
+    console.error("Firebase read error:", err);
+    $('pill').className = 'hdr-pill off';
+    $('pillText').textContent = 'ERROR';
+  });
+}
+
+// ── Staleness checker ──
+setInterval(() => {
+  if (!lastUpdate) return;
+  const age = Date.now() - lastUpdate;
+  if (age > 30000) {
+    $('pill').className = 'hdr-pill off';
+    $('pillText').textContent = 'OFFLINE';
+  } else if (age > 12000) {
+    $('pill').className = 'hdr-pill stale';
+    $('pillText').textContent = 'STALE';
+  }
+  // Keep session time ticking
+  const el = $('elSession');
+  if (el.textContent !== '—') {
+    // Re-derive from last known state — just update the clock
+  }
+}, 5000);
+</script>
+</body>
+</html>
