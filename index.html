@@ -1,512 +1,265 @@
 <!DOCTYPE html>
-<html lang="en">  
-  <head>
+<html lang="en">
 <head>
-
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="keywords" content="gabe kagan, gabe, kagan, gabekagan.io, salem, amherst, boston, umass, umass amherst, university of massachusetts, math, mathematician, econ, economics, finance, website, computer science, software, investor, engineer, bank, banking, investment banking" />
-  <meta name="author" content="Gabe Kagan" />
-  <meta name="description" content="Mathematician | Investor | Economist" />
-
+  <meta name="description" content="Gabe Kagan — Mathematician, engineer, and investor building at the intersection of quantitative finance and technology.">
+  <meta name="keywords" content="Gabe Kagan, quantitative finance, mathematics, software engineering, investor">
+  <meta name="author" content="Gabe Kagan">
   <title>Gabe Kagan</title>
 
-  <!-- Bootstrap Core CSS -->
-  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Animate CSS -->
-  <link rel="stylesheet" type="text/css" href="css/animate.css">
-
-  <!-- Custom CSS -->
-  <link href="css/style.css" rel="stylesheet">
-  <!-- BOOTSTRAP STYLE SHEET -->
-  <link href="css/bootstrap.css" rel="stylesheet" />
-  <!-- STYLE FOR OPENING IMAGE IN POPUP USING FANCYBOX-->
-  <link href="js/source/jquery.fancybox.css" rel="stylesheet" />
-
-  <!-- Custom Fonts -->
-  <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-  <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
-  <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-  <link rel="stylesheet" type="text/css" href='http://fonts.googleapis.com/css?family=Lato:400,100,100italic,300,300italic,400italic,700,900,900italic,700italic'>
-
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-124051281-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-124051281-1');
-</script>
-
-
-  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-  <!--[if lt IE 9]>
-  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-  <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-  <![endif]-->
-
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/main.css">
 </head>
+<body>
 
-<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
-  
   <!-- Navigation -->
-  <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
-          <i class="fa fa-bars"></i>
-        </button>
-        <a class="navbar-brand page-scroll" href="#page-top">
-          <span class="light">Gabe</span> Kagan
-        </a>
-      </div>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">Gabe <span>Kagan</span></a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#portfolio">Work</a></li>
+        <li><a href="#resume">Resume</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
 
-      <!-- Collect the nav links, forms, and other content for toggling -->
-      <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
-        <ul class="nav navbar-nav">
-          <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
-          <li class="hidden">
-            <a href="#page-top"></a>
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero-content">
+        <span class="hero-label">Mathematician &middot; Engineer &middot; Investor</span>
+        <h1>Building at the intersection of <span class="accent">math</span> and <span class="accent">markets</span>.</h1>
+        <p class="hero-description">
+          I use quantitative methods and software to solve problems in finance and beyond. UMass Amherst mathematics graduate with experience spanning algorithmic trading, data analysis, and full-stack development.
+        </p>
+        <div class="hero-actions">
+          <a href="#portfolio" class="btn btn-primary">View my work</a>
+          <a href="#contact" class="btn btn-secondary">Get in touch</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll" aria-hidden="true">
+      <span>Scroll</span>
+      <div class="hero-scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="about" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image reveal">
+          <img src="img/gabeone1.png" alt="Gabe Kagan" loading="lazy">
+        </div>
+        <div class="about-text">
+          <div class="section-header reveal">
+            <span class="section-label">About</span>
+            <h2>Hello, I'm Gabe.</h2>
+          </div>
+          <p class="reveal">
+            My journey started with a fascination for the unpredictability of financial markets and the mathematics that underpin them. At UMass Amherst, I studied mathematics and economics, diving deep into probability theory, statistical modeling, and quantitative analysis.
+          </p>
+          <p class="reveal">
+            Since then, I've worked across finance and technology — from building trading systems and prediction models to developing full-stack web applications. I'm driven by the challenge of turning complex data into actionable insight.
+          </p>
+          <div class="about-stats reveal">
+            <div class="stat">
+              <div class="stat-value">Math</div>
+              <div class="stat-label">Discipline</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">Finance</div>
+              <div class="stat-label">Domain</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">Code</div>
+              <div class="stat-label">Craft</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Portfolio -->
+  <section class="portfolio" id="portfolio">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Portfolio</span>
+        <h2>Selected Work</h2>
+        <p>Projects spanning quantitative research, software engineering, and applied mathematics.</p>
+      </div>
+      <div class="portfolio-grid reveal-stagger">
+
+        <!-- Markov Chain Stock Prediction -->
+        <div class="project-card reveal">
+          <div class="project-card-image-wrapper">
+            <img src="img/projects/assignment-tracking/md5.png" alt="Stock Market Prediction" class="project-card-image" loading="lazy">
+          </div>
+          <div class="project-card-body">
+            <span class="project-card-tag">Research</span>
+            <h3 class="project-card-title">Markov Chain Stock Prediction</h3>
+            <p class="project-card-description">Discrete-time Markov chain model for securities trading, applying stochastic processes to predict market state transitions.</p>
+            <a href="img/projects/assignment-tracking/DTMC_Report.pdf" target="_blank" rel="noopener" class="project-card-link">
+              Read paper
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Euler and Cyber Security -->
+        <div class="project-card reveal">
+          <div class="project-card-image-wrapper">
+            <img src="img/projects/mlb-stat-vis/cyber.PNG" alt="Euler and Cyber Security" class="project-card-image" loading="lazy">
+          </div>
+          <div class="project-card-body">
+            <span class="project-card-tag">Project</span>
+            <h3 class="project-card-title">Euler &amp; Cyber Security</h3>
+            <p class="project-card-description">An exploration of Euler's contributions to number theory and their direct application to RSA encryption and modern cryptographic systems.</p>
+            <a href="portfolio/mlbstatvis" class="project-card-link">
+              View project
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Quantum Mechanics -->
+        <div class="project-card reveal">
+          <div class="project-card-image-wrapper">
+            <img src="img/projects/quantum-mechanics/instagram-sketch-template.png" alt="Quantum Mechanics Research" class="project-card-image" loading="lazy">
+          </div>
+          <div class="project-card-body">
+            <span class="project-card-tag">Research</span>
+            <h3 class="project-card-title">Quantum Mechanics Research</h3>
+            <p class="project-card-description">Mathematical examination of the two-slit experiment, analyzing wave function behavior and quantum probability distributions.</p>
+            <a href="img/projects/honors-thesis/Quantum-Mechanics.pdf" target="_blank" rel="noopener" class="project-card-link">
+              Read paper
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Quadcopter -->
+        <div class="project-card reveal">
+          <div class="project-card-image-wrapper">
+            <img src="img/projects/phet-gestures/quad.PNG" alt="Quadcopter" class="project-card-image" loading="lazy">
+          </div>
+          <div class="project-card-body">
+            <span class="project-card-tag">Engineering</span>
+            <h3 class="project-card-title">Quadcopter</h3>
+            <p class="project-card-description">End-to-end design, assembly, and programming of a custom quadcopter — from PCB layout to flight controller firmware.</p>
+            <a href="https://www.youtube.com/watch?v=cZUyrJ65jjc" target="_blank" rel="noopener" class="project-card-link">
+              Watch video
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Statistical Analysis -->
+        <div class="project-card reveal">
+          <div class="project-card-image-wrapper">
+            <img src="img/projects/care-circles/statppaper.png" alt="Statistical Analysis" class="project-card-image" loading="lazy">
+          </div>
+          <div class="project-card-body">
+            <span class="project-card-tag">Research</span>
+            <h3 class="project-card-title">Statistical Analysis</h3>
+            <p class="project-card-description">Regression analysis identifying statistically significant predictors of graduation rates across Massachusetts municipalities.</p>
+            <a href="img/projects/care-circles/paper.pdf" target="_blank" rel="noopener" class="project-card-link">
+              Read paper
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- NovaInterior -->
+        <div class="project-card reveal">
+          <div class="project-card-image-wrapper">
+            <img src="img/projects/sigep-umass/nova.PNG" alt="NovaInterior.com" class="project-card-image" loading="lazy">
+          </div>
+          <div class="project-card-body">
+            <span class="project-card-tag">Development</span>
+            <h3 class="project-card-title">NovaInterior.com</h3>
+            <p class="project-card-description">E-commerce web development for a furniture retailer — full-stack build including product catalog, cart system, and checkout flow.</p>
+            <a href="http://novainterior.com/" target="_blank" rel="noopener" class="project-card-link">
+              Visit site
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Resume -->
+  <section class="resume" id="resume">
+    <div class="container">
+      <div class="resume-content reveal">
+        <div class="section-header">
+          <span class="section-label">Resume</span>
+          <h2>Experience &amp; Education</h2>
+        </div>
+        <p>Download my resume to learn more about my professional background, technical skills, and academic work.</p>
+        <a href="placeholder.pdf" target="_blank" rel="noopener" class="btn btn-primary">Download Resume</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="contact-content reveal">
+        <div class="section-header">
+          <span class="section-label">Contact</span>
+          <h2>Let's connect.</h2>
+        </div>
+        <a href="mailto:me@gabekagan.io" class="contact-email">me@gabekagan.io</a>
+        <ul class="social-links">
+          <li>
+            <a href="https://www.linkedin.com/in/gabriel-kagan/" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </a>
           </li>
           <li>
-            <a class="page-scroll" href="#about">Bio</a>
+            <a href="https://github.com/gabrielkagan" target="_blank" rel="noopener" aria-label="GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            </a>
           </li>
           <li>
-            <a class="page-scroll" href="#resume">Resume</a>
+            <a href="https://twitch.tv/snuggles617" target="_blank" rel="noopener" aria-label="Twitch">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+            </a>
           </li>
           <li>
-            <a class="page-scroll" href="#portfolio">Portfolio</a>
-          </li>
-     <!-- <li>
-            <a class="page-scroll" href="personal">Me</a>
-          </li>-->
-          <li>
-            <a class="page-scroll" href="#contact">Contact</a>
+            <a href="https://www.instagram.com/gabekagan/" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678a6.162 6.162 0 100 12.324 6.162 6.162 0 100-12.324zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405a1.441 1.441 0 11-2.882 0 1.441 1.441 0 012.882 0z"/></svg>
+            </a>
           </li>
         </ul>
       </div>
-      <!-- /.navbar-collapse -->
-    </div>
-    <!-- /.container -->
-  </nav>
-
-  <!-- Intro Header -->
-  <section id="intro" class="intro text-center">
-    <div class="overlay">
-      <div class="intro-content">
-        <h1 class="brand-heading animated fadeInDown delay-05s">Gabe Kagan</h1>
-        <div class="picture hasPulse" id=picture></div>
-        <p class="intro-text animated fadeIn delay-2s">I'm a student, mathematician, programmer, and investor</p>
-      </div>
-    </div>
-    <div class="scroll-arrow">
-      <a href="#about" class="fa fa-angle-down page-scroll">
-      <!-- <i class="fa fa-angle-down page-scroll"></i> -->
-      </a>
     </div>
   </section>
 
-  <!-- About Section -->
-  <section id="about">
-    <div class="text-center">
-        <div class="container">
-          <div class="row">
-            <div class="col-md-8">
-              <h2 class="about-head">Hello, I'm Gabe</h2>
-              <p>
-             <!--    Freshman year of high school I joined my school's business society. I learned about finance and economics from faculty, lecturers, and peers, while also having the opportunity to research and invest in securities. I found myself captivated by the chaos and unpredictability of the markets, leading me to begin personal research and investing. My sophomore year I decided to join my school's robotics team and compete in the First Tech Challenge. Robotics was the highlight of my high school experience, inspiring me to pursue disciplines I previously did not know existed. Whether it was programming, machining, or graphic design, wherever I looked I found an opportunity to create. More than anything, I was fascinated by and found myself falling in love with the underlying mathematics. 
-             
- -->
-              </p>
-              <p>
-  <center>  </center><!--           Attending UMass Amherst, I was able to continue exploring my interests, as well as more intimately study topics of intrigue. Not only have I had the opportunity to take classes that interest me, but also to learn outside the classroom experientially. Whether through HackUMass or ASA DataFest, I have gained invaluable experience working in collaborative environments, solving real world problems.   
-             --> 
-              </p>
-              <p>
-          <!--     I have worked as a web developer for a small startup, an analyst for a global bank, and in risk for a financial institution; through these experiences I have realized that my true passion lies in using data to inform decision making. After graduation I hope to pursue a career where I’m able to use my technical abilities to tackle complex problems. I am very excited for what the upcoming year will bring, and look forward to my last year of undergrad.
-           -->   
-              </p>
-            </div>
-            <div class="col-md-4">
-              <div class="pro-pic">
-                <img src="img/gabeone1.png" class="portfolio-image img-responsive" alt="">
-              </div>
-            </div>
-          </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Resume Section -->
-  <section id="resume">
-    <div class="text-center">
-      <div class="overlay">
-        <div class="container">
-          <div class="row">
-            <div class="col-md-12">
-              <h2 class="resume-caption">Check out my resume</h2>
-              <div id="resume-button">
-                <a class="resume-btn animated bounceIn" href="placeholder.pdf" target="_blank">Resume</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="portfolio">
-    <div class="container">
-      <!-- FILTER PORTFOLIO START -->
-      <div class="row text-center">
-        <div class="col-lg-12 text-center">
-          <h2 class="portfolio-title">Portfolio</h2>
-          <!-- <h5 class="filter-text">(click tags to filter by type)</h5> -->
-        </div>
-        <div class="col-md-12">
-          <div class="categories">
-            <a href="#" data-filter="*" class="portfolio-btn">All</a>
-            <a href="#" data-filter=".writing" class="portfolio-btn">PAPERS</a>
-            <a href="#" data-filter=".project" class="portfolio-btn">PROJECTS</a>
-           <!-- <a href="#" data-filter=".community" class="portfolio-btn">PERSONAL</a> -->
-          </div>
-        </div>
-      </div>
-      <div class="row text-center" id="portfolio-div">
-        <!-- Euler and Cyber Secuirty--> 
-        <div class="col-md-4 col-sm-6 portfolio-item project">
-          <a href="portfolio/mlbstatvis">
-          <div class="portfolio-hover">
-            <div class="hover-text">
-              <div class="hover-text-box">
-                <h4>Euler and Cyber Security</h4>
-                <hr>
-                <h6>overview of Euler and RSA Encryption </h6>
-              </div>
-            </div>
-            <img src="img/projects/mlb-stat-vis/cyber.PNG" class="portfolio-image img-responsive" alt="">
-          </div>
-        </a>
-        </div>
-        <!-- Quad Copter -->
-        <div class="col-md-4 col-sm-6 portfolio-item project">
-          <div class="portfolio-hover" data-toggle="modal" href="#phet-gestures">
-            <div class="hover-text">
-              <div class="hover-text-box">
-                <h4>Quadcopter</h4>
-                <hr>
-                <h6>Design, Assembly, and Programming</h6>
-              </div>
-            </div>
-            <img src="img/projects/phet-gestures/quad.PNG" class="portfolio-image img-responsive" alt="">
-          </div>
-        </div>
-         <!--quantum mechanics -->
-        <div class="col-md-4 col-sm-6 portfolio-item writing">
-          <div class="portfolio-hover" data-toggle="modal" href="#quantum-mechanics">
-            <div class="hover-text">
-              <div class="hover-text-box">
-                <h4>Quantum Mechanics Research</h4>
-                <hr>
-                <h6>mathematical examination of the two slit experiment</h6>
-              </div>
-            </div>
-            <img src="img/projects/quantum-mechanics/instagram-sketch-template.png" class="portfolio-image img-responsive" alt="">
-          </div>
-        </div>
-        <!--stock market -->
-         <div class="col-md-4 col-sm-6 portfolio-item writing">
-          <div class="portfolio-hover" data-toggle="modal" href="#assignment-tracking">
-            <div class="hover-text">
-              <div class="hover-text-box">
-                <h4>Stock Market Prediction</h4>
-                <hr>
-                <h6>Markov decision process for securities trading</h6>
-              </div>
-            </div>
-            <img src="img/projects/assignment-tracking/md5.png" class="portfolio-image img-responsive" alt="">
-          </div>
-        </div>
-       <!-- novainterior -->
-        <div class="col-md-4 col-sm-6 portfolio-item project">
-          <div class="portfolio-hover" data-toggle="modal" href="#sigep-umass">
-            <div class="hover-text">
-              <div class="hover-text-box">
-                <h4>NovaInterior.com</h4>
-                <hr>
-                <h6>E-Commerce Web Development</h6>
-              </div>
-            </div>
-            <img src="img/projects/sigep-umass/nova.PNG" class="portfolio-image img-responsive" alt="">
-          </div>
-        </div> 
-       <!-- Amherst Survival Center -->
-        <div class="col-md-4 col-sm-6 portfolio-item community">
-          <div class="portfolio-hover" data-toggle="modal" href="#care-circles">
-            <div class="hover-text">
-              <div class="hover-text-box">
-                <h4>Statistical Analysis</h4>
-                <hr>
-                <h6>Factors impacting graduation rates.</h6>
-              </div>
-            </div>
-            <img src="img/projects/care-circles/statppaper.png" class="portfolio-image img-responsive" alt="">
-          </div>
-        </div>
-      <!-- FILTER PORTFOLIO END -->
-    </container>
-  </section>
-
-  <!--======== PORTFOLIO LIGHTBOX ========-->
-  <!-- stock market -->
-  <div class="modal fade" id="mlb-stat-vis" tabindex="-1" role="dialog" aria-labelledby="mlb-stat-vis" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Stock Market Prediction</h4>
-          <h6 class="modal-title-description">Discrete Time Markov Chain Trader</h6>
-        </div>
-        <div class="modal-body">
-          <p>
-            <img class="img-responsive img-centered" src="img/projects/mlb-stat-vis/md5.png" alt="">
-          </p>
-          <p class="modal-description"></p>
-          <p class="visit"><a href="mlb-stat-vis" target="_blank" id="visit-btn">View</a></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- pyndit -->
-  <div class="modal fade" id="pyndit" tabindex="-1" role="dialog" aria-labelledby="pyndit" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Pynd.it - Design Process</h4>
-          <h6 class="modal-title-description"></h6>
-        </div>
-        <div class="modal-body">
-          <p>
-            <img class="img-responsive img-centered" src="img/projects/pyndit/pyndit.png" alt="">
-          </p>
-          <p class="modal-description"></p>
-          <p class="visit"><a href="" target="_blank" id="visit-btn">View</a></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- honors-thesis lightbox -->
-  <div class="modal fade" id="honors-thesis" tabindex="-1" role="dialog" aria-labelledby="honors-thesis" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Quantum Mechanics</h4>
-          <h6 class="modal-title-description">Mathematical examination of the Two Slit Experiment</h6>
-        </div>
-        <div class="modal-body">
-          <p>
-            <img class="img-responsive img-centered" src="img/projects/honors-thesis/quantum-mechanics.PNG" alt="">
-          </p>
-          <p class="modal-description"></p>
-          <p class="visit"><a href="/img/projects/honors-thesis/Quantum-Mechanics.pdf" target="_blank" id="visit-btn">View</a></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- phet-gestures -->
-  <div class="modal fade" id="phet-gestures" tabindex="-1" role="dialog" aria-labelledby="phet-gestures" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Quadcopter</h4>
-          <h6 class="modal-title-description">Design, Assembly, and Programming</h6>
-        </div>
-        <div class="modal-body">
-          <p>
-            <img class="img-responsive img-centered" src="img/projects/phet-gestures/quad.PNG" alt="">
-          </p>
-          <p class="modal-description">My team designed, built, and programmed a quadcopter</p>
-          <p class="visit"><a href="https://www.youtube.com/watch?v=cZUyrJ65jjc" target="_blank" id="visit-btn">Watch Video</a></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- sketch-article -->
-  <div class="modal fade" id="sketch-article" tabindex="-1" role="dialog" aria-labelledby="sketch-article" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Why I Dumped Photoshop for Sketch</h4>
-          <h6 class="modal-title-description"></h6>
-        </div>
-        <div class="modal-body">
-          <p>
-            <img class="img-responsive img-centered" src="img/writings/sketch-article/sketch-article.jpg" alt="">
-          </p>
-          <p class="modal-description">Medium Article with +2,500 reads</p>
-          <p class="visit"><a href="" target="_blank" id="visit-btn">View Article</a></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- care-circles -->
-  <div class="modal fade" id="care-circles" tabindex="-1" role="dialog" aria-labelledby="care-circles" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Statistical Analysis</h4>
-          <h6 class="modal-title-description">Determinants of graduation rate</h6>
-        </div>
-        <div class="modal-body">
-          <p>
-            <img class="img-responsive img-centered" src="img/projects/care-circles/statppaper.png" alt="">
-          </p>
-          <p class="modal-description">A statistical analysis determining signifcant variables in predicting graduation rates for cities and towns in Massachusetts. </p>
-          <p class="visit"><a href="img/projects/care-circles/paper.pdf" target="_blank" id="visit-btn">View</a></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- assignment-tracking -->
-  <div class="modal fade" id="assignment-tracking" tabindex="-1" role="dialog" aria-labelledby="assignment-tracking" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Markov Chain Stock Prediction</h4>
-          <h6 class="modal-title-description"></h6>
-        </div>
-        <div class="modal-body">
-          <p>
-            <img class="img-responsive img-centered" src="img/projects/assignment-tracking/assignment-tracking.png" alt="">
-          </p>
-          <p class="modal-description"></p>
-          <p class="visit"><a href="img/projects/assignment-tracking/DTMC_Report.pdf" target="_blank" id="visit-btn">View</a></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- sigep-umass -->
-  <div class="modal fade" id="sigep-umass" tabindex="-1" role="dialog" aria-labelledby="nova-interior" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">NovaInterior.com</h4>
-          <h6 class="modal-title-description"></h6>
-        </div>
-        <div class="modal-body">
-          <p>
-            <img class="img-responsive img-centered" src="img/projects/sigep-umass/nova.PNG" alt="">
-          </p>
-          <p class="modal-description">Collaborated in the website development for an e-commerce furniture store, Nova Interiors </p>
-          <p class="visit"><a href="http://novainterior.com/" target="_blank" id="visit-btn">Visit Site</a></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
   <!-- Footer -->
-  <section id="contact">
-    <footer>
-      <div class="copyright">
-        <div class="container text-center">
-          <div class="row">
-            <div class="col-lg-8 col-lg-offset-2">
-              <h2>Contact</h2>
-              <p>Shoot me an email or check out my online profiles</p>
-              <p><a href="mailto:me@gabekagan.io">me@gabekagan.io</a></p>
-            </div>
-            <div class="col-md-12 text-center">
-              <!-- <h3>Other places you can find me</h3> -->
-              <ul class="list-inline banner-social-buttons animated fadeIn">
-                <!-- LinkedIn Button -->
-                <li><a id="linkedin" href="https://www.linkedin.com/in/gabriel-kagan/" target="_blank"><i class="fa fa-linkedin"></i></a></li>
-                <!-- Twitch Button -->
-               <li><a id="twitch" href="https://twitch.tv/snuggles617" target="_blank"><i class="fa fa-twitch"></i></a></li>
-                <!-- GitHub Button -->
-                <li><a id="github" href="https://github.com/gabrielkagan" target="_blank"><i class="fa fa-github"></i></a></li>
-                <!-- Codepen Button -->
-          <!--      <li><a id="codepen" href="http://codepen.io//" target="_blank"><i class="fa fa-codepen"></i></a></li>
-                <!-- Facebook Button -->
-           <!--     <li><a id="facebook" href="https://www.facebook.com/" target="_blank"><i class="fa fa-facebook"></i></a></li>
-                <!-- Instagram Button -->
-                <li><a id="instagram" href="https://www.instagram.com/gabekagan/" target="_blank"><i class="fa fa-instagram"></i></a></li>
-              </ul>
-            </div>
-          </div>
-          <div class="copyright-text">
-            <p>This website designed and developed by Gabe Kagan: <a href="https://github.com/gabrielkagan" target="_blank">View it on Github</a></p>
-            <p>&copy; Gabe Kagan
-              <script type="text/javascript">
-              document.write(new Date().getFullYear());
-              </script>
-            </p>
-          </div>
-        </div>
-      </div>
-    </footer>
-  </section>
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; <span class="current-year"></span> Gabe Kagan &middot; <a href="https://github.com/gabrielkagan" target="_blank" rel="noopener">Source on GitHub</a></p>
+    </div>
+  </footer>
 
-  <!-- jQuery -->
-  <script src="js/jquery.js"></script>
-
-  <!-- Bootstrap Core JavaScript -->
-  <script src="js/bootstrap.min.js"></script>
-
-  <!-- Plugin JavaScript -->
-  <script src="js/jquery.easing.min.js"></script>
-
-  <!-- Google Maps API Key - Use your own API key to enable the map feature. More information on the Google Maps API can be found at https://developers.google.com/maps/ -->
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCRngKslUGJTlibkQ3FkfTxj3Xss1UlZDA&sensor=false"></script>
-
-  <!-- Custom Theme JavaScript -->
-  <script src="js/theme.js"></script>
-
-  <!-- REQUIRED SCRIPTS FILES -->
-  <!-- CORE JQUERY SCRIPTS -->
-  <!-- <script src="js/jquery-1.11.1.js"></script> -->
-  <!--  FANCYBOX PLUGIN -->
-  <script src="js/source/jquery.fancybox.js"></script>
-  <!-- ISOTOPE SCRIPTS -->
-  <script src="js/jquery.isotope.js"></script>
-  <!-- CUSTOM SCRIPTS REQIRED-->
-  <script src="js/portfolio.js"></script>
+  <script src="js/main.js"></script>
 </body>
-  
-  
-  
-
 </html>
