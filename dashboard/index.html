@@ -316,6 +316,120 @@
     font-family: var(--mono); font-size: 12px; color: var(--amber-0);
   }
 
+  /* ═══════════════════════════════════════════════════════════════════ */
+  /* ANALYTICS SECTION                                                  */
+  /* ═══════════════════════════════════════════════════════════════════ */
+
+  .analytics-divider {
+    grid-column: 1 / -1;
+    background: var(--bg-0);
+    padding: 18px 22px 6px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .analytics-divider .divider-label {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-3);
+    white-space: nowrap;
+  }
+  .analytics-divider .divider-line {
+    flex: 1; height: 1px; background: var(--border-0);
+  }
+  .analytics-divider .divider-tag {
+    font-family: var(--mono); font-size: 9px; padding: 2px 8px;
+    border-radius: 4px; font-weight: 600;
+    background: var(--violet-bg); color: var(--violet-0);
+    white-space: nowrap;
+  }
+
+  /* ═══ Chart containers ═══ */
+  .equity-cell { grid-column: span 8; }
+  .calibration-cell { grid-column: span 4; }
+  .tier-cell { grid-column: span 4; }
+  .asset-perf-cell { grid-column: span 4; }
+  .rejection-cell { grid-column: span 4; }
+  .trades-cell { grid-column: span 12; }
+
+  .chart-wrap {
+    position: relative;
+    height: 220px;
+  }
+  .chart-wrap.tall { height: 260px; }
+  .chart-wrap .empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ═══ Recent Trades Table ═══ */
+  .trades-scroll {
+    max-height: 420px; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: var(--border-1) transparent;
+  }
+  .trades-scroll::-webkit-scrollbar { width: 3px; }
+  .trades-scroll::-webkit-scrollbar-thumb { background: var(--border-1); border-radius: 2px; }
+
+  .trades-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .trades-table thead {
+    position: sticky; top: 0;
+    background: var(--bg-1);
+    z-index: 2;
+  }
+  .trades-table th {
+    text-align: left;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 8px 8px 10px;
+    border-bottom: 1px solid var(--border-0);
+  }
+  .trades-table td {
+    padding: 7px 8px;
+    color: var(--text-1);
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    white-space: nowrap;
+  }
+  .trades-table tr:hover td {
+    background: var(--bg-2);
+  }
+  .trades-table .outcome-win {
+    color: var(--green-0); font-weight: 600;
+  }
+  .trades-table .outcome-loss {
+    color: var(--red-0); font-weight: 600;
+  }
+  .trades-table .outcome-pending {
+    color: var(--amber-0);
+  }
+  .trades-table .pnl-pos { color: var(--green-0); }
+  .trades-table .pnl-neg { color: var(--red-0); }
+  .trades-table .asset-btc { color: #f7931a; }
+  .trades-table .asset-eth { color: #849dff; }
+  .trades-table .asset-sol { color: #b86eff; }
+  .trades-table .asset-xrp { color: #23c4d8; }
+
+  /* ═══ Stink bids (existing) ═══ */
+  .stink-cell { grid-column: span 8; }
+  .order-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; border-radius: 5px; margin-bottom: 2px;
+    border: 1px solid var(--border-0); background: var(--bg-2);
+    font-family: var(--mono); font-size: 10px;
+  }
+  .order-row .ord-side { font-weight: 600; min-width: 24px; }
+  .order-row .ord-price { color: var(--text-1); min-width: 32px; }
+  .order-row .ord-ct { color: var(--text-3); min-width: 24px; }
+  .order-row .ord-z { color: var(--text-3); flex: 1; }
+  .order-row .ord-rest { color: var(--text-3); }
+
   /* ═══ Responsive ═══ */
   @media (max-width: 1100px) {
     .grid { grid-template-columns: repeat(6, 1fr); }
@@ -325,11 +439,21 @@
     .orders-cell { grid-column: span 6; grid-row: auto; }
     .bandit-cell { grid-column: span 6; }
     .feed-cell { grid-column: span 6; }
+    .equity-cell { grid-column: span 6; }
+    .calibration-cell { grid-column: span 6; }
+    .tier-cell { grid-column: span 6; }
+    .asset-perf-cell { grid-column: span 6; }
+    .rejection-cell { grid-column: span 6; }
+    .trades-cell { grid-column: span 6; }
+    .stink-cell { grid-column: span 6; }
   }
   @media (max-width: 700px) {
     .grid { grid-template-columns: 1fr; }
     .hero, .stats-cell, .wl-cell, .prices-cell, .vol-cell,
-    .orders-cell, .bandit-cell, .feed-cell { grid-column: 1 / -1; }
+    .orders-cell, .bandit-cell, .feed-cell,
+    .equity-cell, .calibration-cell, .tier-cell,
+    .asset-perf-cell, .rejection-cell, .trades-cell,
+    .stink-cell { grid-column: 1 / -1; }
     .bal-num { font-size: 32px; }
     .vol-grid { grid-template-columns: repeat(2, 1fr); }
     .hdr { padding: 12px 16px; }
@@ -338,7 +462,7 @@
 </head>
 <body>
 
-<!-- Config overlay (shown if Firebase not configured) -->
+<!-- Config overlay -->
 <div class="config-banner hidden" id="configBanner">
   <div class="config-box">
     <h2>Dashboard Not Connected</h2>
@@ -369,6 +493,8 @@
 </div>
 
 <div class="grid">
+
+  <!-- ════════════════════════ LIVE STATE (existing) ════════════════════════ -->
 
   <!-- Balance -->
   <div class="cell hero">
@@ -445,15 +571,6 @@
     <div id="elOrdersList"><div class="empty">No resting orders</div></div>
   </div>
 
-  <!-- Activity Feed -->
-  <div class="cell feed-cell">
-    <div class="cell-label">
-      Activity
-      <span class="tag" id="elEvtCount" style="background:rgba(255,255,255,0.04);color:var(--text-3)">0</span>
-    </div>
-    <div class="feed-scroll" id="elFeed"><div class="empty">Waiting for activity…</div></div>
-  </div>
-
   <!-- Asset Bandit -->
   <div class="cell bandit-cell">
     <div class="cell-label">Asset Bandit</div>
@@ -474,19 +591,127 @@
     <div id="elStinkList"><div class="empty">No stink bids</div></div>
   </div>
 
+  <!-- Activity Feed -->
+  <div class="cell feed-cell">
+    <div class="cell-label">
+      Activity
+      <span class="tag" id="elEvtCount" style="background:rgba(255,255,255,0.04);color:var(--text-3)">0</span>
+    </div>
+    <div class="feed-scroll" id="elFeed"><div class="empty">Waiting for activity…</div></div>
+  </div>
+
+  <!-- ════════════════════════ ANALYTICS (new) ════════════════════════ -->
+
+  <div class="analytics-divider">
+    <span class="divider-label">Analytics</span>
+    <div class="divider-line"></div>
+    <span class="divider-tag" id="elAnalyticsAge">waiting for data</span>
+  </div>
+
+  <!-- Equity Curve -->
+  <div class="cell equity-cell">
+    <div class="cell-label">
+      Equity Curve
+      <span class="tag" id="elEquityPts" style="background:var(--blue-bg);color:var(--blue-0)">0 pts</span>
+    </div>
+    <div class="chart-wrap tall" id="equityWrap">
+      <canvas id="equityChart"></canvas>
+      <div class="empty lg" id="equityEmpty">Collecting snapshots…</div>
+    </div>
+  </div>
+
+  <!-- Calibration -->
+  <div class="cell calibration-cell">
+    <div class="cell-label">
+      Calibration
+      <span class="tag" id="elCalibN" style="background:var(--amber-bg);color:var(--amber-0)">0 trades</span>
+    </div>
+    <div class="chart-wrap tall" id="calibWrap">
+      <canvas id="calibChart"></canvas>
+      <div class="empty lg" id="calibEmpty">Need settled trades…</div>
+    </div>
+  </div>
+
+  <!-- Tier Performance -->
+  <div class="cell tier-cell">
+    <div class="cell-label">
+      Tier Performance
+      <span class="tag" id="elTierN" style="background:var(--green-bg);color:var(--green-0)">0 tiers</span>
+    </div>
+    <div class="chart-wrap" id="tierWrap">
+      <canvas id="tierChart"></canvas>
+      <div class="empty lg" id="tierEmpty">Need settled trades…</div>
+    </div>
+  </div>
+
+  <!-- Asset Performance -->
+  <div class="cell asset-perf-cell">
+    <div class="cell-label">
+      Asset P&L
+      <span class="tag" id="elAssetN" style="background:var(--green-bg);color:var(--green-0)">0 assets</span>
+    </div>
+    <div class="chart-wrap" id="assetWrap">
+      <canvas id="assetChart"></canvas>
+      <div class="empty lg" id="assetEmpty">Need settled trades…</div>
+    </div>
+  </div>
+
+  <!-- Rejection Funnel -->
+  <div class="cell rejection-cell">
+    <div class="cell-label">
+      Rejection Funnel
+      <span class="tag" id="elRejectN" style="background:var(--red-bg);color:var(--red-0)">0 obs</span>
+    </div>
+    <div class="chart-wrap" id="rejectWrap">
+      <canvas id="rejectChart"></canvas>
+      <div class="empty lg" id="rejectEmpty">Need observations…</div>
+    </div>
+  </div>
+
+  <!-- Recent Trades Table -->
+  <div class="cell trades-cell">
+    <div class="cell-label">
+      Recent Trades
+      <span class="tag" id="elTradesN" style="background:var(--blue-bg);color:var(--blue-0)">0</span>
+    </div>
+    <div class="trades-scroll" id="tradesWrap">
+      <table class="trades-table" id="tradesTable">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Asset</th>
+            <th>Dir</th>
+            <th>Bid ¢</th>
+            <th>z</th>
+            <th>P(cal)</th>
+            <th>Edge</th>
+            <th>Qty</th>
+            <th>Tier</th>
+            <th>Outcome</th>
+            <th>P&L</th>
+          </tr>
+        </thead>
+        <tbody id="tradesBody">
+          <tr><td colspan="11" class="empty">Waiting for trades…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
-<!-- Firebase SDK (modular, from CDN — no build step needed)            -->
+<!-- Chart.js from CDN                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- Firebase SDK                                                        -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
 
-// ┌──────────────────────────────────────────────────────────────────┐
-// │  REPLACE THESE WITH YOUR FIREBASE PROJECT CONFIG                │
-// │  (Firebase Console → Project Settings → General → Your apps)    │
-// └──────────────────────────────────────────────────────────────────┘
 const firebaseConfig = {
   apiKey: "AIzaSyBJbVGMyx7qRsY3H0ZAJI9eIpfw_4JlUNY",
   authDomain: "kalshi-dashboard-de0ac.firebaseapp.com",
@@ -497,12 +722,10 @@ const firebaseConfig = {
   appId: "1:635502019270:web:bcd3e3bf604c1959668dc7"
 };
 
-// ── Check if configured ──
 if (firebaseConfig.apiKey === "YOUR_VALUES_HERE") {
   document.getElementById('configBanner').classList.remove('hidden');
 }
 
-// ── Init Firebase ──
 let db;
 try {
   const app = initializeApp(firebaseConfig);
@@ -512,11 +735,23 @@ try {
   document.getElementById('configBanner').classList.remove('hidden');
 }
 
-// ── State ──
+// ══════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════
 let lastUpdate = 0;
 let lastEventCount = 0;
+let lastAnalyticsTime = null;  // ISO string of last analytics push
 
-// ── Helpers ──
+// Chart instances (destroyed + recreated on data update)
+let chartEquity = null;
+let chartCalib = null;
+let chartTier = null;
+let chartAsset = null;
+let chartReject = null;
+
+// ══════════════════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════════════════
 const $ = id => document.getElementById(id);
 const fmtMoney = v => v != null ? '$' + Math.abs(v).toFixed(2) : '$—';
 const fmtPct = v => v != null ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : '0.0%';
@@ -557,7 +792,37 @@ function typeClass(t) {
   return 'log';
 }
 
-// ── Renderers ──
+function timeAgo(iso) {
+  if (!iso) return '—';
+  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  return Math.floor(s / 3600) + 'h ago';
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// CHART.JS GLOBAL CONFIG
+// ══════════════════════════════════════════════════════════════════════
+Chart.defaults.color = '#64748b';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.04)';
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 10;
+Chart.defaults.plugins.legend.display = false;
+Chart.defaults.plugins.tooltip.backgroundColor = '#1a2233';
+Chart.defaults.plugins.tooltip.titleColor = '#e8ecf4';
+Chart.defaults.plugins.tooltip.bodyColor = '#a0aec0';
+Chart.defaults.plugins.tooltip.borderColor = '#243044';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.cornerRadius = 6;
+Chart.defaults.plugins.tooltip.titleFont = { family: "'IBM Plex Mono', monospace", size: 10, weight: '600' };
+Chart.defaults.plugins.tooltip.bodyFont = { family: "'IBM Plex Mono', monospace", size: 10 };
+Chart.defaults.animation = { duration: 400, easing: 'easeOutQuart' };
+
+// ══════════════════════════════════════════════════════════════════════
+// LIVE STATE RENDERERS (existing)
+// ══════════════════════════════════════════════════════════════════════
+
 function renderPrices(s) {
   const box = $('elPrices');
   const ap = s.asset_prices || {};
@@ -659,13 +924,11 @@ function renderBandit(s) {
 }
 
 function renderStinkBids(s) {
-  // Update counters
   $('elStinkCount').textContent = (s.stink_bids_count || 0) + ' active';
   $('elStinkPlaced').textContent = s.stink_bids_placed || 0;
   $('elStinkFilled').textContent = s.stink_bids_filled || 0;
   $('elStinkCancelled').textContent = s.stink_bids_cancelled || 0;
   $('elAdditions').textContent = s.additions_placed || 0;
-  // Update list
   const box = $('elStinkList');
   const bids = s.stink_bids || [];
   if (!bids.length) { box.innerHTML = '<div class="empty">No stink bids</div>'; return; }
@@ -686,7 +949,422 @@ function renderStinkBids(s) {
   }).join('');
 }
 
-// ── Main update ──
+// ══════════════════════════════════════════════════════════════════════
+// ANALYTICS RENDERERS (new)
+// ══════════════════════════════════════════════════════════════════════
+
+function renderEquityCurve(data) {
+  const pts = data.equity_curve || [];
+  $('elEquityPts').textContent = pts.length + ' pts';
+  if (!pts.length) { $('equityEmpty').style.display = ''; return; }
+  $('equityEmpty').style.display = 'none';
+
+  const labels = pts.map(p => {
+    const d = new Date(p.snapshot_time);
+    return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+  });
+  const balances = pts.map(p => p.balance);
+  const pnls = pts.map(p => p.pnl);
+
+  // Determine color based on overall P&L trend
+  const lastPnl = pnls[pnls.length - 1] || 0;
+  const lineColor = lastPnl >= 0 ? '#10b981' : '#f43f5e';
+  const fillColor = lastPnl >= 0 ? 'rgba(16,185,129,0.08)' : 'rgba(244,63,94,0.08)';
+
+  if (chartEquity) chartEquity.destroy();
+  chartEquity = new Chart($('equityChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: balances,
+        borderColor: lineColor,
+        backgroundColor: fillColor,
+        borderWidth: 1.5,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHitRadius: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { maxTicksLimit: 8, maxRotation: 0 }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: {
+            callback: v => '$' + v.toFixed(2),
+            maxTicksLimit: 5
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title: (items) => labels[items[0].dataIndex],
+            label: (item) => {
+              const i = item.dataIndex;
+              const bal = balances[i];
+              const pnl = pnls[i];
+              return [
+                `Balance: ${bal != null ? '$' + bal.toFixed(2) : '—'}`,
+                `P&L: ${pnl != null ? (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2) : '—'}`
+              ];
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderCalibration(data) {
+  const bins = data.calibration || [];
+  const totalN = bins.reduce((s, b) => s + (b.n_trades || 0), 0);
+  $('elCalibN').textContent = totalN + ' trades';
+  if (!bins.length) { $('calibEmpty').style.display = ''; return; }
+  $('calibEmpty').style.display = 'none';
+
+  const labels = bins.map(b => b.prob_bin + '%');
+  const predicted = bins.map(b => (b.avg_predicted || 0) * 100);
+  const actual = bins.map(b => (b.actual_win_rate || 0) * 100);
+
+  if (chartCalib) chartCalib.destroy();
+  chartCalib = new Chart($('calibChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Predicted',
+          data: predicted,
+          backgroundColor: 'rgba(56,189,248,0.25)',
+          borderColor: '#38bdf8',
+          borderWidth: 1,
+          borderRadius: 3,
+          barPercentage: 0.8,
+          categoryPercentage: 0.7,
+        },
+        {
+          label: 'Actual',
+          data: actual,
+          backgroundColor: actual.map((v, i) => {
+            const diff = v - predicted[i];
+            return diff >= 0 ? 'rgba(16,185,129,0.35)' : 'rgba(244,63,94,0.35)';
+          }),
+          borderColor: actual.map((v, i) => {
+            const diff = v - predicted[i];
+            return diff >= 0 ? '#10b981' : '#f43f5e';
+          }),
+          borderWidth: 1,
+          borderRadius: 3,
+          barPercentage: 0.8,
+          categoryPercentage: 0.7,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index' },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            boxWidth: 8, boxHeight: 8, padding: 12,
+            font: { size: 9, family: "'IBM Plex Mono', monospace" },
+            usePointStyle: true,
+          }
+        },
+        tooltip: {
+          callbacks: {
+            afterBody: (items) => {
+              const i = items[0].dataIndex;
+              return `n=${bins[i].n_trades}  avg_pnl=$${(bins[i].avg_pnl||0).toFixed(2)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: { callback: v => v + '%', maxTicksLimit: 5 },
+          min: 0, max: 100,
+        }
+      }
+    }
+  });
+}
+
+function renderTierPerformance(data) {
+  const tiers = data.tier_performance || [];
+  $('elTierN').textContent = tiers.length + ' tiers';
+  if (!tiers.length) { $('tierEmpty').style.display = ''; return; }
+  $('tierEmpty').style.display = 'none';
+
+  // Shorten tier names for display
+  const labels = tiers.map(t => (t.tier_name || '?').replace('MAKER_', '').replace('ENDGAME_', 'EG_'));
+  const pnls = tiers.map(t => t.total_pnl || 0);
+  const winRates = tiers.map(t => t.win_rate_pct || 0);
+
+  if (chartTier) chartTier.destroy();
+  chartTier = new Chart($('tierChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'P&L',
+        data: pnls,
+        backgroundColor: pnls.map(v => v >= 0 ? 'rgba(16,185,129,0.3)' : 'rgba(244,63,94,0.3)'),
+        borderColor: pnls.map(v => v >= 0 ? '#10b981' : '#f43f5e'),
+        borderWidth: 1,
+        borderRadius: 3,
+        yAxisID: 'y',
+      }, {
+        label: 'Win %',
+        data: winRates,
+        type: 'line',
+        borderColor: '#fbbf24',
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        pointRadius: 3,
+        pointBackgroundColor: '#fbbf24',
+        tension: 0.2,
+        yAxisID: 'y1',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index' },
+      plugins: {
+        legend: {
+          display: true, position: 'top',
+          labels: {
+            boxWidth: 8, boxHeight: 8, padding: 12,
+            font: { size: 9, family: "'IBM Plex Mono', monospace" },
+            usePointStyle: true,
+          }
+        },
+        tooltip: {
+          callbacks: {
+            afterBody: (items) => {
+              const i = items[0].dataIndex;
+              const t = tiers[i];
+              return [
+                `${t.wins}W / ${t.losses}L`,
+                `avg edge: ${((t.avg_edge||0)*100).toFixed(1)}%`,
+                `avg bid: ${t.avg_bid||0}¢`,
+                `n=${t.n_trades}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxRotation: 45 } },
+        y: {
+          position: 'left',
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: { callback: v => '$' + v.toFixed(2), maxTicksLimit: 5 },
+          title: { display: false }
+        },
+        y1: {
+          position: 'right',
+          grid: { display: false },
+          ticks: { callback: v => v + '%', maxTicksLimit: 5 },
+          min: 0, max: 100,
+          title: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function renderAssetPerformance(data) {
+  const assets = data.asset_performance || [];
+  $('elAssetN').textContent = assets.length + ' assets';
+  if (!assets.length) { $('assetEmpty').style.display = ''; return; }
+  $('assetEmpty').style.display = 'none';
+
+  const assetColors = { BTC: '#f7931a', ETH: '#849dff', SOL: '#b86eff', XRP: '#23c4d8' };
+  const labels = assets.map(a => a.asset);
+  const pnls = assets.map(a => a.total_pnl || 0);
+  const bgColors = labels.map(l => {
+    const c = assetColors[l] || '#64748b';
+    return c + '55'; // add alpha
+  });
+  const borderColors = labels.map(l => assetColors[l] || '#64748b');
+
+  if (chartAsset) chartAsset.destroy();
+  chartAsset = new Chart($('assetChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: pnls,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: 1.5,
+        borderRadius: 4,
+        barPercentage: 0.6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: { callback: v => '$' + v.toFixed(2), maxTicksLimit: 5 },
+        },
+        y: { grid: { display: false } }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (item) => {
+              const a = assets[item.dataIndex];
+              return [
+                `P&L: $${(a.total_pnl||0).toFixed(2)}`,
+                `${a.wins||0}W / ${a.losses||0}L`,
+                `avg z: ${(a.avg_z||0).toFixed(1)}`,
+                `avg bid: ${a.avg_bid||0}¢`
+              ];
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderRejectionFunnel(data) {
+  const reasons = data.rejection_breakdown || [];
+  const totalObs = reasons.reduce((s, r) => s + (r.count || 0), 0);
+  $('elRejectN').textContent = totalObs + ' obs';
+  if (!reasons.length) { $('rejectEmpty').style.display = ''; return; }
+  $('rejectEmpty').style.display = 'none';
+
+  // Clean up reason names for display
+  const nameMap = {
+    'z_score_low': 'Low z-score',
+    'edge_insufficient': 'Edge too small',
+    'flash_crash': 'Flash crash',
+    'vol_high': 'High volatility',
+    'exposure_cap': 'Exposure cap',
+    'bid_below_floor': 'Bid < floor',
+    'max_orders': 'Max orders',
+    'feed_unhealthy': 'Feed down',
+    'already_traded': 'Already traded',
+    'cooldown': 'Cooldown',
+  };
+
+  const labels = reasons.map(r => nameMap[r.rejection_reason] || r.rejection_reason || '?');
+  const counts = reasons.map(r => r.count || 0);
+
+  // Color palette for doughnut
+  const palette = [
+    '#475569', '#64748b', '#38bdf8', '#a78bfa',
+    '#fbbf24', '#f43f5e', '#10b981', '#f97316',
+    '#ec4899', '#06b6d4'
+  ];
+
+  if (chartReject) chartReject.destroy();
+  chartReject = new Chart($('rejectChart'), {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data: counts,
+        backgroundColor: palette.slice(0, labels.length),
+        borderColor: 'rgba(12,16,24,0.8)',
+        borderWidth: 2,
+        hoverOffset: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          display: true,
+          position: 'right',
+          labels: {
+            boxWidth: 8, boxHeight: 8, padding: 6,
+            font: { size: 9, family: "'IBM Plex Mono', monospace" },
+            usePointStyle: true,
+            color: '#64748b',
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (item) => {
+              const r = reasons[item.dataIndex];
+              const pct = totalObs > 0 ? (r.count / totalObs * 100).toFixed(0) : 0;
+              return `${item.label}: ${r.count} (${pct}%)  avg_z=${(r.avg_z||0).toFixed(1)}`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderRecentTrades(data) {
+  const trades = data.recent_trades || [];
+  $('elTradesN').textContent = trades.length;
+  const tbody = $('tradesBody');
+
+  if (!trades.length) {
+    tbody.innerHTML = '<tr><td colspan="11" class="empty">Waiting for trades…</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = trades.map(t => {
+    const outcomeClass = t.outcome === 'WIN' ? 'outcome-win'
+                        : t.outcome === 'LOSS' ? 'outcome-loss'
+                        : 'outcome-pending';
+    const outcomeLabel = t.outcome || 'PEND';
+    const pnlVal = t.pnl != null ? t.pnl : null;
+    const pnlStr = pnlVal != null
+      ? `${pnlVal >= 0 ? '+' : ''}$${pnlVal.toFixed(2)}`
+      : '—';
+    const pnlClass = pnlVal > 0 ? 'pnl-pos' : pnlVal < 0 ? 'pnl-neg' : '';
+    const assetClass = 'asset-' + (t.asset || '').toLowerCase();
+    const edgePct = t.actual_edge != null ? (t.actual_edge * 100).toFixed(1) + '%' : '—';
+    const tierShort = (t.tier_name || '—').replace('MAKER_', '').replace('ENDGAME_', 'EG_');
+
+    return `<tr>
+      <td>${fmtTime(t.fill_time || t.entry_time)}</td>
+      <td class="${assetClass}">${t.asset || '?'}</td>
+      <td>${(t.direction || '?').toUpperCase()}</td>
+      <td>${t.bid_price_cents || '?'}</td>
+      <td>${t.z_score != null ? t.z_score.toFixed(1) : '—'}</td>
+      <td>${t.p_calibrated != null ? (t.p_calibrated * 100).toFixed(0) + '%' : '—'}</td>
+      <td>${edgePct}</td>
+      <td>${t.position_size || '?'}</td>
+      <td>${tierShort}</td>
+      <td class="${outcomeClass}">${outcomeLabel}</td>
+      <td class="${pnlClass}">${pnlStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// MAIN UPDATE (live state)
+// ══════════════════════════════════════════════════════════════════════
+
 function update(s) {
   if (!s) return;
   lastUpdate = Date.now();
@@ -748,8 +1426,35 @@ function update(s) {
   renderStinkBids(s);
 }
 
-// ── Real-time listener ──
+// ══════════════════════════════════════════════════════════════════════
+// ANALYTICS UPDATE
+// ══════════════════════════════════════════════════════════════════════
+
+function updateAnalytics(data) {
+  if (!data) return;
+
+  // Track last analytics time for periodic age refresh
+  lastAnalyticsTime = data.updated_at || null;
+
+  // Update age tag
+  $('elAnalyticsAge').textContent = lastAnalyticsTime
+    ? 'updated ' + timeAgo(lastAnalyticsTime)
+    : 'waiting for data';
+
+  renderEquityCurve(data);
+  renderCalibration(data);
+  renderTierPerformance(data);
+  renderAssetPerformance(data);
+  renderRejectionFunnel(data);
+  renderRecentTrades(data);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// FIREBASE LISTENERS
+// ══════════════════════════════════════════════════════════════════════
+
 if (db) {
+  // Live state (existing)
   const dashRef = ref(db, 'dashboard');
   onValue(dashRef, snap => {
     const data = snap.val();
@@ -759,9 +1464,21 @@ if (db) {
     $('pill').className = 'hdr-pill off';
     $('pillText').textContent = 'ERROR';
   });
+
+  // Analytics (new — pushed every 5 min)
+  const analyticsRef = ref(db, 'analytics');
+  onValue(analyticsRef, snap => {
+    const data = snap.val();
+    if (data) updateAnalytics(data);
+  }, err => {
+    console.error("Analytics read error:", err);
+  });
 }
 
-// ── Staleness checker ──
+// ══════════════════════════════════════════════════════════════════════
+// STALENESS CHECKER
+// ══════════════════════════════════════════════════════════════════════
+
 setInterval(() => {
   if (!lastUpdate) return;
   const age = Date.now() - lastUpdate;
@@ -772,10 +1489,9 @@ setInterval(() => {
     $('pill').className = 'hdr-pill stale';
     $('pillText').textContent = 'STALE';
   }
-  // Keep session time ticking
-  const el = $('elSession');
-  if (el.textContent !== '—') {
-    // Re-derive from last known state — just update the clock
+  // Refresh analytics age tag
+  if (lastAnalyticsTime) {
+    $('elAnalyticsAge').textContent = 'updated ' + timeAgo(lastAnalyticsTime);
   }
 }, 5000);
 </script>
