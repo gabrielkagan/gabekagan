@@ -50,7 +50,6 @@
     overflow-x: hidden;
   }
 
-  /* ═══ Noise texture overlay ═══ */
   body::before {
     content: '';
     position: fixed;
@@ -190,6 +189,7 @@
   .a-name { font-family: var(--mono); font-weight: 600; font-size: 12px; min-width: 36px; }
   .a-name.btc { color: #f7931a; } .a-name.eth { color: #849dff; }
   .a-name.sol { color: #b86eff; } .a-name.xrp { color: #23c4d8; }
+  .a-name.doge { color: #c3a634; }
   .a-price { font-family: var(--mono); font-size: 14px; font-weight: 500; color: var(--text-0); }
   .a-feed {
     font-family: var(--mono); font-size: 9px; font-weight: 600;
@@ -200,7 +200,7 @@
 
   /* ═══ Volatility ═══ */
   .vol-cell { grid-column: span 5; }
-  .vol-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .vol-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
   .vol-box {
     padding: 10px 12px; border-radius: 6px;
     border: 1px solid var(--border-0); background: var(--bg-2);
@@ -209,8 +209,8 @@
   .vol-val { font-family: var(--mono); font-size: 20px; font-weight: 600; margin-top: 2px; }
   .vol-sub { font-family: var(--mono); font-size: 9px; color: var(--text-3); margin-top: 2px; }
 
-  /* ═══ Orders ═══ */
-  .orders-cell { grid-column: span 4; grid-row: span 2; }
+  /* ═══ Resting Orders ═══ */
+  .orders-cell { grid-column: span 4; }
   .ord-item {
     padding: 10px 12px; border-radius: 6px; margin-bottom: 5px;
     border: 1px solid var(--border-0); background: var(--bg-2);
@@ -230,30 +230,84 @@
   }
   .ord-details .dim { color: var(--text-3); }
 
-  /* ═══ Bandit ═══ */
-  .bandit-cell { grid-column: span 4; }
-  .bn-row {
+  /* ═══ Market Radar ═══ */
+  .radar-cell { grid-column: span 4; }
+  .radar-row {
     display: flex; align-items: center; gap: 10px;
-    padding: 7px 10px; border-radius: 5px; margin-bottom: 3px;
+    padding: 8px 10px; border-radius: 6px; margin-bottom: 3px;
+    border: 1px solid var(--border-0); background: var(--bg-2);
+    transition: border-color 0.3s;
+  }
+  .radar-row.hot { border-color: var(--amber-border); background: var(--amber-bg); }
+  .radar-row.active { border-color: var(--green-border); background: var(--green-bg); }
+  .radar-name { font-family: var(--mono); font-weight: 600; font-size: 11px; min-width: 36px; }
+  .radar-countdown {
+    font-family: var(--mono); font-size: 18px; font-weight: 700;
+    min-width: 50px; text-align: right;
+  }
+  .radar-countdown.hot { color: var(--amber-0); }
+  .radar-countdown.active { color: var(--green-0); }
+  .radar-countdown.cold { color: var(--text-3); }
+  .radar-detail {
+    flex: 1; font-family: var(--mono); font-size: 9px; color: var(--text-3);
+  }
+  .radar-bar {
+    width: 100%; height: 3px; background: var(--border-0); border-radius: 2px;
+    margin-top: 3px; overflow: hidden;
+  }
+  .radar-bar-fill {
+    height: 100%; border-radius: 2px; transition: width 1s linear;
+  }
+
+  /* ═══ Scan Funnel ═══ */
+  .funnel-cell { grid-column: span 4; }
+  .funnel-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 0; font-family: var(--mono); font-size: 10px;
+  }
+  .funnel-label { color: var(--text-3); min-width: 90px; text-align: right; }
+  .funnel-bar-wrap {
+    flex: 1; height: 14px; background: var(--bg-2); border-radius: 3px;
+    overflow: hidden; position: relative;
+  }
+  .funnel-bar {
+    height: 100%; border-radius: 3px; transition: width 0.5s ease;
+    min-width: 2px;
+  }
+  .funnel-count {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    font-size: 9px; font-weight: 600; color: var(--text-0);
+    text-shadow: 0 0 4px var(--bg-0);
+  }
+
+  /* ═══ Pending Positions ═══ */
+  .pending-cell { grid-column: span 4; }
+  .pend-item {
+    padding: 10px 12px; border-radius: 6px; margin-bottom: 5px;
     border: 1px solid var(--border-0); background: var(--bg-2);
   }
-  .bn-name { font-family: var(--mono); font-weight: 600; font-size: 11px; min-width: 32px; }
-  .bn-mult { font-family: var(--mono); font-size: 14px; font-weight: 700; min-width: 40px; }
-  .bn-track { flex: 1; height: 3px; background: var(--border-0); border-radius: 2px; overflow: hidden; }
-  .bn-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
-  .bn-wl { font-family: var(--mono); font-size: 9px; color: var(--text-3); min-width: 50px; text-align: right; }
+  .pend-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .pend-ticker { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text-0); }
+  .pend-tag {
+    font-family: var(--mono); font-size: 9px; padding: 2px 6px;
+    border-radius: 3px; font-weight: 600;
+  }
+  .pend-details {
+    display: flex; gap: 10px; font-family: var(--mono); font-size: 10px; color: var(--text-1);
+  }
+  .pend-details .dim { color: var(--text-3); }
 
   /* ═══ Activity Feed ═══ */
   .feed-cell { grid-column: span 12; }
   .feed-scroll {
-    max-height: 500px; overflow-y: auto;
+    max-height: 400px; overflow-y: auto;
     scrollbar-width: thin; scrollbar-color: var(--border-1) transparent;
   }
   .feed-scroll::-webkit-scrollbar { width: 3px; }
   .feed-scroll::-webkit-scrollbar-thumb { background: var(--border-1); border-radius: 2px; }
   .f-item {
     display: flex; align-items: flex-start; gap: 8px;
-    padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.025);
+    padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.025);
     animation: fadeSlide 0.3s ease;
   }
   @keyframes fadeSlide { from { opacity: 0; transform: translateX(-4px); } }
@@ -264,7 +318,7 @@
   .f-type {
     font-family: var(--mono); font-size: 9px; font-weight: 600;
     padding: 2px 5px; border-radius: 3px;
-    min-width: 50px; text-align: center; flex-shrink: 0;
+    min-width: 56px; text-align: center; flex-shrink: 0;
   }
   .f-type.fill { background: var(--green-bg); color: var(--green-0); }
   .f-type.win { background: var(--green-bg); color: var(--green-0); font-weight: 700; }
@@ -316,30 +370,28 @@
     font-family: var(--mono); font-size: 12px; color: var(--amber-0);
   }
 
-  /* ═══════════════════════════════════════════════════════════════════ */
-  /* ANALYTICS SECTION                                                  */
-  /* ═══════════════════════════════════════════════════════════════════ */
-
-  .analytics-divider {
+  /* ═══ Section Divider ═══ */
+  .section-divider {
     grid-column: 1 / -1;
     background: var(--bg-0);
     padding: 18px 22px 6px;
     display: flex; align-items: center; gap: 12px;
   }
-  .analytics-divider .divider-label {
+  .section-divider .divider-label {
     font-family: var(--mono); font-size: 11px; font-weight: 600;
     letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-3);
     white-space: nowrap;
   }
-  .analytics-divider .divider-line {
+  .section-divider .divider-line {
     flex: 1; height: 1px; background: var(--border-0);
   }
-  .analytics-divider .divider-tag {
+  .section-divider .divider-tag {
     font-family: var(--mono); font-size: 9px; padding: 2px 8px;
     border-radius: 4px; font-weight: 600;
-    background: var(--violet-bg); color: var(--violet-0);
     white-space: nowrap;
   }
+  .divider-tag.amber { background: var(--amber-bg); color: var(--amber-0); }
+  .divider-tag.violet { background: var(--violet-bg); color: var(--violet-0); }
 
   /* ═══ Chart containers ═══ */
   .equity-cell { grid-column: span 8; }
@@ -369,7 +421,6 @@
   }
   .trades-scroll::-webkit-scrollbar { width: 3px; }
   .trades-scroll::-webkit-scrollbar-thumb { background: var(--border-1); border-radius: 2px; }
-
   .trades-table {
     width: 100%;
     border-collapse: collapse;
@@ -383,11 +434,8 @@
   }
   .trades-table th {
     text-align: left;
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    color: var(--text-3);
+    font-size: 9px; font-weight: 600; letter-spacing: 0.8px;
+    text-transform: uppercase; color: var(--text-3);
     padding: 8px 8px 10px;
     border-bottom: 1px solid var(--border-0);
   }
@@ -397,38 +445,17 @@
     border-bottom: 1px solid rgba(255,255,255,0.02);
     white-space: nowrap;
   }
-  .trades-table tr:hover td {
-    background: var(--bg-2);
-  }
-  .trades-table .outcome-win {
-    color: var(--green-0); font-weight: 600;
-  }
-  .trades-table .outcome-loss {
-    color: var(--red-0); font-weight: 600;
-  }
-  .trades-table .outcome-pending {
-    color: var(--amber-0);
-  }
+  .trades-table tr:hover td { background: var(--bg-2); }
+  .trades-table .outcome-win { color: var(--green-0); font-weight: 600; }
+  .trades-table .outcome-loss { color: var(--red-0); font-weight: 600; }
+  .trades-table .outcome-pending { color: var(--amber-0); }
   .trades-table .pnl-pos { color: var(--green-0); }
   .trades-table .pnl-neg { color: var(--red-0); }
   .trades-table .asset-btc { color: #f7931a; }
   .trades-table .asset-eth { color: #849dff; }
   .trades-table .asset-sol { color: #b86eff; }
   .trades-table .asset-xrp { color: #23c4d8; }
-
-  /* ═══ Stink bids (existing) ═══ */
-  .stink-cell { grid-column: span 8; }
-  .order-row {
-    display: flex; align-items: center; gap: 8px;
-    padding: 6px 10px; border-radius: 5px; margin-bottom: 2px;
-    border: 1px solid var(--border-0); background: var(--bg-2);
-    font-family: var(--mono); font-size: 10px;
-  }
-  .order-row .ord-side { font-weight: 600; min-width: 24px; }
-  .order-row .ord-price { color: var(--text-1); min-width: 32px; }
-  .order-row .ord-ct { color: var(--text-3); min-width: 24px; }
-  .order-row .ord-z { color: var(--text-3); flex: 1; }
-  .order-row .ord-rest { color: var(--text-3); }
+  .trades-table .asset-doge { color: #c3a634; }
 
   /* ═══ Responsive ═══ */
   @media (max-width: 1100px) {
@@ -436,8 +463,7 @@
     .hero, .stats-cell, .wl-cell { grid-column: span 6; }
     .prices-cell { grid-column: span 3; }
     .vol-cell { grid-column: span 3; }
-    .orders-cell { grid-column: span 6; grid-row: auto; }
-    .bandit-cell { grid-column: span 6; }
+    .orders-cell, .radar-cell, .funnel-cell, .pending-cell { grid-column: span 6; }
     .feed-cell { grid-column: span 6; }
     .equity-cell { grid-column: span 6; }
     .calibration-cell { grid-column: span 6; }
@@ -445,15 +471,14 @@
     .asset-perf-cell { grid-column: span 6; }
     .rejection-cell { grid-column: span 6; }
     .trades-cell { grid-column: span 6; }
-    .stink-cell { grid-column: span 6; }
+    .vol-grid { grid-template-columns: repeat(3, 1fr); }
   }
   @media (max-width: 700px) {
     .grid { grid-template-columns: 1fr; }
     .hero, .stats-cell, .wl-cell, .prices-cell, .vol-cell,
-    .orders-cell, .bandit-cell, .feed-cell,
-    .equity-cell, .calibration-cell, .tier-cell,
-    .asset-perf-cell, .rejection-cell, .trades-cell,
-    .stink-cell { grid-column: 1 / -1; }
+    .orders-cell, .radar-cell, .funnel-cell, .pending-cell,
+    .feed-cell, .equity-cell, .calibration-cell, .tier-cell,
+    .asset-perf-cell, .rejection-cell, .trades-cell { grid-column: 1 / -1; }
     .bal-num { font-size: 32px; }
     .vol-grid { grid-template-columns: repeat(2, 1fr); }
     .hdr { padding: 12px 16px; }
@@ -462,7 +487,6 @@
 </head>
 <body>
 
-<!-- Config overlay -->
 <div class="config-banner hidden" id="configBanner">
   <div class="config-box">
     <h2>Dashboard Not Connected</h2>
@@ -488,13 +512,13 @@
     <span class="hdr-sep">·</span>
     <span id="elScan">scan #0</span>
     <span class="hdr-sep">·</span>
-    <span id="elMode">—</span>
+    <span id="elClosest">—</span>
   </div>
 </div>
 
 <div class="grid">
 
-  <!-- ════════════════════════ LIVE STATE (existing) ════════════════════════ -->
+  <!-- ════════════════════════ ROW 1: Core metrics ════════════════════════ -->
 
   <!-- Balance -->
   <div class="cell hero">
@@ -511,20 +535,20 @@
       <div class="bm">Start <span id="elStart">$—</span></div>
       <div class="bm">Peak <span id="elPeak">$—</span></div>
       <div class="bm">Streak <span id="elStreak">0L</span></div>
-      <div class="bm">Interval <span id="elInterval">—</span></div>
+      <div class="bm">Deployed <span id="elDeployed">$0</span></div>
     </div>
   </div>
 
-  <!-- Stats -->
+  <!-- Session Stats -->
   <div class="cell stats-cell">
     <div class="cell-label">Session</div>
     <div class="s-grid">
       <div class="s-box"><div class="s-val" id="elFills">0</div><div class="s-lbl">Fills</div></div>
-      <div class="s-box"><div class="s-val" id="elOrders">0</div><div class="s-lbl">Orders</div></div>
+      <div class="s-box"><div class="s-val" id="elOrders">0</div><div class="s-lbl">Bids</div></div>
       <div class="s-box"><div class="s-val" id="elFR">0%</div><div class="s-lbl">Fill Rate</div></div>
-      <div class="s-box"><div class="s-val" id="elMkts">0</div><div class="s-lbl">Markets</div></div>
-      <div class="s-box"><div class="s-val" id="elEG">0/0</div><div class="s-lbl">Endgame</div></div>
       <div class="s-box"><div class="s-val" id="elRest">0</div><div class="s-lbl">Resting</div></div>
+      <div class="s-box"><div class="s-val" id="elPending">0</div><div class="s-lbl">Pending</div></div>
+      <div class="s-box"><div class="s-val" id="elLiqs">0</div><div class="s-lbl">Liqs</div></div>
     </div>
   </div>
 
@@ -540,12 +564,14 @@
       <div class="wl-track"><div class="wl-fill" id="elWLBar" style="width:50%"></div></div>
     </div>
     <div class="wl-meta">
-      <div class="bm">Settled W <span class="up" id="elSW">0</span></div>
-      <div class="bm">Settled L <span class="dn" id="elSL">0</span></div>
-      <div class="bm">Trades <span id="elTrades">0</span></div>
-      <div class="bm">Cancels <span id="elCancels">0</span></div>
+      <div class="bm">E3 W/L <span id="elE3WL">0/0</span></div>
+      <div class="bm">E3 PnL <span id="elE3Pnl">$0.00</span></div>
+      <div class="bm">E2 W/L <span id="elE2WL">0/0</span></div>
+      <div class="bm">E2 PnL <span id="elE2Pnl">$0.00</span></div>
     </div>
   </div>
+
+  <!-- ════════════════════════ ROW 2: Market data + Radar ════════════════════════ -->
 
   <!-- Asset Prices -->
   <div class="cell prices-cell">
@@ -562,6 +588,32 @@
     <div class="vol-grid" id="elVol"><div class="empty" style="grid-column:1/-1">Warming up…</div></div>
   </div>
 
+  <!-- Market Radar -->
+  <div class="cell radar-cell">
+    <div class="cell-label">
+      Market Radar
+      <span class="tag" id="elRadarTag" style="background:var(--amber-bg);color:var(--amber-0)">scanning</span>
+    </div>
+    <div id="elRadar"><div class="empty">Waiting for markets…</div></div>
+  </div>
+
+  <!-- ════════════════════════ ROW 3: Operations ════════════════════════ -->
+
+  <div class="section-divider">
+    <span class="divider-label">Operations</span>
+    <div class="divider-line"></div>
+    <span class="divider-tag amber" id="elOpsTag">idle</span>
+  </div>
+
+  <!-- Scan Funnel -->
+  <div class="cell funnel-cell">
+    <div class="cell-label">
+      Scan Funnel
+      <span class="tag" id="elFunnelTag" style="background:rgba(255,255,255,0.04);color:var(--text-3)">last scan</span>
+    </div>
+    <div id="elFunnel"><div class="empty">No markets in window yet…</div></div>
+  </div>
+
   <!-- Resting Orders -->
   <div class="cell orders-cell">
     <div class="cell-label">
@@ -571,24 +623,13 @@
     <div id="elOrdersList"><div class="empty">No resting orders</div></div>
   </div>
 
-  <!-- Asset Bandit -->
-  <div class="cell bandit-cell">
-    <div class="cell-label">Asset Bandit</div>
-    <div id="elBandit"><div class="empty">Learning…</div></div>
-  </div>
-
-  <!-- Position Additions -->
-  <div class="cell stink-cell">
-    <div class="cell-label">Position Additions
-      <span class="tag" id="elStinkCount" style="background:var(--blue-bg);color:var(--blue-0);margin-left:6px">0 active</span>
+  <!-- Pending Positions -->
+  <div class="cell pending-cell">
+    <div class="cell-label">
+      Awaiting Settlement
+      <span class="tag" id="elPendBadge" style="background:var(--amber-bg);color:var(--amber-0)">0</span>
     </div>
-    <div class="s-grid" style="margin-bottom:8px">
-      <div class="s-box"><div class="s-val" id="elStinkPlaced">0</div><div class="s-lbl">Stink Placed</div></div>
-      <div class="s-box"><div class="s-val" id="elStinkFilled">0</div><div class="s-lbl">Stink Filled</div></div>
-      <div class="s-box"><div class="s-val" id="elStinkCancelled">0</div><div class="s-lbl">Cancelled</div></div>
-      <div class="s-box"><div class="s-val" id="elAdditions">0</div><div class="s-lbl">Active Adds</div></div>
-    </div>
-    <div id="elStinkList"><div class="empty">No stink bids</div></div>
+    <div id="elPendList"><div class="empty">No pending positions</div></div>
   </div>
 
   <!-- Activity Feed -->
@@ -600,12 +641,12 @@
     <div class="feed-scroll" id="elFeed"><div class="empty">Waiting for activity…</div></div>
   </div>
 
-  <!-- ════════════════════════ ANALYTICS (new) ════════════════════════ -->
+  <!-- ════════════════════════ ANALYTICS ════════════════════════ -->
 
-  <div class="analytics-divider">
+  <div class="section-divider">
     <span class="divider-label">Analytics</span>
     <div class="divider-line"></div>
-    <span class="divider-tag" id="elAnalyticsAge">waiting for data</span>
+    <span class="divider-tag violet" id="elAnalyticsAge">waiting for data</span>
   </div>
 
   <!-- Equity Curve -->
@@ -701,13 +742,8 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
-<!-- Chart.js from CDN                                                   -->
-<!-- ═══════════════════════════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 
-<!-- ═══════════════════════════════════════════════════════════════════ -->
-<!-- Firebase SDK                                                        -->
-<!-- ═══════════════════════════════════════════════════════════════════ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
@@ -740,14 +776,9 @@ try {
 // ══════════════════════════════════════════════════════════════════════
 let lastUpdate = 0;
 let lastEventCount = 0;
-let lastAnalyticsTime = null;  // ISO string of last analytics push
-
-// Chart instances (destroyed + recreated on data update)
-let chartEquity = null;
-let chartCalib = null;
-let chartTier = null;
-let chartAsset = null;
-let chartReject = null;
+let lastAnalyticsTime = null;
+let chartEquity = null, chartCalib = null, chartTier = null,
+    chartAsset = null, chartReject = null;
 
 // ══════════════════════════════════════════════════════════════════════
 // HELPERS
@@ -774,16 +805,23 @@ function fmtDuration(iso) {
   return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m`;
 }
 
+function fmtSec(s) {
+  if (s == null || s > 9999) return '—';
+  if (s < 60) return s + 's';
+  return Math.floor(s / 60) + 'm ' + (s % 60) + 's';
+}
+
 function cls(v) { return v > 0 ? 'up' : v < 0 ? 'dn' : 'flat'; }
 
 function typeClass(t) {
-  if (/FILL/.test(t)) return 'fill';
+  if (!t) return 'log';
+  if (/FILL|TAKER/.test(t)) return 'fill';
   if (/WIN/.test(t)) return 'win';
   if (/LOSS/.test(t)) return 'loss';
-  if (/ORDER|MARKET/.test(t)) return 'order';
+  if (/ORDER|PLACE/.test(t)) return 'order';
   if (/CANCEL|IOC/.test(t)) return 'cancel';
   if (/SETTLE/.test(t)) return 'settle';
-  if (/ENDGAME/.test(t)) return 'endgame';
+  if (/ENDGAME|E3/.test(t)) return 'endgame';
   if (/EVAL|CORR/.test(t)) return 'decision';
   if (/STATUS/.test(t)) return 'status';
   if (/GARCH|FEED/.test(t)) return 'garch';
@@ -800,8 +838,10 @@ function timeAgo(iso) {
   return Math.floor(s / 3600) + 'h ago';
 }
 
+const ASSET_COLORS = { BTC: '#f7931a', ETH: '#849dff', SOL: '#b86eff', XRP: '#23c4d8', DOGE: '#c3a634' };
+
 // ══════════════════════════════════════════════════════════════════════
-// CHART.JS GLOBAL CONFIG
+// CHART.JS DEFAULTS
 // ══════════════════════════════════════════════════════════════════════
 Chart.defaults.color = '#64748b';
 Chart.defaults.borderColor = 'rgba(255,255,255,0.04)';
@@ -820,7 +860,7 @@ Chart.defaults.plugins.tooltip.bodyFont = { family: "'IBM Plex Mono', monospace"
 Chart.defaults.animation = { duration: 400, easing: 'easeOutQuart' };
 
 // ══════════════════════════════════════════════════════════════════════
-// LIVE STATE RENDERERS (existing)
+// LIVE STATE RENDERERS
 // ══════════════════════════════════════════════════════════════════════
 
 function renderPrices(s) {
@@ -867,19 +907,137 @@ function renderOrders(s) {
   $('elRestBadge').textContent = ords.length;
   if (!ords.length) { box.innerHTML = '<div class="empty">No resting orders</div>'; return; }
   box.innerHTML = ords.map(o => {
-    const eg = o.endgame || o.price_cents >= 99;
     const tk = o.ticker || '??';
     const short = tk.length > 22 ? '…' + tk.slice(-17) : tk;
     return `<div class="ord-item">
       <div class="ord-top">
         <span class="ord-ticker">${short}</span>
-        <span class="ord-tag ${eg ? 'endgame' : 'maker'}">${eg ? 'ENDGAME' : (o.tier_name || 'MAKER')}</span>
+        <span class="ord-tag endgame">${o.tier_name || 'E3'}</span>
       </div>
       <div class="ord-details">
         <span><span class="dim">bid</span> ${o.price_cents || '?'}¢</span>
         <span><span class="dim">qty</span> ${o.count || '?'}</span>
         <span><span class="dim">z</span> ${(o.z_score || 0).toFixed(1)}</span>
-        <span>${o.direction || '?'}</span>
+        <span>${(o.direction || '?').toUpperCase()}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderRadar(s) {
+  const box = $('elRadar');
+  const landscape = s.market_landscape || {};
+  if (!Object.keys(landscape).length) return;
+
+  let hotCount = 0;
+  const rows = Object.entries(landscape)
+    .sort((a, b) => a[1].next_close - b[1].next_close)
+    .map(([asset, info]) => {
+      const stc = info.next_close || 999;
+      const inWindow = stc <= 120;
+      const isHot = stc <= 30;
+      if (inWindow) hotCount++;
+      const cClass = isHot ? 'active' : inWindow ? 'hot' : '';
+      const cdClass = isHot ? 'active' : inWindow ? 'hot' : 'cold';
+      const above = info.above_in_window || 0;
+      const brackets = info.brackets_in_window || 0;
+      const pct = inWindow ? Math.max(0, Math.min(100, (120 - stc) / 120 * 100)) : 0;
+      const barColor = isHot ? 'var(--green-0)' : inWindow ? 'var(--amber-0)' : 'var(--text-3)';
+      const detail = inWindow
+        ? `${above} above · ${brackets} bracket`
+        : stc < 999 ? `next in ${fmtSec(stc)}` : 'no markets';
+      return `<div class="radar-row ${cClass}">
+        <span class="radar-name" style="color:${ASSET_COLORS[asset] || 'var(--text-1)'}">${asset}</span>
+        <div class="radar-detail">
+          ${detail}
+          <div class="radar-bar"><div class="radar-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+        </div>
+        <span class="radar-countdown ${cdClass}">${inWindow ? stc + 's' : fmtSec(stc)}</span>
+      </div>`;
+    }).join('');
+
+  box.innerHTML = rows;
+  $('elRadarTag').textContent = hotCount > 0 ? hotCount + ' in window' : 'scanning';
+  $('elOpsTag').textContent = hotCount > 0 ? hotCount + ' active' : 'idle';
+}
+
+function renderFunnel(s) {
+  const box = $('elFunnel');
+  const f = s.scan_funnel || {};
+  if (!f.in_window && !f.bracket_skip) {
+    box.innerHTML = '<div class="empty">No markets in window yet…</div>';
+    return;
+  }
+
+  const stages = [
+    { label: 'In Window', key: 'in_window', color: 'var(--blue-0)' },
+    { label: 'Brackets', key: 'bracket_skip', color: 'var(--text-3)', subtract: true },
+    { label: 'Already Traded', key: 'already_traded', color: 'var(--text-3)', subtract: true },
+    { label: 'Low Conf', key: 'low_win_p', color: 'var(--amber-0)', subtract: true },
+    { label: 'No Tier', key: 'no_tier', color: 'var(--text-3)', subtract: true },
+    { label: 'No Book', key: 'no_orderbook', color: 'var(--red-0)', subtract: true },
+    { label: 'No Edge', key: 'no_edge', color: 'var(--red-0)', subtract: true },
+    { label: 'TF Reject', key: 'taker_first_reject', color: 'var(--amber-0)', subtract: true },
+    { label: 'Candidates', key: 'candidates', color: 'var(--green-0)' },
+  ];
+
+  const maxVal = Math.max(1, f.in_window || 1);
+  let html = '';
+  for (const st of stages) {
+    const val = f[st.key] || 0;
+    if (val === 0 && st.subtract) continue; // hide zero-count filters
+    const pct = Math.max(2, val / maxVal * 100);
+    const opacity = st.subtract ? '0.6' : '1';
+    const prefix = st.subtract ? '−' : '';
+    html += `<div class="funnel-row">
+      <span class="funnel-label">${st.label}</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:${pct}%;background:${st.color};opacity:${opacity}"></div>
+        <span class="funnel-count">${prefix}${val}</span>
+      </div>
+    </div>`;
+  }
+
+  // Execution breakdown
+  const tf = f.taker_first_fire || 0;
+  const st_take = f.standard_take || 0;
+  const maker = f.maker_post || 0;
+  if (tf + st_take + maker > 0) {
+    html += `<div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--text-3);display:flex;gap:12px">
+      ${tf ? `<span style="color:var(--green-0)">⚡ ${tf} taker-first</span>` : ''}
+      ${st_take ? `<span style="color:var(--blue-0)">↗ ${st_take} standard take</span>` : ''}
+      ${maker ? `<span style="color:var(--amber-0)">◇ ${maker} maker post</span>` : ''}
+    </div>`;
+  }
+
+  box.innerHTML = html;
+  $('elFunnelTag').textContent = (f.candidates || 0) + ' of ' + (f.in_window || 0);
+}
+
+function renderPending(s) {
+  const box = $('elPendList');
+  const pends = s.pending_positions || [];
+  $('elPendBadge').textContent = pends.length;
+  $('elPending').textContent = pends.length;
+  if (!pends.length) { box.innerHTML = '<div class="empty">No pending positions</div>'; return; }
+  box.innerHTML = pends.map(p => {
+    const tk = p.ticker || '??';
+    const short = tk.length > 22 ? '…' + tk.slice(-17) : tk;
+    const dirColor = p.dir === 'yes' ? 'var(--green-0)' : 'var(--red-0)';
+    const ageStr = p.age_s < 60 ? Math.round(p.age_s) + 's' : Math.round(p.age_s / 60) + 'm';
+    return `<div class="pend-item">
+      <div class="pend-top">
+        <span class="pend-ticker">${short}</span>
+        <span class="pend-tag" style="background:var(--amber-bg);color:var(--amber-0)">${p.tier || 'E3'} ${p.is_taker ? '⚡' : '◇'}</span>
+      </div>
+      <div class="pend-details">
+        <span style="color:${dirColor};font-weight:600">${(p.dir || '?').toUpperCase()}</span>
+        <span><span class="dim">@</span>${p.price}¢</span>
+        <span><span class="dim">×</span>${p.count}</span>
+        <span><span class="dim">z</span>${(p.z || 0).toFixed(1)}</span>
+        <span><span class="dim">cost</span>$${(p.cost || 0).toFixed(2)}</span>
+        <span><span class="dim">if win</span>+$${(p.payout_if_win || 0).toFixed(2)}</span>
+        <span class="dim">${ageStr} ago</span>
       </div>
     </div>`;
   }).join('');
@@ -891,12 +1049,23 @@ function renderFeed(s) {
   lastEventCount = evts.length;
   $('elEvtCount').textContent = evts.length;
   const box = $('elFeed');
-  const rev = [...evts].reverse().slice(0, 150);
-  if (!rev.length) { box.innerHTML = '<div class="empty">Waiting for activity…</div>'; return; }
-  box.innerHTML = rev.map(e => {
+  // Filter out STATUS lines from feed (data now shown in cards above)
+  const filtered = [...evts].reverse().filter(e => {
+    const t = e.type || '';
+    // Keep everything except raw STATUS lines (that data is now in cards)
+    return !/^STATUS$/.test(t);
+  }).slice(0, 100);
+  if (!filtered.length) { box.innerHTML = '<div class="empty">Waiting for activity…</div>'; return; }
+  box.innerHTML = filtered.map(e => {
     const tc = typeClass(e.type || '');
-    const label = (e.type || 'LOG').replace(/_/g, ' ').slice(0, 9);
-    const msg = e.msg || e.message || JSON.stringify(e).slice(0, 300);
+    const label = (e.type || 'LOG').replace(/_/g, ' ').slice(0, 10);
+    let msg = e.msg || e.message || JSON.stringify(e).slice(0, 300);
+    // Highlight key values in log messages
+    msg = msg
+      .replace(/(\$[\d.]+)/g, '<span style="color:var(--text-0);font-weight:500">$1</span>')
+      .replace(/(WIN|FILL|TAKER-FIRST)/g, '<span style="color:var(--green-0);font-weight:600">$1</span>')
+      .replace(/(LOSS|ERROR|FAIL)/g, '<span style="color:var(--red-0);font-weight:600">$1</span>')
+      .replace(/(z=[\d.]+)/g, '<span style="color:var(--amber-0)">$1</span>');
     return `<div class="f-item">
       <span class="f-time">${fmtTime(e.ts)}</span>
       <span class="f-type ${tc}">${label}</span>
@@ -905,52 +1074,8 @@ function renderFeed(s) {
   }).join('');
 }
 
-function renderBandit(s) {
-  const box = $('elBandit');
-  const bn = s.asset_bandit || {};
-  if (!Object.keys(bn).length) return;
-  const colors = { BTC: '#f7931a', ETH: '#849dff', SOL: '#b86eff', XRP: '#23c4d8' };
-  box.innerHTML = Object.entries(bn).map(([a, i]) => {
-    const m = (i.multiplier || 1).toFixed(1);
-    const p = i.posterior || 0.5;
-    const c = colors[a] || 'var(--blue-0)';
-    return `<div class="bn-row">
-      <span class="bn-name" style="color:${c}">${a}</span>
-      <span class="bn-mult">${m}x</span>
-      <div class="bn-track"><div class="bn-fill" style="width:${Math.round(p*100)}%;background:${c}"></div></div>
-      <span class="bn-wl">${i.wins||0}W / ${i.losses||0}L</span>
-    </div>`;
-  }).join('');
-}
-
-function renderStinkBids(s) {
-  $('elStinkCount').textContent = (s.stink_bids_count || 0) + ' active';
-  $('elStinkPlaced').textContent = s.stink_bids_placed || 0;
-  $('elStinkFilled').textContent = s.stink_bids_filled || 0;
-  $('elStinkCancelled').textContent = s.stink_bids_cancelled || 0;
-  $('elAdditions').textContent = s.additions_placed || 0;
-  const box = $('elStinkList');
-  const bids = s.stink_bids || [];
-  if (!bids.length) { box.innerHTML = '<div class="empty">No stink bids</div>'; return; }
-  box.innerHTML = bids.map(b => {
-    const rest = Math.round(b.rest_seconds || 0);
-    const restStr = rest > 60 ? Math.round(rest/60)+'m' : rest+'s';
-    const dir = (b.direction||'?').toUpperCase();
-    const colors = { yes: 'var(--green-0)', no: 'var(--red-0)' };
-    const dirColor = colors[(b.direction||'').toLowerCase()] || 'var(--dim)';
-    return `<div class="order-row">
-      <span class="ord-ticker">${(b.ticker||'?').slice(-15)}</span>
-      <span class="ord-side" style="color:${dirColor}">${dir}</span>
-      <span class="ord-price">${b.price_cents||0}¢</span>
-      <span class="ord-ct">${b.count||0}x</span>
-      <span class="ord-z">${b.label||''}</span>
-      <span class="ord-rest">${restStr}</span>
-    </div>`;
-  }).join('');
-}
-
 // ══════════════════════════════════════════════════════════════════════
-// ANALYTICS RENDERERS (new)
+// ANALYTICS RENDERERS (unchanged from original)
 // ══════════════════════════════════════════════════════════════════════
 
 function renderEquityCurve(data) {
@@ -965,8 +1090,6 @@ function renderEquityCurve(data) {
   });
   const balances = pts.map(p => p.balance);
   const pnls = pts.map(p => p.pnl);
-
-  // Determine color based on overall P&L trend
   const lastPnl = pnls[pnls.length - 1] || 0;
   const lineColor = lastPnl >= 0 ? '#10b981' : '#f43f5e';
   const fillColor = lastPnl >= 0 ? 'rgba(16,185,129,0.08)' : 'rgba(244,63,94,0.08)';
@@ -977,45 +1100,24 @@ function renderEquityCurve(data) {
     data: {
       labels,
       datasets: [{
-        data: balances,
-        borderColor: lineColor,
-        backgroundColor: fillColor,
-        borderWidth: 1.5,
-        fill: true,
-        tension: 0.3,
-        pointRadius: 0,
-        pointHitRadius: 8,
+        data: balances, borderColor: lineColor, backgroundColor: fillColor,
+        borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8,
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       scales: {
-        x: {
-          grid: { display: false },
-          ticks: { maxTicksLimit: 8, maxRotation: 0 }
-        },
-        y: {
-          grid: { color: 'rgba(255,255,255,0.03)' },
-          ticks: {
-            callback: v => '$' + v.toFixed(2),
-            maxTicksLimit: 5
-          }
-        }
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 8, maxRotation: 0 } },
+        y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { callback: v => '$' + v.toFixed(2), maxTicksLimit: 5 } }
       },
       plugins: {
         tooltip: {
           callbacks: {
-            title: (items) => labels[items[0].dataIndex],
-            label: (item) => {
+            title: items => labels[items[0].dataIndex],
+            label: item => {
               const i = item.dataIndex;
-              const bal = balances[i];
-              const pnl = pnls[i];
-              return [
-                `Balance: ${bal != null ? '$' + bal.toFixed(2) : '—'}`,
-                `P&L: ${pnl != null ? (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2) : '—'}`
-              ];
+              return [`Balance: $${balances[i]?.toFixed(2) ?? '—'}`, `P&L: ${pnls[i] >= 0 ? '+$' : '-$'}${Math.abs(pnls[i] ?? 0).toFixed(2)}`];
             }
           }
         }
@@ -1041,64 +1143,22 @@ function renderCalibration(data) {
     data: {
       labels,
       datasets: [
-        {
-          label: 'Predicted',
-          data: predicted,
-          backgroundColor: 'rgba(56,189,248,0.25)',
-          borderColor: '#38bdf8',
-          borderWidth: 1,
-          borderRadius: 3,
-          barPercentage: 0.8,
-          categoryPercentage: 0.7,
-        },
-        {
-          label: 'Actual',
-          data: actual,
-          backgroundColor: actual.map((v, i) => {
-            const diff = v - predicted[i];
-            return diff >= 0 ? 'rgba(16,185,129,0.35)' : 'rgba(244,63,94,0.35)';
-          }),
-          borderColor: actual.map((v, i) => {
-            const diff = v - predicted[i];
-            return diff >= 0 ? '#10b981' : '#f43f5e';
-          }),
-          borderWidth: 1,
-          borderRadius: 3,
-          barPercentage: 0.8,
-          categoryPercentage: 0.7,
-        }
+        { label: 'Predicted', data: predicted, backgroundColor: 'rgba(56,189,248,0.25)', borderColor: '#38bdf8', borderWidth: 1, borderRadius: 3, barPercentage: 0.8, categoryPercentage: 0.7 },
+        { label: 'Actual', data: actual,
+          backgroundColor: actual.map((v, i) => v - predicted[i] >= 0 ? 'rgba(16,185,129,0.35)' : 'rgba(244,63,94,0.35)'),
+          borderColor: actual.map((v, i) => v - predicted[i] >= 0 ? '#10b981' : '#f43f5e'),
+          borderWidth: 1, borderRadius: 3, barPercentage: 0.8, categoryPercentage: 0.7 }
       ]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index' },
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index' },
       plugins: {
-        legend: {
-          display: true,
-          position: 'top',
-          labels: {
-            boxWidth: 8, boxHeight: 8, padding: 12,
-            font: { size: 9, family: "'IBM Plex Mono', monospace" },
-            usePointStyle: true,
-          }
-        },
-        tooltip: {
-          callbacks: {
-            afterBody: (items) => {
-              const i = items[0].dataIndex;
-              return `n=${bins[i].n_trades}  avg_pnl=$${(bins[i].avg_pnl||0).toFixed(2)}`;
-            }
-          }
-        }
+        legend: { display: true, position: 'top', labels: { boxWidth: 8, boxHeight: 8, padding: 12, font: { size: 9, family: "'IBM Plex Mono', monospace" }, usePointStyle: true } },
+        tooltip: { callbacks: { afterBody: items => { const i = items[0].dataIndex; return `n=${bins[i].n_trades}  avg_pnl=$${(bins[i].avg_pnl||0).toFixed(2)}`; } } }
       },
       scales: {
         x: { grid: { display: false } },
-        y: {
-          grid: { color: 'rgba(255,255,255,0.03)' },
-          ticks: { callback: v => v + '%', maxTicksLimit: 5 },
-          min: 0, max: 100,
-        }
+        y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { callback: v => v + '%', maxTicksLimit: 5 }, min: 0, max: 100 }
       }
     }
   });
@@ -1110,7 +1170,6 @@ function renderTierPerformance(data) {
   if (!tiers.length) { $('tierEmpty').style.display = ''; return; }
   $('tierEmpty').style.display = 'none';
 
-  // Shorten tier names for display
   const labels = tiers.map(t => (t.tier_name || '?').replace('MAKER_', '').replace('ENDGAME_', 'EG_'));
   const pnls = tiers.map(t => t.total_pnl || 0);
   const winRates = tiers.map(t => t.win_rate_pct || 0);
@@ -1121,69 +1180,26 @@ function renderTierPerformance(data) {
     data: {
       labels,
       datasets: [{
-        label: 'P&L',
-        data: pnls,
+        label: 'P&L', data: pnls,
         backgroundColor: pnls.map(v => v >= 0 ? 'rgba(16,185,129,0.3)' : 'rgba(244,63,94,0.3)'),
         borderColor: pnls.map(v => v >= 0 ? '#10b981' : '#f43f5e'),
-        borderWidth: 1,
-        borderRadius: 3,
-        yAxisID: 'y',
+        borderWidth: 1, borderRadius: 3, yAxisID: 'y',
       }, {
-        label: 'Win %',
-        data: winRates,
-        type: 'line',
-        borderColor: '#fbbf24',
-        backgroundColor: 'transparent',
-        borderWidth: 1.5,
-        pointRadius: 3,
-        pointBackgroundColor: '#fbbf24',
-        tension: 0.2,
-        yAxisID: 'y1',
+        label: 'Win %', data: winRates, type: 'line',
+        borderColor: '#fbbf24', backgroundColor: 'transparent', borderWidth: 1.5,
+        pointRadius: 3, pointBackgroundColor: '#fbbf24', tension: 0.2, yAxisID: 'y1',
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index' },
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index' },
       plugins: {
-        legend: {
-          display: true, position: 'top',
-          labels: {
-            boxWidth: 8, boxHeight: 8, padding: 12,
-            font: { size: 9, family: "'IBM Plex Mono', monospace" },
-            usePointStyle: true,
-          }
-        },
-        tooltip: {
-          callbacks: {
-            afterBody: (items) => {
-              const i = items[0].dataIndex;
-              const t = tiers[i];
-              return [
-                `${t.wins}W / ${t.losses}L`,
-                `avg edge: ${((t.avg_edge||0)*100).toFixed(1)}%`,
-                `avg bid: ${t.avg_bid||0}¢`,
-                `n=${t.n_trades}`
-              ];
-            }
-          }
-        }
+        legend: { display: true, position: 'top', labels: { boxWidth: 8, boxHeight: 8, padding: 12, font: { size: 9, family: "'IBM Plex Mono', monospace" }, usePointStyle: true } },
+        tooltip: { callbacks: { afterBody: items => { const i = items[0].dataIndex; const t = tiers[i]; return [`${t.wins}W / ${t.losses}L`, `avg edge: ${((t.avg_edge||0)*100).toFixed(1)}%`, `avg bid: ${t.avg_bid||0}¢`, `n=${t.n_trades}`]; } } }
       },
       scales: {
         x: { grid: { display: false }, ticks: { maxRotation: 45 } },
-        y: {
-          position: 'left',
-          grid: { color: 'rgba(255,255,255,0.03)' },
-          ticks: { callback: v => '$' + v.toFixed(2), maxTicksLimit: 5 },
-          title: { display: false }
-        },
-        y1: {
-          position: 'right',
-          grid: { display: false },
-          ticks: { callback: v => v + '%', maxTicksLimit: 5 },
-          min: 0, max: 100,
-          title: { display: false }
-        }
+        y: { position: 'left', grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { callback: v => '$' + v.toFixed(2), maxTicksLimit: 5 } },
+        y1: { position: 'right', grid: { display: false }, ticks: { callback: v => v + '%', maxTicksLimit: 5 }, min: 0, max: 100 }
       }
     }
   });
@@ -1195,54 +1211,23 @@ function renderAssetPerformance(data) {
   if (!assets.length) { $('assetEmpty').style.display = ''; return; }
   $('assetEmpty').style.display = 'none';
 
-  const assetColors = { BTC: '#f7931a', ETH: '#849dff', SOL: '#b86eff', XRP: '#23c4d8' };
   const labels = assets.map(a => a.asset);
   const pnls = assets.map(a => a.total_pnl || 0);
-  const bgColors = labels.map(l => {
-    const c = assetColors[l] || '#64748b';
-    return c + '55'; // add alpha
-  });
-  const borderColors = labels.map(l => assetColors[l] || '#64748b');
+  const bgColors = labels.map(l => (ASSET_COLORS[l] || '#64748b') + '55');
+  const borderColors = labels.map(l => ASSET_COLORS[l] || '#64748b');
 
   if (chartAsset) chartAsset.destroy();
   chartAsset = new Chart($('assetChart'), {
     type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        data: pnls,
-        backgroundColor: bgColors,
-        borderColor: borderColors,
-        borderWidth: 1.5,
-        borderRadius: 4,
-        barPercentage: 0.6,
-      }]
-    },
+    data: { labels, datasets: [{ data: pnls, backgroundColor: bgColors, borderColor: borderColors, borderWidth: 1.5, borderRadius: 4, barPercentage: 0.6 }] },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
       scales: {
-        x: {
-          grid: { color: 'rgba(255,255,255,0.03)' },
-          ticks: { callback: v => '$' + v.toFixed(2), maxTicksLimit: 5 },
-        },
+        x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { callback: v => '$' + v.toFixed(2), maxTicksLimit: 5 } },
         y: { grid: { display: false } }
       },
       plugins: {
-        tooltip: {
-          callbacks: {
-            label: (item) => {
-              const a = assets[item.dataIndex];
-              return [
-                `P&L: $${(a.total_pnl||0).toFixed(2)}`,
-                `${a.wins||0}W / ${a.losses||0}L`,
-                `avg z: ${(a.avg_z||0).toFixed(1)}`,
-                `avg bid: ${a.avg_bid||0}¢`
-              ];
-            }
-          }
-        }
+        tooltip: { callbacks: { label: item => { const a = assets[item.dataIndex]; return [`P&L: $${(a.total_pnl||0).toFixed(2)}`, `${a.wins||0}W / ${a.losses||0}L`, `avg z: ${(a.avg_z||0).toFixed(1)}`, `avg bid: ${a.avg_bid||0}¢`]; } } }
       }
     }
   });
@@ -1255,67 +1240,24 @@ function renderRejectionFunnel(data) {
   if (!reasons.length) { $('rejectEmpty').style.display = ''; return; }
   $('rejectEmpty').style.display = 'none';
 
-  // Clean up reason names for display
   const nameMap = {
-    'z_score_low': 'Low z-score',
-    'edge_insufficient': 'Edge too small',
-    'flash_crash': 'Flash crash',
-    'vol_high': 'High volatility',
-    'exposure_cap': 'Exposure cap',
-    'bid_below_floor': 'Bid < floor',
-    'max_orders': 'Max orders',
-    'feed_unhealthy': 'Feed down',
-    'already_traded': 'Already traded',
-    'cooldown': 'Cooldown',
+    'z_score_low': 'Low z-score', 'edge_insufficient': 'Edge too small', 'flash_crash': 'Flash crash',
+    'vol_high': 'High volatility', 'exposure_cap': 'Exposure cap', 'bid_below_floor': 'Bid < floor',
+    'max_orders': 'Max orders', 'feed_unhealthy': 'Feed down', 'already_traded': 'Already traded', 'cooldown': 'Cooldown',
   };
-
   const labels = reasons.map(r => nameMap[r.rejection_reason] || r.rejection_reason || '?');
   const counts = reasons.map(r => r.count || 0);
-
-  // Color palette for doughnut
-  const palette = [
-    '#475569', '#64748b', '#38bdf8', '#a78bfa',
-    '#fbbf24', '#f43f5e', '#10b981', '#f97316',
-    '#ec4899', '#06b6d4'
-  ];
+  const palette = ['#475569','#64748b','#38bdf8','#a78bfa','#fbbf24','#f43f5e','#10b981','#f97316','#ec4899','#06b6d4'];
 
   if (chartReject) chartReject.destroy();
   chartReject = new Chart($('rejectChart'), {
     type: 'doughnut',
-    data: {
-      labels,
-      datasets: [{
-        data: counts,
-        backgroundColor: palette.slice(0, labels.length),
-        borderColor: 'rgba(12,16,24,0.8)',
-        borderWidth: 2,
-        hoverOffset: 4,
-      }]
-    },
+    data: { labels, datasets: [{ data: counts, backgroundColor: palette.slice(0, labels.length), borderColor: 'rgba(12,16,24,0.8)', borderWidth: 2, hoverOffset: 4 }] },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '60%',
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
       plugins: {
-        legend: {
-          display: true,
-          position: 'right',
-          labels: {
-            boxWidth: 8, boxHeight: 8, padding: 6,
-            font: { size: 9, family: "'IBM Plex Mono', monospace" },
-            usePointStyle: true,
-            color: '#64748b',
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: (item) => {
-              const r = reasons[item.dataIndex];
-              const pct = totalObs > 0 ? (r.count / totalObs * 100).toFixed(0) : 0;
-              return `${item.label}: ${r.count} (${pct}%)  avg_z=${(r.avg_z||0).toFixed(1)}`;
-            }
-          }
-        }
+        legend: { display: true, position: 'right', labels: { boxWidth: 8, boxHeight: 8, padding: 6, font: { size: 9, family: "'IBM Plex Mono', monospace" }, usePointStyle: true, color: '#64748b' } },
+        tooltip: { callbacks: { label: item => { const r = reasons[item.dataIndex]; const pct = totalObs > 0 ? (r.count / totalObs * 100).toFixed(0) : 0; return `${item.label}: ${r.count} (${pct}%)  avg_z=${(r.avg_z||0).toFixed(1)}`; } } }
       }
     }
   });
@@ -1325,26 +1267,15 @@ function renderRecentTrades(data) {
   const trades = data.recent_trades || [];
   $('elTradesN').textContent = trades.length;
   const tbody = $('tradesBody');
-
-  if (!trades.length) {
-    tbody.innerHTML = '<tr><td colspan="11" class="empty">Waiting for trades…</td></tr>';
-    return;
-  }
-
+  if (!trades.length) { tbody.innerHTML = '<tr><td colspan="11" class="empty">Waiting for trades…</td></tr>'; return; }
   tbody.innerHTML = trades.map(t => {
-    const outcomeClass = t.outcome === 'WIN' ? 'outcome-win'
-                        : t.outcome === 'LOSS' ? 'outcome-loss'
-                        : 'outcome-pending';
-    const outcomeLabel = t.outcome || 'PEND';
+    const outcomeClass = t.outcome === 'WIN' ? 'outcome-win' : t.outcome === 'LOSS' ? 'outcome-loss' : 'outcome-pending';
     const pnlVal = t.pnl != null ? t.pnl : null;
-    const pnlStr = pnlVal != null
-      ? `${pnlVal >= 0 ? '+' : ''}$${pnlVal.toFixed(2)}`
-      : '—';
+    const pnlStr = pnlVal != null ? `${pnlVal >= 0 ? '+' : ''}$${pnlVal.toFixed(2)}` : '—';
     const pnlClass = pnlVal > 0 ? 'pnl-pos' : pnlVal < 0 ? 'pnl-neg' : '';
     const assetClass = 'asset-' + (t.asset || '').toLowerCase();
     const edgePct = t.actual_edge != null ? (t.actual_edge * 100).toFixed(1) + '%' : '—';
     const tierShort = (t.tier_name || '—').replace('MAKER_', '').replace('ENDGAME_', 'EG_');
-
     return `<tr>
       <td>${fmtTime(t.fill_time || t.entry_time)}</td>
       <td class="${assetClass}">${t.asset || '?'}</td>
@@ -1355,21 +1286,20 @@ function renderRecentTrades(data) {
       <td>${edgePct}</td>
       <td>${t.position_size || '?'}</td>
       <td>${tierShort}</td>
-      <td class="${outcomeClass}">${outcomeLabel}</td>
+      <td class="${outcomeClass}">${t.outcome || 'PEND'}</td>
       <td class="${pnlClass}">${pnlStr}</td>
     </tr>`;
   }).join('');
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// MAIN UPDATE (live state)
+// MAIN UPDATE
 // ══════════════════════════════════════════════════════════════════════
 
 function update(s) {
   if (!s) return;
   lastUpdate = Date.now();
 
-  // Status pill
   const pill = $('pill');
   pill.className = 'hdr-pill live';
   $('pillText').textContent = 'LIVE';
@@ -1377,7 +1307,8 @@ function update(s) {
   // Header
   $('elSession').textContent = fmtDuration(s.session_start);
   $('elScan').textContent = 'scan #' + (s.scan_count || 0);
-  $('elMode').textContent = s.mode || '—';
+  const closest = s.closest_market || 999;
+  $('elClosest').textContent = closest < 999 ? 'next: ' + fmtSec(closest) : 'no markets';
 
   // Balance
   const bal = s.balance || 0;
@@ -1391,7 +1322,7 @@ function update(s) {
   $('elStart').textContent = '$' + (s.starting_balance || 0).toFixed(2);
   $('elPeak').textContent = '$' + (s.session_high_balance || 0).toFixed(2);
   $('elStreak').textContent = (s.consecutive_losses || 0) + 'L';
-  $('elInterval').textContent = (s.scan_interval || 0).toFixed(1) + 's';
+  $('elDeployed').textContent = '$' + (s.deployed || 0).toFixed(2);
 
   const dd = s.drawdown_kelly_mult || 1;
   const badge = $('elDDBadge');
@@ -1400,30 +1331,33 @@ function update(s) {
   badge.style.color = dd >= 1 ? 'var(--green-0)' : dd >= 0.5 ? 'var(--amber-0)' : 'var(--red-0)';
 
   // Stats
-  $('elFills').textContent = s.fills_today || 0;
-  $('elOrders').textContent = s.orders_placed || 0;
+  const e3 = s.e3 || {};
+  $('elFills').textContent = e3.fills || 0;
+  $('elOrders').textContent = e3.bids || 0;
   $('elFR').textContent = (s.fill_rate || 0).toFixed(0) + '%';
-  $('elMkts').textContent = s.markets_seen || 0;
-  $('elEG').textContent = (s.endgame_fills || 0) + '/' + (s.endgame_bids || 0);
-  $('elRest').textContent = (s.resting_orders || []).length;
+  $('elRest').textContent = e3.resting || 0;
+  $('elLiqs').textContent = e3.liq || 0;
 
-  // Win/Loss
-  const w = s.wins || 0, l = s.losses || 0, tot = w + l;
+  // Win/Loss with engine breakdown
+  const w = (s.wins || 0), l = (s.losses || 0), tot = w + l;
   $('elW').textContent = w;
   $('elL').textContent = l;
   $('elWLBar').style.width = (tot > 0 ? w / tot * 100 : 50) + '%';
-  $('elSW').textContent = s.settled_wins || 0;
-  $('elSL').textContent = s.settled_losses || 0;
-  $('elTrades').textContent = s.trades_today || 0;
-  $('elCancels').textContent = s.cancels || 0;
+  const e2 = s.e2 || {};
+  $('elE3WL').textContent = (e3.W || 0) + '/' + (e3.L || 0);
+  $('elE3Pnl').textContent = '$' + (e3.pnl || 0).toFixed(2);
+  $('elE3Pnl').className = 'bm ' + cls(e3.pnl || 0);
+  $('elE2WL').textContent = (e2.W || 0) + '/' + (e2.L || 0);
+  $('elE2Pnl').textContent = '$' + (e2.pnl || 0).toFixed(2);
 
   // Cards
   renderPrices(s);
   renderVol(s);
   renderOrders(s);
+  renderRadar(s);
+  renderFunnel(s);
+  renderPending(s);
   renderFeed(s);
-  renderBandit(s);
-  renderStinkBids(s);
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -1432,14 +1366,8 @@ function update(s) {
 
 function updateAnalytics(data) {
   if (!data) return;
-
-  // Track last analytics time for periodic age refresh
   lastAnalyticsTime = data.updated_at || null;
-
-  // Update age tag
-  $('elAnalyticsAge').textContent = lastAnalyticsTime
-    ? 'updated ' + timeAgo(lastAnalyticsTime)
-    : 'waiting for data';
+  $('elAnalyticsAge').textContent = lastAnalyticsTime ? 'updated ' + timeAgo(lastAnalyticsTime) : 'waiting for data';
 
   renderEquityCurve(data);
   renderCalibration(data);
@@ -1454,7 +1382,6 @@ function updateAnalytics(data) {
 // ══════════════════════════════════════════════════════════════════════
 
 if (db) {
-  // Live state (existing)
   const dashRef = ref(db, 'dashboard');
   onValue(dashRef, snap => {
     const data = snap.val();
@@ -1465,14 +1392,11 @@ if (db) {
     $('pillText').textContent = 'ERROR';
   });
 
-  // Analytics (new — pushed every 5 min)
   const analyticsRef = ref(db, 'analytics');
   onValue(analyticsRef, snap => {
     const data = snap.val();
     if (data) updateAnalytics(data);
-  }, err => {
-    console.error("Analytics read error:", err);
-  });
+  }, err => console.error("Analytics read error:", err));
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -1489,7 +1413,6 @@ setInterval(() => {
     $('pill').className = 'hdr-pill stale';
     $('pillText').textContent = 'STALE';
   }
-  // Refresh analytics age tag
   if (lastAnalyticsTime) {
     $('elAnalyticsAge').textContent = 'updated ' + timeAgo(lastAnalyticsTime);
   }
