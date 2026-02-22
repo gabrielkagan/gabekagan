@@ -477,6 +477,137 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   ACTIVE ORDER CARD
+   ═══════════════════════════════════════════════════════════════════════ */
+.order-cell { grid-column: span 12; }
+.order-card {
+  padding: 16px 20px; border-radius: var(--radius-md);
+  border: 1px solid var(--green-border); background: var(--green-bg);
+  display: grid; grid-template-columns: 1fr auto; gap: 12px 24px;
+  align-items: start;
+}
+.order-card.panic {
+  border-color: var(--red-border); background: var(--red-bg);
+}
+.order-ticker {
+  font-family: var(--mono); font-size: 15px; font-weight: 700;
+  color: var(--text-0);
+  display: flex; align-items: center; gap: 10px;
+}
+.order-strat-tag {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  padding: 2px 7px; border-radius: 3px;
+  text-transform: uppercase;
+}
+.order-strat-tag.maker-patient { background: var(--blue-bg); color: var(--blue-0); }
+.order-strat-tag.maker-aggressive { background: var(--amber-bg); color: var(--amber-0); }
+.order-strat-tag.taker-now { background: var(--green-bg); color: var(--green-0); border: 1px solid var(--green-border); }
+.order-strat-tag.panic-capture { background: var(--red-bg); color: var(--red-0); border: 1px solid var(--red-border); }
+.order-strat-tag.wait { background: rgba(100,116,139,0.15); color: var(--text-2); }
+.order-metrics {
+  display: flex; flex-wrap: wrap; gap: 6px 18px;
+  font-family: var(--mono); font-size: 11px;
+  margin-top: 8px;
+}
+.order-metric { color: var(--text-1); }
+.order-metric .dim { color: var(--text-3); margin-right: 4px; }
+.order-elapsed {
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 4px;
+}
+.order-elapsed-num {
+  font-family: var(--mono); font-size: 24px; font-weight: 700;
+  color: var(--text-0);
+}
+.order-elapsed-label {
+  font-family: var(--mono); font-size: 9px; color: var(--text-3);
+}
+.order-progress {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+}
+.order-progress-track {
+  height: 4px; border-radius: 2px;
+  background: var(--bg-0); overflow: hidden;
+}
+.order-progress-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--green-0), var(--amber-0));
+  transition: width 0.3s ease;
+}
+.order-card.panic .order-progress-fill {
+  background: linear-gradient(90deg, var(--amber-0), var(--red-0));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   POSITIONS & RESTING ORDERS
+   ═══════════════════════════════════════════════════════════════════════ */
+.positions-cell { grid-column: span 6; }
+.pos-list {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.pos-item {
+  padding: 10px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-0); background: var(--bg-2);
+  transition: border-color 0.2s;
+}
+.pos-item:hover { border-color: var(--border-1); }
+.pos-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.pos-ticker {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--text-0); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 240px;
+}
+.pos-side {
+  font-family: var(--mono); font-size: 9px; padding: 2px 6px;
+  border-radius: 3px; font-weight: 700; text-transform: uppercase;
+}
+.pos-side.yes { background: var(--green-bg); color: var(--green-0); }
+.pos-side.no { background: var(--red-bg); color: var(--red-0); }
+.pos-details {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  font-family: var(--mono); font-size: 10px; color: var(--text-1);
+}
+.pos-details .dim { color: var(--text-3); }
+
+.resting-cell { grid-column: span 6; }
+.rest-item {
+  padding: 10px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-0); background: var(--bg-2);
+  margin-bottom: 6px;
+  transition: border-color 0.2s;
+}
+.rest-item:hover { border-color: var(--border-1); }
+.rest-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 4px;
+}
+.rest-ticker {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--text-0); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 240px;
+}
+.rest-action {
+  font-family: var(--mono); font-size: 9px; padding: 2px 6px;
+  border-radius: 3px; font-weight: 700; text-transform: uppercase;
+}
+.rest-action.buy { background: var(--green-bg); color: var(--green-0); }
+.rest-action.sell { background: var(--red-bg); color: var(--red-0); }
+.rest-details {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  font-family: var(--mono); font-size: 10px; color: var(--text-1);
+}
+.rest-details .dim { color: var(--text-3); }
+.rest-status {
+  font-family: var(--mono); font-size: 9px; padding: 2px 6px;
+  border-radius: 3px; font-weight: 600;
+  background: var(--amber-bg); color: var(--amber-0);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════════════════ */
 @media (max-width: 1100px) {
@@ -484,18 +615,22 @@ body::before {
   .hero, .status-cell, .wl-cell, .daily-pnl-cell { grid-column: span 6; }
   .vol-cell { grid-column: span 6; }
   .timing-cell, .funnel-cell { grid-column: span 3; }
+  .order-cell { grid-column: span 6; }
+  .positions-cell, .resting-cell { grid-column: span 6; }
   .spot-item { min-width: 140px; }
 }
 @media (max-width: 700px) {
   .grid { grid-template-columns: 1fr; }
   .hero, .status-cell, .wl-cell, .daily-pnl-cell,
-  .vol-cell, .timing-cell, .funnel-cell { grid-column: 1 / -1; }
+  .vol-cell, .timing-cell, .funnel-cell,
+  .order-cell, .positions-cell, .resting-cell { grid-column: 1 / -1; }
   .bal-num { font-size: 34px; }
   .hdr { padding: 12px 16px; }
   .hdr-right { display: none; }
   .spot-strip { flex-wrap: wrap; }
   .spot-item { min-width: 50%; flex: none; }
   .vol-grid { grid-template-columns: 1fr; }
+  .order-card { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -668,6 +803,44 @@ body::before {
     <div class="funnel-tabs" id="funnelTabs"></div>
     <div class="funnel-stages" id="funnelStages">
       <div class="empty">Waiting for filter data...</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ROW 3: Trading Activity ══════════════ -->
+
+  <div class="section-divider">
+    <span class="divider-label">Trading Activity</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Active Order -->
+  <div class="cell order-cell" id="orderCell" style="display:none">
+    <div class="cell-label">
+      Active Order
+      <span class="tag" id="elOrderTag" style="background:var(--green-bg);color:var(--green-0)">LIVE</span>
+    </div>
+    <div id="elActiveOrder"></div>
+  </div>
+
+  <!-- Active Positions -->
+  <div class="cell positions-cell">
+    <div class="cell-label">
+      Active Positions
+      <span class="tag" id="elPosCount" style="background:var(--blue-bg);color:var(--blue-0)">0</span>
+    </div>
+    <div class="pos-list" id="elPositions">
+      <div class="empty">No active positions</div>
+    </div>
+  </div>
+
+  <!-- Resting Orders -->
+  <div class="cell resting-cell">
+    <div class="cell-label">
+      Resting Orders
+      <span class="tag" id="elRestCount" style="background:var(--amber-bg);color:var(--amber-0)">0</span>
+    </div>
+    <div id="elRestingOrders">
+      <div class="empty">No resting orders</div>
     </div>
   </div>
 
@@ -1075,6 +1248,173 @@ function updateFilterFunnel(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// UPDATERS — PIECE 3: Active Order, Positions, Resting Orders
+// ═══════════════════════════════════════════════════════════════════════
+
+const STRAT_CLASSES = {
+  WAIT: 'wait',
+  MAKER_PATIENT: 'maker-patient',
+  MAKER_AGGRESSIVE: 'maker-aggressive',
+  TAKER_NOW: 'taker-now',
+  PANIC_CAPTURE: 'panic-capture',
+};
+
+function stratTagClass(name) {
+  return STRAT_CLASSES[name] || 'wait';
+}
+
+function fmtTimestamp(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  const date = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const time = d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  return date + ' ' + time;
+}
+
+function updateActiveOrder(s) {
+  const order = s.active_order;
+  const cell = $('orderCell');
+  const box = $('elActiveOrder');
+
+  if (!order) {
+    cell.style.display = 'none';
+    return;
+  }
+
+  cell.style.display = '';
+  const isPanic = order.is_panic === true;
+  const panicClass = isPanic ? ' panic' : '';
+  const strat = order.strategy ?? '—';
+  const stratCls = stratTagClass(strat);
+
+  // Elapsed progress bar (elapsed / (elapsed + seconds_to_close))
+  const elapsed = order.elapsed_seconds ?? 0;
+  const ttc = order.seconds_to_close ?? 0;
+  const totalTime = elapsed + ttc;
+  const progressPct = totalTime > 0 ? (elapsed / totalTime * 100).toFixed(0) : 0;
+
+  // Tag color
+  if (isPanic) {
+    $('elOrderTag').style.background = 'var(--red-bg)';
+    $('elOrderTag').style.color = 'var(--red-0)';
+    $('elOrderTag').textContent = 'PANIC';
+  } else if (order.is_taker) {
+    $('elOrderTag').style.background = 'var(--amber-bg)';
+    $('elOrderTag').style.color = 'var(--amber-0)';
+    $('elOrderTag').textContent = 'TAKER';
+  } else {
+    $('elOrderTag').style.background = 'var(--green-bg)';
+    $('elOrderTag').style.color = 'var(--green-0)';
+    $('elOrderTag').textContent = 'LIVE';
+  }
+
+  box.innerHTML = `<div class="order-card${panicClass}">
+    <div>
+      <div class="order-ticker">
+        ${escHtml(order.ticker ?? '—')}
+        <span class="order-strat-tag ${stratCls}">${escHtml(strat)}</span>
+      </div>
+      <div class="order-metrics">
+        <span class="order-metric"><span class="dim">asset</span>${escHtml(order.asset ?? '—')}</span>
+        <span class="order-metric"><span class="dim">price</span>${order.price_cents ?? '—'}¢</span>
+        <span class="order-metric"><span class="dim">qty</span>${order.count ?? '—'}</span>
+        <span class="order-metric"><span class="dim">edge</span>${order.edge != null ? (order.edge * 100).toFixed(1) + '%' : '—'}</span>
+        <span class="order-metric"><span class="dim">kelly</span>${order.kelly_fraction != null ? (order.kelly_fraction * 100).toFixed(1) + '%' : '—'}</span>
+        <span class="order-metric"><span class="dim">prob</span>${order.cal_prob != null ? (order.cal_prob * 100).toFixed(1) + '%' : '—'}</span>
+        <span class="order-metric"><span class="dim">taker</span>${order.is_taker ? 'YES' : 'NO'}</span>
+      </div>
+    </div>
+    <div class="order-elapsed">
+      <div class="order-elapsed-num">${fmtSec(ttc)}</div>
+      <div class="order-elapsed-label">to close &middot; ${fmtSec(elapsed)} elapsed</div>
+    </div>
+    <div class="order-progress">
+      <div class="order-progress-track">
+        <div class="order-progress-fill" style="width:${progressPct}%"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function updatePositions(s) {
+  const positions = s.active_positions ?? [];
+  const posArr = Array.isArray(positions) ? positions : Object.values(positions);
+  $('elPosCount').textContent = posArr.length;
+  const box = $('elPositions');
+
+  if (!posArr.length) {
+    box.innerHTML = '<div class="empty">No active positions</div>';
+    return;
+  }
+
+  box.innerHTML = posArr.map(p => {
+    const ticker = p.ticker ?? '—';
+    const short = ticker.length > 32 ? '...' + ticker.slice(-28) : ticker;
+    const side = (p.side ?? '—').toLowerCase();
+    const sideClass = side === 'yes' ? 'yes' : 'no';
+    const asset = p.asset ?? '';
+    const count = p.count ?? 0;
+    const avgPrice = p.avg_price_cents ?? 0;
+    const totalCost = p.total_cost_cents ?? 0;
+    const costDollars = (totalCost / 100).toFixed(2);
+    const openedAt = p.opened_at ? fmtTimestamp(p.opened_at) : '—';
+
+    return `<div class="pos-item">
+      <div class="pos-top">
+        <span class="pos-ticker" title="${escHtml(ticker)}">${escHtml(short)}</span>
+        <span class="pos-side ${sideClass}">${side.toUpperCase()}</span>
+      </div>
+      <div class="pos-details">
+        ${asset ? `<span><span class="dim">asset</span>${asset}</span>` : ''}
+        <span><span class="dim">qty</span>${count}</span>
+        <span><span class="dim">avg</span>${avgPrice}¢</span>
+        <span><span class="dim">cost</span>$${costDollars}</span>
+        <span><span class="dim">opened</span>${openedAt}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateRestingOrders(s) {
+  const orders = s.resting_orders ?? [];
+  const ordArr = Array.isArray(orders) ? orders : Object.values(orders);
+  $('elRestCount').textContent = ordArr.length;
+  const box = $('elRestingOrders');
+
+  if (!ordArr.length) {
+    box.innerHTML = '<div class="empty">No resting orders</div>';
+    return;
+  }
+
+  box.innerHTML = ordArr.map(o => {
+    const ticker = o.ticker ?? '—';
+    const short = ticker.length > 32 ? '...' + ticker.slice(-28) : ticker;
+    const action = (o.action ?? 'buy').toLowerCase();
+    const actionClass = action === 'buy' ? 'buy' : 'sell';
+    const side = (o.side ?? '—').toUpperCase();
+    const asset = o.asset ?? '';
+    const count = o.count ?? 0;
+    const price = o.price_cents ?? 0;
+    const status = o.status ?? 'resting';
+    const createdAt = o.created_at ? fmtTimestamp(o.created_at) : '—';
+
+    return `<div class="rest-item">
+      <div class="rest-top">
+        <span class="rest-ticker" title="${escHtml(ticker)}">${escHtml(short)}</span>
+        <span class="rest-action ${actionClass}">${action.toUpperCase()} ${side}</span>
+      </div>
+      <div class="rest-details">
+        ${asset ? `<span><span class="dim">asset</span>${asset}</span>` : ''}
+        <span><span class="dim">qty</span>${count}</span>
+        <span><span class="dim">price</span>${price}¢</span>
+        <span class="rest-status">${escHtml(status)}</span>
+        <span><span class="dim">created</span>${createdAt}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // MAIN UPDATE
 // ═══════════════════════════════════════════════════════════════════════
 function update(s) {
@@ -1093,6 +1433,9 @@ function update(s) {
   try { updateVolatility(s); } catch (e) { console.error('updateVolatility:', e); }
   try { updateMarketTiming(s); } catch (e) { console.error('updateMarketTiming:', e); }
   try { updateFilterFunnel(s); } catch (e) { console.error('updateFilterFunnel:', e); }
+  try { updateActiveOrder(s); } catch (e) { console.error('updateActiveOrder:', e); }
+  try { updatePositions(s); } catch (e) { console.error('updatePositions:', e); }
+  try { updateRestingOrders(s); } catch (e) { console.error('updateRestingOrders:', e); }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
