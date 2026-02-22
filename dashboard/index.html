@@ -845,6 +845,197 @@ body::before {
 .sim-ev-neg { color: var(--red-0); }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   SESSION STATS
+   ═══════════════════════════════════════════════════════════════════════ */
+.session-cell { grid-column: span 4; }
+.session-uptime {
+  font-family: var(--mono); font-size: 28px; font-weight: 700;
+  letter-spacing: -1px; color: var(--text-0); line-height: 1;
+}
+.session-since {
+  font-family: var(--mono); font-size: 11px; color: var(--text-3); margin-top: 6px;
+}
+.session-grid {
+  margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   STRATEGY BREAKDOWN
+   ═══════════════════════════════════════════════════════════════════════ */
+.stratbd-cell { grid-column: span 4; }
+.stratbd-list { display: flex; flex-direction: column; gap: 6px; }
+.stratbd-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-0); background: var(--bg-2);
+  transition: border-color 0.2s;
+}
+.stratbd-row:hover { border-color: var(--border-1); }
+.stratbd-name {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: var(--text-0); display: flex; align-items: center; gap: 8px;
+}
+.stratbd-count {
+  font-family: var(--mono); font-size: 9px; color: var(--text-3);
+  background: var(--bg-1); padding: 1px 5px; border-radius: 3px;
+}
+.stratbd-right {
+  display: flex; align-items: center; gap: 12px;
+}
+.stratbd-wl {
+  font-family: var(--mono); font-size: 10px; color: var(--text-3);
+}
+.stratbd-pnl {
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  min-width: 70px; text-align: right;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ASSET PERFORMANCE
+   ═══════════════════════════════════════════════════════════════════════ */
+.assetperf-cell { grid-column: span 4; }
+.assetperf-list { display: flex; flex-direction: column; gap: 6px; }
+.assetperf-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-0); background: var(--bg-2);
+  transition: border-color 0.2s;
+}
+.assetperf-row:hover { border-color: var(--border-1); }
+.assetperf-left {
+  display: flex; align-items: center; gap: 10px;
+}
+.assetperf-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.assetperf-name {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+}
+.assetperf-detail {
+  font-family: var(--mono); font-size: 9px; color: var(--text-3);
+}
+.assetperf-right { text-align: right; }
+.assetperf-pnl {
+  font-family: var(--mono); font-size: 14px; font-weight: 700;
+}
+.assetperf-edge {
+  font-family: var(--mono); font-size: 10px; color: var(--text-3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RATE LIMITS
+   ═══════════════════════════════════════════════════════════════════════ */
+.ratelimit-cell { grid-column: span 4; }
+.ratelimit-list { display: flex; flex-direction: column; gap: 10px; }
+.ratelimit-item { }
+.ratelimit-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 4px;
+}
+.ratelimit-label {
+  font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text-1);
+}
+.ratelimit-val {
+  font-family: var(--mono); font-size: 11px; color: var(--text-2);
+}
+.ratelimit-bar {
+  height: 6px; border-radius: 3px; background: var(--bg-3);
+  overflow: hidden;
+}
+.ratelimit-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 0.6s ease, background 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   REJECTION SUMMARY
+   ═══════════════════════════════════════════════════════════════════════ */
+.rejection-cell { grid-column: span 8; }
+.rejection-bars { display: flex; flex-direction: column; gap: 6px; }
+.rejection-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.rejection-label {
+  font-family: var(--mono); font-size: 10px; color: var(--text-2);
+  min-width: 160px; flex-shrink: 0;
+}
+.rejection-bar-track {
+  flex: 1; height: 14px; border-radius: 3px; background: var(--bg-3);
+  overflow: hidden; position: relative;
+}
+.rejection-bar-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--red-1), var(--red-0));
+  opacity: 0.6; transition: width 0.6s ease;
+}
+.rejection-count {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--text-1); min-width: 40px; text-align: right;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RECENT TRADES TABLE
+   ═══════════════════════════════════════════════════════════════════════ */
+.trades-cell { grid-column: span 12; }
+.trades-scroll {
+  max-height: 420px; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: var(--border-1) transparent;
+}
+.trades-scroll::-webkit-scrollbar { width: 3px; }
+.trades-scroll::-webkit-scrollbar-thumb { background: var(--border-1); border-radius: 2px; }
+.trades-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--mono); font-size: 11px;
+}
+.trades-table thead {
+  position: sticky; top: 0; background: var(--bg-1); z-index: 2;
+}
+.trades-table th {
+  text-align: left;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--text-3);
+  padding: 8px 8px 10px; border-bottom: 1px solid var(--border-0);
+}
+.trades-table td {
+  padding: 7px 8px; color: var(--text-1);
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+  white-space: nowrap;
+}
+.trades-table tr:hover td { background: var(--bg-2); }
+.trade-side-yes { color: var(--green-0); font-weight: 600; }
+.trade-side-no { color: var(--red-0); font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RECENT OPPORTUNITIES TABLE
+   ═══════════════════════════════════════════════════════════════════════ */
+.opps-cell { grid-column: span 12; }
+.opps-scroll {
+  max-height: 420px; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: var(--border-1) transparent;
+}
+.opps-scroll::-webkit-scrollbar { width: 3px; }
+.opps-scroll::-webkit-scrollbar-thumb { background: var(--border-1); border-radius: 2px; }
+.opps-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--mono); font-size: 11px;
+}
+.opps-table thead {
+  position: sticky; top: 0; background: var(--bg-1); z-index: 2;
+}
+.opps-table th {
+  text-align: left;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--text-3);
+  padding: 8px 8px 10px; border-bottom: 1px solid var(--border-0);
+}
+.opps-table td {
+  padding: 7px 8px; color: var(--text-1);
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+  white-space: nowrap;
+}
+.opps-table tr:hover td { background: var(--bg-2); }
+
+/* ═══════════════════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════════════════ */
 @media (max-width: 1100px) {
@@ -859,7 +1050,12 @@ body::before {
   .sim-cell { grid-column: span 6; }
   .sim-breakdowns-cell { grid-column: span 6; }
   .simtrades-cell { grid-column: span 6; }
+  .session-cell, .stratbd-cell, .assetperf-cell { grid-column: span 6; }
+  .ratelimit-cell { grid-column: span 3; }
+  .rejection-cell { grid-column: span 6; }
+  .trades-cell, .opps-cell { grid-column: span 6; }
   .spot-item { min-width: 140px; }
+  .rejection-label { min-width: 120px; }
 }
 @media (max-width: 700px) {
   .grid { grid-template-columns: 1fr; }
@@ -867,7 +1063,10 @@ body::before {
   .vol-cell, .timing-cell, .funnel-cell,
   .order-cell, .positions-cell, .resting-cell,
   .xchg-cell, .oflow-cell, .funding-cell,
-  .sim-cell, .sim-breakdowns-cell, .simtrades-cell { grid-column: 1 / -1; }
+  .sim-cell, .sim-breakdowns-cell, .simtrades-cell,
+  .session-cell, .stratbd-cell, .assetperf-cell,
+  .ratelimit-cell, .rejection-cell,
+  .trades-cell, .opps-cell { grid-column: 1 / -1; }
   .bal-num { font-size: 34px; }
   .hdr { padding: 12px 16px; }
   .hdr-right { display: none; }
@@ -1197,7 +1396,133 @@ body::before {
     </div>
   </div>
 
-  <!-- Remaining sections will be added in subsequent pieces -->
+  <!-- ══════════════ ROW 6: Analytics & Performance ══════════════ -->
+
+  <div class="section-divider">
+    <span class="divider-label">Analytics &amp; Performance</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Session Stats -->
+  <div class="cell session-cell">
+    <div class="cell-label">Session Stats</div>
+    <div class="session-uptime" id="elSessionUptime">—</div>
+    <div class="session-since" id="elSessionSince">started —</div>
+    <div class="session-grid">
+      <div class="meta-item"><span class="meta-label">Evaluations</span><span class="meta-val" id="elSessEvals">—</span></div>
+      <div class="meta-item"><span class="meta-label">Orders Placed</span><span class="meta-val" id="elSessOrders">—</span></div>
+      <div class="meta-item"><span class="meta-label">Fills</span><span class="meta-val" id="elSessFills">—</span></div>
+      <div class="meta-item"><span class="meta-label">Cancels</span><span class="meta-val" id="elSessCancels">—</span></div>
+      <div class="meta-item"><span class="meta-label">Active Tickers</span><span class="meta-val" id="elSessActive">—</span></div>
+      <div class="meta-item"><span class="meta-label">Events Eval'd</span><span class="meta-val" id="elSessEvents">—</span></div>
+      <div class="meta-item"><span class="meta-label">Markets Seen</span><span class="meta-val" id="elSessMarkets">—</span></div>
+    </div>
+  </div>
+
+  <!-- Strategy Breakdown -->
+  <div class="cell stratbd-cell">
+    <div class="cell-label">Strategy Breakdown</div>
+    <div class="stratbd-list" id="elStratBd">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Asset Performance -->
+  <div class="cell assetperf-cell">
+    <div class="cell-label">Asset Performance</div>
+    <div class="assetperf-list" id="elAssetPerf">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Rate Limits -->
+  <div class="cell ratelimit-cell">
+    <div class="cell-label">
+      Rate Limits
+      <span class="tag" id="rlResetTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div class="ratelimit-list" id="elRateLimits">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Rejection Summary -->
+  <div class="cell rejection-cell">
+    <div class="cell-label">
+      Rejection Summary
+      <span class="tag" id="rejTotalTag" style="background:var(--red-bg);color:var(--red-0);border:1px solid var(--red-border)">0</span>
+    </div>
+    <div class="rejection-bars" id="elRejections">
+      <div class="empty" style="padding:12px;color:var(--text-3)">No rejections</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ROW 7: Trade History ══════════════ -->
+
+  <div class="section-divider">
+    <span class="divider-label">Trade History</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Recent Trades -->
+  <div class="cell trades-cell">
+    <div class="cell-label">
+      Recent Trades
+      <span class="tag" id="tradesCountTag" style="background:var(--bg-2);color:var(--text-3)">0</span>
+    </div>
+    <div class="trades-scroll">
+      <table class="trades-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Asset</th>
+            <th>Ticker</th>
+            <th>Side</th>
+            <th>Price</th>
+            <th>Contracts</th>
+            <th>Cost</th>
+            <th>Strategy</th>
+            <th>Edge</th>
+            <th>Kelly f</th>
+          </tr>
+        </thead>
+        <tbody id="elTradesBody">
+          <tr><td colspan="10" style="text-align:center;color:var(--text-3);padding:24px">No trades yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recent Opportunities -->
+  <div class="cell opps-cell">
+    <div class="cell-label">
+      Recent Opportunities
+      <span class="tag" id="oppsCountTag" style="background:var(--bg-2);color:var(--text-3)">0</span>
+    </div>
+    <div class="opps-scroll">
+      <table class="opps-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Asset</th>
+            <th>Ticker</th>
+            <th>Strategy</th>
+            <th>Edge</th>
+            <th>Prob</th>
+            <th>Price</th>
+            <th>Size</th>
+            <th>Kelly f</th>
+            <th>EV</th>
+            <th>Z-Score</th>
+            <th>Regime</th>
+          </tr>
+        </thead>
+        <tbody id="elOppsBody">
+          <tr><td colspan="12" style="text-align:center;color:var(--text-3);padding:24px">No opportunities yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
 </div>
 
@@ -2076,6 +2401,283 @@ function updateRecentSimTrades(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// UPDATERS — PIECE 6: ANALYTICS & TRADE HISTORY
+// ═══════════════════════════════════════════════════════════════════════
+
+function updateSessionStats(s) {
+  const ss = s.session_stats;
+  if (!ss || typeof ss !== 'object') return;
+
+  // Session uptime from session_start_time
+  const start = ss.session_start_time;
+  if (start) {
+    const startMs = typeof start === 'number' && start < 1e12 ? start * 1000 : start;
+    const elapsed = Math.max(0, Math.floor((Date.now() - startMs) / 1000));
+    $('elSessionUptime').textContent = fmtSec(elapsed);
+    const d = new Date(startMs);
+    $('elSessionSince').textContent = 'started ' + d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+  }
+
+  const set = (id, v) => { const el = $(id); if (el) el.textContent = v != null ? v.toLocaleString() : '—'; };
+  set('elSessEvals', ss.total_evaluations);
+  set('elSessOrders', ss.total_orders_placed);
+  set('elSessFills', ss.total_fills);
+  set('elSessCancels', ss.total_cancels);
+  set('elSessActive', ss.active_event_tickers);
+  set('elSessEvents', ss.events_evaluated);
+  set('elSessMarkets', ss.unique_markets_seen);
+}
+
+function updateStrategyBreakdown(s) {
+  const bd = s.strategy_breakdown;
+  const box = $('elStratBd');
+  if (!bd || typeof bd !== 'object') return;
+
+  const entries = Object.entries(bd);
+  if (entries.length === 0) {
+    box.innerHTML = '<div style="padding:12px;color:var(--text-3);font-family:var(--mono);font-size:11px">No strategy data</div>';
+    return;
+  }
+
+  box.innerHTML = entries.map(([name, data]) => {
+    const count = data.count ?? 0;
+    const wins = data.wins ?? 0;
+    const losses = data.losses ?? 0;
+    const pnlCents = data.pnl_cents ?? 0;
+    const pnl = pnlCents / 100;
+    const pnlColor = pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+    const stratCls = STRAT_CLASSES[name] || 'wait';
+    const label = name.replace(/_/g, ' ');
+
+    return `<div class="stratbd-row">
+      <div class="stratbd-name">
+        <span class="strat-tag ${stratCls}">${escHtml(label)}</span>
+        <span class="stratbd-count">${count}</span>
+      </div>
+      <div class="stratbd-right">
+        <span class="stratbd-wl">${wins}W ${losses}L</span>
+        <span class="stratbd-pnl" style="color:${pnlColor}">${pnl >= 0 ? '+$' : '-$'}${Math.abs(pnl).toFixed(2)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateAssetPerformance(s) {
+  const ap = s.asset_performance;
+  const box = $('elAssetPerf');
+  if (!ap || typeof ap !== 'object') return;
+
+  box.innerHTML = ASSETS.map(asset => {
+    const data = ap[asset];
+    if (!data) return '';
+    const trades = data.trades ?? 0;
+    const wins = data.wins ?? 0;
+    const losses = data.losses ?? 0;
+    const pnlCents = data.pnl_cents ?? 0;
+    const pnl = pnlCents / 100;
+    const avgEdge = data.avg_edge ?? 0;
+    const pnlColor = pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+    const color = ASSET_COLORS[asset] || 'var(--text-1)';
+
+    return `<div class="assetperf-row">
+      <div class="assetperf-left">
+        <div class="assetperf-dot" style="background:${color}"></div>
+        <div>
+          <div class="assetperf-name">${escHtml(asset)}</div>
+          <div class="assetperf-detail">${trades} trades · ${wins}W ${losses}L</div>
+        </div>
+      </div>
+      <div class="assetperf-right">
+        <div class="assetperf-pnl" style="color:${pnlColor}">${pnl >= 0 ? '+$' : '-$'}${Math.abs(pnl).toFixed(2)}</div>
+        <div class="assetperf-edge">avg edge: ${(avgEdge * 100).toFixed(2)}%</div>
+      </div>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  if (!box.innerHTML) {
+    box.innerHTML = '<div style="padding:12px;color:var(--text-3);font-family:var(--mono);font-size:11px">No asset data</div>';
+  }
+}
+
+function updateRateLimits(s) {
+  const rl = s.rate_limits;
+  const box = $('elRateLimits');
+  if (!rl || typeof rl !== 'object') return;
+
+  // Try to display reset time
+  const reset = rl.reset_time ?? rl.reset_at ?? rl.resets_at;
+  if (reset) {
+    const resetMs = typeof reset === 'number' && reset < 1e12 ? reset * 1000 : reset;
+    const secsLeft = Math.max(0, Math.floor((resetMs - Date.now()) / 1000));
+    $('rlResetTag').textContent = 'resets ' + fmtSec(secsLeft);
+  }
+
+  // Build bars for each rate limit category
+  const categories = [];
+
+  // Check for structured limits (nested objects)
+  if (rl.exchange_requests || rl.order_requests || rl.portfolio_requests) {
+    for (const [key, val] of Object.entries(rl)) {
+      if (val && typeof val === 'object' && ('used' in val || 'limit' in val)) {
+        categories.push({
+          name: key.replace(/_/g, ' '),
+          used: val.used ?? val.requests_used ?? 0,
+          limit: val.limit ?? val.requests_limit ?? 100,
+          remaining: val.remaining ?? val.requests_remaining ?? null
+        });
+      }
+    }
+  }
+
+  // Fallback: flat structure
+  if (categories.length === 0) {
+    const used = rl.requests_used ?? rl.used ?? 0;
+    const limit = rl.requests_limit ?? rl.limit ?? 100;
+    const remaining = rl.requests_remaining ?? rl.remaining ?? (limit - used);
+    categories.push({ name: 'API Requests', used, limit, remaining });
+  }
+
+  box.innerHTML = categories.map(c => {
+    const pct = c.limit > 0 ? Math.min(100, (c.used / c.limit) * 100) : 0;
+    let barColor;
+    if (pct >= 90) barColor = 'var(--red-0)';
+    else if (pct >= 70) barColor = 'var(--amber-0)';
+    else barColor = 'var(--green-0)';
+
+    return `<div class="ratelimit-item">
+      <div class="ratelimit-header">
+        <span class="ratelimit-label">${escHtml(c.name)}</span>
+        <span class="ratelimit-val">${c.used} / ${c.limit}</span>
+      </div>
+      <div class="ratelimit-bar">
+        <div class="ratelimit-fill" style="width:${pct}%;background:${barColor}"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateRejectionSummary(s) {
+  const rej = s.rejection_summary;
+  const box = $('elRejections');
+  if (!rej || typeof rej !== 'object') return;
+
+  const entries = Object.entries(rej).sort((a, b) => b[1] - a[1]);
+  if (entries.length === 0) {
+    box.innerHTML = '<div style="padding:12px;color:var(--text-3);font-family:var(--mono);font-size:11px">No rejections</div>';
+    $('rejTotalTag').textContent = '0';
+    return;
+  }
+
+  const total = entries.reduce((sum, [, v]) => sum + v, 0);
+  const max = entries[0][1];
+  $('rejTotalTag').textContent = total.toLocaleString();
+
+  box.innerHTML = entries.map(([reason, count]) => {
+    const pct = max > 0 ? (count / max) * 100 : 0;
+    const label = reason.replace(/_/g, ' ');
+    return `<div class="rejection-row">
+      <span class="rejection-label">${escHtml(label)}</span>
+      <div class="rejection-bar-track">
+        <div class="rejection-bar-fill" style="width:${pct}%"></div>
+      </div>
+      <span class="rejection-count">${count.toLocaleString()}</span>
+    </div>`;
+  }).join('');
+}
+
+function updateRecentTrades(s) {
+  const trades = s.recent_trades;
+  const body = $('elTradesBody');
+  if (!trades || !Array.isArray(trades) || trades.length === 0) {
+    body.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-3);padding:24px">No trades yet</td></tr>';
+    $('tradesCountTag').textContent = '0';
+    return;
+  }
+
+  $('tradesCountTag').textContent = trades.length;
+
+  body.innerHTML = trades.map(t => {
+    const time = t.timestamp ? fmtTime(t.timestamp) : (t.created_time ? fmtTime(t.created_time) : '—');
+    const asset = t.asset ?? '—';
+    const ticker = t.ticker ? escHtml(t.ticker.length > 28 ? t.ticker.slice(0, 28) + '…' : t.ticker) : '—';
+    const side = t.side ?? t.action ?? '—';
+    const sideCls = /yes|buy/i.test(side) ? 'trade-side-yes' : /no|sell/i.test(side) ? 'trade-side-no' : '';
+    const price = t.yes_price ?? t.price;
+    const priceStr = price != null ? price + '¢' : '—';
+    const count = t.count ?? t.contracts ?? '—';
+    const costCents = t.cost_cents ?? t.cost;
+    const costStr = costCents != null ? '$' + (costCents / 100).toFixed(2) : '—';
+    const strat = t.strategy ?? '—';
+    const stratCls = STRAT_CLASSES[strat] || '';
+    const edge = t.edge != null ? (t.edge * 100).toFixed(2) + '%' : '—';
+    const kelly = t.kelly_f != null ? t.kelly_f.toFixed(3) : '—';
+    const assetColor = ASSET_COLORS[asset] || 'var(--text-1)';
+
+    return `<tr>
+      <td>${time}</td>
+      <td><span style="color:${assetColor};font-weight:600">${escHtml(asset)}</span></td>
+      <td title="${escHtml(t.ticker || '')}">${ticker}</td>
+      <td class="${sideCls}">${escHtml(String(side).toUpperCase())}</td>
+      <td>${priceStr}</td>
+      <td>${count}</td>
+      <td>${costStr}</td>
+      <td><span class="strat-tag ${stratCls}">${escHtml(strat)}</span></td>
+      <td>${edge}</td>
+      <td>${kelly}</td>
+    </tr>`;
+  }).join('');
+}
+
+function updateRecentOpportunities(s) {
+  const opps = s.recent_opportunities;
+  const body = $('elOppsBody');
+  if (!opps || !Array.isArray(opps) || opps.length === 0) {
+    body.innerHTML = '<tr><td colspan="12" style="text-align:center;color:var(--text-3);padding:24px">No opportunities yet</td></tr>';
+    $('oppsCountTag').textContent = '0';
+    return;
+  }
+
+  $('oppsCountTag').textContent = opps.length;
+
+  body.innerHTML = opps.map(o => {
+    const time = o.evaluation_time ? fmtTime(o.evaluation_time) : '—';
+    const asset = o.asset ?? '—';
+    const ticker = o.ticker ? escHtml(o.ticker.length > 28 ? o.ticker.slice(0, 28) + '…' : o.ticker) : '—';
+    const strat = o.strategy ?? '—';
+    const stratCls = STRAT_CLASSES[strat] || '';
+    const edge = o.edge != null ? (o.edge * 100).toFixed(2) + '%' : '—';
+    const prob = o.calibrated_prob != null ? (o.calibrated_prob * 100).toFixed(1) + '%' : '—';
+    const price = o.market_price != null ? o.market_price + '¢' : '—';
+    const size = o.position_size != null ? o.position_size + '¢' : '—';
+    const kelly = o.kelly_f != null ? o.kelly_f.toFixed(3) : '—';
+    const ev = o.expected_value;
+    let evStr = '—', evCls = '';
+    if (ev != null) {
+      evStr = (ev >= 0 ? '+' : '') + ev.toFixed(2) + '¢';
+      evCls = ev >= 0 ? 'sim-ev-pos' : 'sim-ev-neg';
+    }
+    const zScore = o.z_score != null ? o.z_score.toFixed(2) : '—';
+    const regime = o.vol_regime ?? '—';
+    const assetColor = ASSET_COLORS[asset] || 'var(--text-1)';
+
+    return `<tr>
+      <td>${time}</td>
+      <td><span style="color:${assetColor};font-weight:600">${escHtml(asset)}</span></td>
+      <td title="${escHtml(o.ticker || '')}">${ticker}</td>
+      <td><span class="strat-tag ${stratCls}">${escHtml(strat)}</span></td>
+      <td>${edge}</td>
+      <td>${prob}</td>
+      <td>${price}</td>
+      <td>${size}</td>
+      <td>${kelly}</td>
+      <td class="${evCls}">${evStr}</td>
+      <td>${zScore}</td>
+      <td>${escHtml(regime)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // MAIN UPDATE
 // ═══════════════════════════════════════════════════════════════════════
 function update(s) {
@@ -2103,6 +2705,13 @@ function update(s) {
   try { updateFeedHealth(s); } catch (e) { console.error('updateFeedHealth:', e); }
   try { updateSimulatedPerformance(s); } catch (e) { console.error('updateSimulatedPerformance:', e); }
   try { updateRecentSimTrades(s); } catch (e) { console.error('updateRecentSimTrades:', e); }
+  try { updateSessionStats(s); } catch (e) { console.error('updateSessionStats:', e); }
+  try { updateStrategyBreakdown(s); } catch (e) { console.error('updateStrategyBreakdown:', e); }
+  try { updateAssetPerformance(s); } catch (e) { console.error('updateAssetPerformance:', e); }
+  try { updateRateLimits(s); } catch (e) { console.error('updateRateLimits:', e); }
+  try { updateRejectionSummary(s); } catch (e) { console.error('updateRejectionSummary:', e); }
+  try { updateRecentTrades(s); } catch (e) { console.error('updateRecentTrades:', e); }
+  try { updateRecentOpportunities(s); } catch (e) { console.error('updateRecentOpportunities:', e); }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
