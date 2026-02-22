@@ -745,6 +745,106 @@ body::before {
 .feed-dot-indicator.down { background: var(--red-0); box-shadow: 0 0 6px var(--red-0); }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   SIMULATED PERFORMANCE
+   ═══════════════════════════════════════════════════════════════════════ */
+.sim-cell { grid-column: span 4; }
+.sim-hero {
+  font-family: var(--mono); font-size: 36px; font-weight: 700;
+  letter-spacing: -1px; line-height: 1;
+}
+.sim-sub {
+  margin-top: 8px; font-family: var(--mono); font-size: 14px;
+  color: var(--text-1);
+}
+.sim-bar-track {
+  margin-top: 10px; height: 6px; border-radius: 3px;
+  background: var(--red-bg); overflow: hidden;
+}
+.sim-bar-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--green-1), var(--green-0));
+  transition: width 0.6s ease;
+}
+.sim-meta {
+  margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+
+/* Sim breakdowns */
+.sim-breakdowns-cell { grid-column: span 8; }
+.sim-bd-tabs {
+  display: flex; gap: 4px; margin-bottom: 12px;
+}
+.sim-bd-tab {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  padding: 3px 8px; border-radius: 4px;
+  background: var(--bg-2); color: var(--text-3);
+  border: 1px solid var(--border-0);
+  cursor: pointer; transition: all 0.2s;
+}
+.sim-bd-tab:hover { border-color: var(--border-1); color: var(--text-1); }
+.sim-bd-tab.active { background: var(--violet-bg); color: var(--violet-0); border-color: var(--violet-border); }
+.sim-bd-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px;
+}
+.sim-bd-card {
+  padding: 12px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-0); background: var(--bg-2);
+  transition: border-color 0.2s;
+}
+.sim-bd-card:hover { border-color: var(--border-1); }
+.sim-bd-name {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: var(--text-0); margin-bottom: 4px;
+}
+.sim-bd-pnl {
+  font-family: var(--mono); font-size: 18px; font-weight: 700;
+}
+.sim-bd-detail {
+  font-family: var(--mono); font-size: 9px; color: var(--text-3);
+  margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RECENT SIM TRADES TABLE
+   ═══════════════════════════════════════════════════════════════════════ */
+.simtrades-cell { grid-column: span 12; }
+.simtrades-scroll {
+  max-height: 480px; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: var(--border-1) transparent;
+}
+.simtrades-scroll::-webkit-scrollbar { width: 3px; }
+.simtrades-scroll::-webkit-scrollbar-thumb { background: var(--border-1); border-radius: 2px; }
+.simtrades-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--mono); font-size: 11px;
+}
+.simtrades-table thead {
+  position: sticky; top: 0;
+  background: var(--bg-1); z-index: 2;
+}
+.simtrades-table th {
+  text-align: left;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--text-3);
+  padding: 8px 8px 10px;
+  border-bottom: 1px solid var(--border-0);
+}
+.simtrades-table td {
+  padding: 7px 8px;
+  color: var(--text-1);
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+  white-space: nowrap;
+}
+.simtrades-table tr:hover td { background: var(--bg-2); }
+.sim-outcome-win { color: var(--green-0); font-weight: 600; }
+.sim-outcome-loss { color: var(--red-0); font-weight: 600; }
+.sim-outcome-pending { color: var(--amber-0); }
+.sim-pnl-pos { color: var(--green-0); font-weight: 600; }
+.sim-pnl-neg { color: var(--red-0); font-weight: 600; }
+.sim-ev-pos { color: var(--green-0); }
+.sim-ev-neg { color: var(--red-0); }
+
+/* ═══════════════════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════════════════ */
 @media (max-width: 1100px) {
@@ -756,6 +856,9 @@ body::before {
   .positions-cell, .resting-cell { grid-column: span 6; }
   .xchg-cell { grid-column: span 6; }
   .oflow-cell, .funding-cell { grid-column: span 3; }
+  .sim-cell { grid-column: span 6; }
+  .sim-breakdowns-cell { grid-column: span 6; }
+  .simtrades-cell { grid-column: span 6; }
   .spot-item { min-width: 140px; }
 }
 @media (max-width: 700px) {
@@ -763,7 +866,8 @@ body::before {
   .hero, .status-cell, .wl-cell, .daily-pnl-cell,
   .vol-cell, .timing-cell, .funnel-cell,
   .order-cell, .positions-cell, .resting-cell,
-  .xchg-cell, .oflow-cell, .funding-cell { grid-column: 1 / -1; }
+  .xchg-cell, .oflow-cell, .funding-cell,
+  .sim-cell, .sim-breakdowns-cell, .simtrades-cell { grid-column: 1 / -1; }
   .bal-num { font-size: 34px; }
   .hdr { padding: 12px 16px; }
   .hdr-right { display: none; }
@@ -1016,6 +1120,80 @@ body::before {
       <div class="feed-dots" id="elFeedDots">
         <div class="empty" style="padding:8px">Waiting...</div>
       </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ROW 5: Simulated Performance ══════════════ -->
+
+  <div class="section-divider">
+    <span class="divider-label">Simulated Performance</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Sim Overview -->
+  <div class="cell sim-cell">
+    <div class="cell-label">
+      Sim P&L
+      <span class="tag" id="simCountTag" style="background:var(--violet-bg);color:var(--violet-0);border:1px solid var(--violet-border)">0 trades</span>
+    </div>
+    <div class="sim-hero" id="elSimPnl">$0.00</div>
+    <div class="sim-sub" id="elSimWR">—</div>
+    <div class="sim-bar-track">
+      <div class="sim-bar-fill" id="elSimBarFill" style="width:0%"></div>
+    </div>
+    <div class="sim-meta">
+      <div class="meta-item"><span class="meta-label">Wins</span><span class="meta-val" id="elSimWins">—</span></div>
+      <div class="meta-item"><span class="meta-label">Losses</span><span class="meta-val" id="elSimLosses">—</span></div>
+      <div class="meta-item"><span class="meta-label">Pending</span><span class="meta-val" id="elSimPending">—</span></div>
+      <div class="meta-item"><span class="meta-label">Avg Edge</span><span class="meta-val" id="elSimEdge">—</span></div>
+      <div class="meta-item"><span class="meta-label">Avg Kelly f</span><span class="meta-val" id="elSimKelly">—</span></div>
+      <div class="meta-item"><span class="meta-label">Avg Size</span><span class="meta-val" id="elSimSize">—</span></div>
+      <div class="meta-item"><span class="meta-label">Avg EV</span><span class="meta-val" id="elSimEV">—</span></div>
+    </div>
+  </div>
+
+  <!-- Sim Breakdowns -->
+  <div class="cell sim-breakdowns-cell">
+    <div class="cell-label">Breakdowns</div>
+    <div class="sim-bd-tabs" id="elSimBdTabs">
+      <div class="sim-bd-tab active" data-bd="strategy">Strategy</div>
+      <div class="sim-bd-tab" data-bd="regime">Vol Regime</div>
+      <div class="sim-bd-tab" data-bd="asset">Asset</div>
+    </div>
+    <div class="sim-bd-grid" id="elSimBdGrid">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Recent Sim Trades -->
+  <div class="cell simtrades-cell">
+    <div class="cell-label">
+      Recent Simulated Trades
+      <span class="tag" id="simTradesCountTag" style="background:var(--bg-2);color:var(--text-3)">0</span>
+    </div>
+    <div class="simtrades-scroll">
+      <table class="simtrades-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Asset</th>
+            <th>Ticker</th>
+            <th>Strategy</th>
+            <th>Regime</th>
+            <th>Edge</th>
+            <th>Kelly f</th>
+            <th>Size</th>
+            <th>Price</th>
+            <th>EV</th>
+            <th>Z-Score</th>
+            <th>Result</th>
+            <th>P&L</th>
+          </tr>
+        </thead>
+        <tbody id="elSimTradesBody">
+          <tr><td colspan="13" style="text-align:center;color:var(--text-3);padding:24px">Waiting for data...</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -1740,6 +1918,164 @@ function updateFeedHealth(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// UPDATERS — PIECE 5: SIMULATED PERFORMANCE
+// ═══════════════════════════════════════════════════════════════════════
+
+let simBdTab = 'strategy';
+let simBdData = {};
+
+function updateSimulatedPerformance(s) {
+  const sim = s.simulated_performance;
+  if (!sim || typeof sim !== 'object') return;
+
+  const count = sim.simulated_trades_count ?? 0;
+  const wins = sim.simulated_wins ?? 0;
+  const losses = sim.simulated_losses ?? 0;
+  const pnlCents = sim.simulated_pnl_cents ?? 0;
+  const pnl = pnlCents / 100;
+  const wr = sim.simulated_win_rate ?? (count > 0 ? wins / count : 0);
+  const pending = sim.pending_settlement ?? 0;
+  const avgEdge = sim.avg_edge ?? 0;
+  const avgKelly = sim.avg_kelly_f ?? 0;
+  const avgSize = sim.avg_position_size ?? 0;
+  const avgEV = sim.avg_expected_value ?? 0;
+
+  $('simCountTag').textContent = count + ' trade' + (count !== 1 ? 's' : '');
+
+  const hero = $('elSimPnl');
+  hero.textContent = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2);
+  hero.style.color = pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+
+  $('elSimWR').textContent = (wr * 100).toFixed(1) + '% win rate · ' + wins + 'W ' + losses + 'L';
+
+  const wrPct = Math.min(100, Math.max(0, wr * 100));
+  $('elSimBarFill').style.width = wrPct + '%';
+
+  $('elSimWins').textContent = wins;
+  $('elSimLosses').textContent = losses;
+  $('elSimPending').textContent = pending;
+  $('elSimEdge').textContent = (avgEdge * 100).toFixed(2) + '%';
+  $('elSimKelly').textContent = avgKelly.toFixed(3);
+  $('elSimSize').textContent = avgSize + '¢';
+  const evEl = $('elSimEV');
+  evEl.textContent = (avgEV >= 0 ? '+' : '') + avgEV.toFixed(2) + '¢';
+  evEl.className = 'meta-val ' + (avgEV >= 0 ? 'up' : 'dn');
+
+  // Store breakdown data for tab rendering
+  simBdData = {
+    strategy: sim.pnl_by_strategy || {},
+    regime: sim.pnl_by_vol_regime || {},
+    asset: sim.pnl_by_asset || {}
+  };
+  renderSimBreakdowns();
+}
+
+function renderSimBreakdowns() {
+  const grid = $('elSimBdGrid');
+  const data = simBdData[simBdTab] || {};
+  const entries = Object.entries(data);
+
+  if (entries.length === 0) {
+    grid.innerHTML = '<div style="padding:12px;color:var(--text-3);font-family:var(--mono);font-size:11px">No breakdown data</div>';
+    return;
+  }
+
+  grid.innerHTML = entries.map(([key, val]) => {
+    const pnl = (val ?? 0) / 100;
+    const pnlCls = pnl >= 0 ? 'up' : 'dn';
+    const pnlColor = pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+    const label = key.replace(/_/g, ' ');
+    return `<div class="sim-bd-card">
+      <div class="sim-bd-name">${escHtml(label)}</div>
+      <div class="sim-bd-pnl" style="color:${pnlColor}">${pnl >= 0 ? '+$' : '-$'}${Math.abs(pnl).toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+// Sim breakdown tab clicks
+document.addEventListener('click', e => {
+  const tab = e.target.closest('.sim-bd-tab');
+  if (!tab) return;
+  const val = tab.dataset.bd;
+  if (!val) return;
+  simBdTab = val;
+  document.querySelectorAll('.sim-bd-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  renderSimBreakdowns();
+});
+
+function updateRecentSimTrades(s) {
+  const trades = s.recent_simulated_trades;
+  const body = $('elSimTradesBody');
+  if (!trades || !Array.isArray(trades) || trades.length === 0) {
+    body.innerHTML = '<tr><td colspan="13" style="text-align:center;color:var(--text-3);padding:24px">No simulated trades yet</td></tr>';
+    $('simTradesCountTag').textContent = '0';
+    return;
+  }
+
+  $('simTradesCountTag').textContent = trades.length;
+
+  body.innerHTML = trades.map(t => {
+    const time = t.evaluation_time ? fmtTime(t.evaluation_time) : (t.settled_time ? fmtTime(t.settled_time) : '—');
+    const asset = t.asset ?? '—';
+    const ticker = t.ticker ? escHtml(t.ticker.length > 28 ? t.ticker.slice(0, 28) + '…' : t.ticker) : '—';
+    const strat = t.strategy ?? '—';
+    const stratCls = STRAT_CLASSES[strat] || '';
+    const regime = t.vol_regime ?? '—';
+    const edge = t.edge != null ? (t.edge * 100).toFixed(2) + '%' : '—';
+    const kelly = t.kelly_f != null ? t.kelly_f.toFixed(3) : '—';
+    const size = t.position_size != null ? t.position_size + '¢' : '—';
+    const price = t.market_price != null ? t.market_price + '¢' : '—';
+
+    const ev = t.expected_value;
+    let evStr = '—', evCls = '';
+    if (ev != null) {
+      evStr = (ev >= 0 ? '+' : '') + ev.toFixed(2) + '¢';
+      evCls = ev >= 0 ? 'sim-ev-pos' : 'sim-ev-neg';
+    }
+
+    const zScore = t.z_score != null ? t.z_score.toFixed(2) : '—';
+
+    let resultStr = '—', resultCls = '';
+    const status = t.status ?? '';
+    const result = t.market_result;
+    if (status === 'settled' && result != null) {
+      resultStr = result ? 'WIN' : 'LOSS';
+      resultCls = result ? 'sim-outcome-win' : 'sim-outcome-loss';
+    } else {
+      resultStr = 'PENDING';
+      resultCls = 'sim-outcome-pending';
+    }
+
+    const cpnl = t.counterfactual_pnl;
+    let pnlStr = '—', pnlCls = '';
+    if (cpnl != null) {
+      const pnlVal = cpnl / 100;
+      pnlStr = (pnlVal >= 0 ? '+$' : '-$') + Math.abs(pnlVal).toFixed(2);
+      pnlCls = pnlVal >= 0 ? 'sim-pnl-pos' : 'sim-pnl-neg';
+    }
+
+    const assetColor = ASSET_COLORS[asset] || 'var(--text-1)';
+
+    return `<tr>
+      <td>${time}</td>
+      <td><span style="color:${assetColor};font-weight:600">${escHtml(asset)}</span></td>
+      <td title="${escHtml(t.ticker || '')}">${ticker}</td>
+      <td><span class="strat-tag ${stratCls}">${escHtml(strat)}</span></td>
+      <td>${escHtml(regime)}</td>
+      <td>${edge}</td>
+      <td>${kelly}</td>
+      <td>${size}</td>
+      <td>${price}</td>
+      <td class="${evCls}">${evStr}</td>
+      <td>${zScore}</td>
+      <td class="${resultCls}">${resultStr}</td>
+      <td class="${pnlCls}">${pnlStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // MAIN UPDATE
 // ═══════════════════════════════════════════════════════════════════════
 function update(s) {
@@ -1765,6 +2101,8 @@ function update(s) {
   try { updateOrderFlow(s); } catch (e) { console.error('updateOrderFlow:', e); }
   try { updateFundingRates(s); } catch (e) { console.error('updateFundingRates:', e); }
   try { updateFeedHealth(s); } catch (e) { console.error('updateFeedHealth:', e); }
+  try { updateSimulatedPerformance(s); } catch (e) { console.error('updateSimulatedPerformance:', e); }
+  try { updateRecentSimTrades(s); } catch (e) { console.error('updateRecentSimTrades:', e); }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
