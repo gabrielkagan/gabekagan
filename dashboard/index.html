@@ -320,17 +320,160 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   PLACEHOLDER SECTIONS (will be populated in later pieces)
+   VOLATILITY PANEL
    ═══════════════════════════════════════════════════════════════════════ */
-.placeholder-section {
-  grid-column: span 12;
-  padding: 14px 22px;
-  background: var(--bg-1);
-  color: var(--text-3);
-  font-family: var(--mono);
-  font-size: 11px;
-  text-align: center;
-  opacity: 0.5;
+.vol-cell { grid-column: span 6; }
+.vol-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.vol-card {
+  padding: 14px 16px; border-radius: var(--radius-md);
+  border: 1px solid var(--border-0); background: var(--bg-2);
+  transition: border-color 0.2s;
+}
+.vol-card:hover { border-color: var(--border-1); }
+.vol-card-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.vol-card-name {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+}
+.vol-card-name .dot { width: 7px; height: 7px; border-radius: 50%; }
+.vol-regime {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  padding: 2px 7px; border-radius: 3px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.vol-regime.normal { background: var(--blue-bg); color: var(--blue-0); }
+.vol-regime.elevated { background: var(--red-bg); color: var(--red-0); animation: pulse 1.5s ease-in-out infinite; }
+.vol-blended {
+  font-family: var(--mono); font-size: 22px; font-weight: 700;
+  color: var(--text-0); margin-bottom: 4px;
+}
+.vol-blend-method {
+  font-family: var(--mono); font-size: 9px; color: var(--text-3);
+  margin-bottom: 8px;
+}
+.vol-metrics {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3px 10px;
+}
+.vol-metric {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--mono); font-size: 10px;
+}
+.vol-metric-label { color: var(--text-3); }
+.vol-metric-val { color: var(--text-1); font-weight: 500; }
+.vol-iv-spread {
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--border-0);
+}
+.vol-iv-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--mono); font-size: 10px;
+}
+.vol-iv-label { color: var(--text-3); }
+.vol-iv-val { font-weight: 600; }
+.vol-jump-bar {
+  margin-top: 6px;
+  display: flex; align-items: center; gap: 8px;
+}
+.vol-jump-track {
+  flex: 1; height: 4px; border-radius: 2px;
+  background: var(--bg-0); overflow: hidden;
+}
+.vol-jump-fill {
+  height: 100%; border-radius: 2px;
+  background: var(--red-0);
+  transition: width 0.3s ease;
+}
+.vol-jump-label {
+  font-family: var(--mono); font-size: 9px; color: var(--red-0);
+  white-space: nowrap;
+}
+.vol-warmup {
+  margin-top: 6px;
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 9px; color: var(--text-3);
+}
+.vol-warmup-track {
+  flex: 1; height: 3px; border-radius: 2px;
+  background: var(--bg-0); overflow: hidden; max-width: 60px;
+}
+.vol-warmup-fill {
+  height: 100%; border-radius: 2px;
+  background: var(--blue-0); opacity: 0.6;
+  transition: width 0.6s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MARKET TIMING CARD
+   ═══════════════════════════════════════════════════════════════════════ */
+.timing-cell { grid-column: span 3; }
+.close-num {
+  font-family: var(--mono); font-size: 38px; font-weight: 700;
+  letter-spacing: -1px; line-height: 1;
+  color: var(--text-0);
+}
+.close-num.urgent { color: var(--amber-0); }
+.close-num.critical { color: var(--red-0); }
+.close-label {
+  font-family: var(--mono); font-size: 11px; color: var(--text-3);
+  margin-top: 6px;
+}
+.windows-grid {
+  margin-top: 14px;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+}
+.window-item {
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-0); background: var(--bg-2);
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11px;
+}
+.window-item .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.window-count {
+  font-weight: 700; color: var(--text-0); margin-left: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FILTER FUNNEL
+   ═══════════════════════════════════════════════════════════════════════ */
+.funnel-cell { grid-column: span 3; }
+.funnel-tabs {
+  display: flex; gap: 4px; margin-bottom: 12px;
+}
+.funnel-tab {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  padding: 3px 8px; border-radius: 4px;
+  background: var(--bg-2); color: var(--text-3);
+  border: 1px solid var(--border-0);
+  cursor: pointer; transition: all 0.2s;
+}
+.funnel-tab:hover { border-color: var(--border-1); color: var(--text-1); }
+.funnel-tab.active { background: var(--blue-bg); color: var(--blue-0); border-color: var(--blue-border); }
+.funnel-stages { display: flex; flex-direction: column; gap: 3px; }
+.funnel-row {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 10px;
+}
+.funnel-label {
+  width: 90px; flex-shrink: 0;
+  color: var(--text-2); font-weight: 500;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.funnel-bar-track {
+  flex: 1; height: 14px; border-radius: 3px;
+  background: var(--bg-0); overflow: hidden;
+  position: relative;
+}
+.funnel-bar-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 0.4s ease;
+  min-width: 1px;
+}
+.funnel-count {
+  width: 28px; text-align: right; flex-shrink: 0;
+  color: var(--text-1); font-weight: 600;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -339,16 +482,20 @@ body::before {
 @media (max-width: 1100px) {
   .grid { grid-template-columns: repeat(6, 1fr); }
   .hero, .status-cell, .wl-cell, .daily-pnl-cell { grid-column: span 6; }
+  .vol-cell { grid-column: span 6; }
+  .timing-cell, .funnel-cell { grid-column: span 3; }
   .spot-item { min-width: 140px; }
 }
 @media (max-width: 700px) {
   .grid { grid-template-columns: 1fr; }
-  .hero, .status-cell, .wl-cell, .daily-pnl-cell { grid-column: 1 / -1; }
+  .hero, .status-cell, .wl-cell, .daily-pnl-cell,
+  .vol-cell, .timing-cell, .funnel-cell { grid-column: 1 / -1; }
   .bal-num { font-size: 34px; }
   .hdr { padding: 12px 16px; }
   .hdr-right { display: none; }
   .spot-strip { flex-wrap: wrap; }
   .spot-item { min-width: 50%; flex: none; }
+  .vol-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -465,6 +612,62 @@ body::before {
       <div class="bm">Daily % <span id="elDailyPct">0.0%</span></div>
       <div class="bm">Streak <span id="elStreak">0</span></div>
       <div class="bm">Pending <span id="elPending">0</span></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ROW 2: Market Data ══════════════ -->
+
+  <div class="section-divider">
+    <span class="divider-label">Market Data</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Volatility Panel -->
+  <div class="cell vol-cell">
+    <div class="cell-label">
+      Volatility Engine
+      <span class="tag" id="elVolTag" style="background:var(--blue-bg);color:var(--blue-0)">LIVE</span>
+    </div>
+    <div class="vol-grid" id="elVolGrid">
+      <div class="empty">Waiting for volatility data...</div>
+    </div>
+  </div>
+
+  <!-- Market Timing -->
+  <div class="cell timing-cell">
+    <div class="cell-label">Market Timing</div>
+    <div class="close-num" id="elCloseNum">—</div>
+    <div class="close-label" id="elCloseLabel">until next close</div>
+    <div class="windows-grid" id="elWindowsGrid">
+      <div class="window-item">
+        <div class="dot" style="background:#f7931a"></div>
+        <span style="color:var(--text-2)">BTC</span>
+        <span class="window-count" id="winBTC">0</span>
+      </div>
+      <div class="window-item">
+        <div class="dot" style="background:#849dff"></div>
+        <span style="color:var(--text-2)">ETH</span>
+        <span class="window-count" id="winETH">0</span>
+      </div>
+      <div class="window-item">
+        <div class="dot" style="background:#b86eff"></div>
+        <span style="color:var(--text-2)">SOL</span>
+        <span class="window-count" id="winSOL">0</span>
+      </div>
+      <div class="window-item">
+        <div class="dot" style="background:#23c4d8"></div>
+        <span style="color:var(--text-2)">XRP</span>
+        <span class="window-count" id="winXRP">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Funnel -->
+  <div class="cell funnel-cell">
+    <div class="cell-label">Filter Funnel</div>
+    <div class="funnel-tabs" id="funnelTabs"></div>
+    <div class="funnel-stages" id="funnelStages">
+      <div class="empty">Waiting for filter data...</div>
     </div>
   </div>
 
@@ -650,21 +853,225 @@ function updateWinLoss(s) {
   $('elPending').textContent = s.pending_settlements ?? 0;
 }
 
-function updateTiming(s) {
-  // Next close
-  nextCloseSeconds = s.seconds_to_next_close ?? null;
-  const el = $('elNextClose');
-  if (nextCloseSeconds != null && nextCloseSeconds >= 0) {
-    el.textContent = 'next close: ' + fmtSec(nextCloseSeconds);
-  } else {
-    el.textContent = 'next close: —';
+// ═══════════════════════════════════════════════════════════════════════
+// UPDATERS — PIECE 2: Volatility, Timing, Filter Funnel
+// ═══════════════════════════════════════════════════════════════════════
+
+const ASSET_COLORS = {
+  BTC: '#f7931a', ETH: '#849dff', SOL: '#b86eff', XRP: '#23c4d8',
+};
+const ASSETS = ['BTC', 'ETH', 'SOL', 'XRP'];
+
+function fmtVol(v) {
+  if (v == null || isNaN(v)) return '—';
+  // Per-5-second scale values are tiny (~0.0001), show as scientific or bps
+  if (v < 0.001) return (v * 10000).toFixed(2) + ' bps';
+  if (v < 1) return (v * 100).toFixed(2) + '%';
+  return v.toFixed(2) + '%';
+}
+
+function updateVolatility(s) {
+  const raw = s.current_volatility;
+  const box = $('elVolGrid');
+  if (!raw || typeof raw !== 'object') {
+    box.innerHTML = '<div class="empty">Waiting for volatility data...</div>';
+    return;
   }
 
-  // Active windows
-  const aw = s.active_windows;
-  if (aw && aw.total != null) {
-    $('elWindows').textContent = 'windows: ' + aw.total;
+  let html = '';
+  for (const asset of ASSETS) {
+    const v = raw[asset];
+    const color = ASSET_COLORS[asset];
+
+    if (!v || typeof v !== 'object') {
+      // Null / no data for this asset
+      html += `<div class="vol-card">
+        <div class="vol-card-hdr">
+          <div class="vol-card-name"><div class="dot" style="background:${color}"></div> ${asset}</div>
+        </div>
+        <div class="vol-blended" style="color:var(--text-3)">—</div>
+        <div class="vol-blend-method">warming up...</div>
+      </div>`;
+      continue;
+    }
+
+    const regime = v.regime ?? 'normal';
+    const regimeClass = regime === 'elevated' ? 'elevated' : 'normal';
+    const blended = v.blended_rv;
+    const method = (v.iv_rv_blend_method ?? '—').replace(/_/g, ' ');
+
+    // IV/RV spread
+    const ivSpread = v.iv_rv_spread;
+    let ivSpreadHtml = '';
+    if (ivSpread != null) {
+      const ivPct = (ivSpread * 100).toFixed(1);
+      const ivColor = ivSpread > 0 ? 'var(--amber-0)' : ivSpread < 0 ? 'var(--blue-0)' : 'var(--text-2)';
+      const ivLabel = ivSpread > 0 ? 'IV &gt; RV' : ivSpread < 0 ? 'IV &lt; RV' : 'IV = RV';
+      ivSpreadHtml = `<div class="vol-iv-spread">
+        <div class="vol-iv-row">
+          <span class="vol-iv-label">IV/RV spread</span>
+          <span class="vol-iv-val" style="color:${ivColor}">${ivPct > 0 ? '+' : ''}${ivPct}%</span>
+        </div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text-3);margin-top:2px">${ivLabel}</div>
+      </div>`;
+    }
+
+    // Deribit vol (BTC/ETH only)
+    const dvol = v.dvol_5s;
+    const dvolHtml = dvol != null
+      ? `<div class="vol-metric"><span class="vol-metric-label">dvol 5s</span><span class="vol-metric-val">${fmtVol(dvol)}</span></div>`
+      : '';
+
+    // Jump indicator
+    let jumpHtml = '';
+    const jumpComp = v.jump_component ?? 0;
+    const jumpSec = v.jump_seconds_remaining ?? 0;
+    if (jumpComp > 0 || jumpSec > 0) {
+      const maxJump = 60; // show as fraction of 60s
+      const jumpPct = Math.min(100, jumpSec / maxJump * 100).toFixed(0);
+      jumpHtml = `<div class="vol-jump-bar">
+        <div class="vol-jump-track"><div class="vol-jump-fill" style="width:${jumpPct}%"></div></div>
+        <span class="vol-jump-label">JUMP ${jumpSec.toFixed(0)}s</span>
+      </div>`;
+    }
+
+    // Warmup indicator
+    const numReturns = v.num_returns ?? 0;
+    const warmupPct = Math.min(100, numReturns / 180 * 100).toFixed(0);
+    const warmupLabel = numReturns >= 180 ? 'warmed' : numReturns + '/180';
+
+    html += `<div class="vol-card">
+      <div class="vol-card-hdr">
+        <div class="vol-card-name"><div class="dot" style="background:${color}"></div> ${asset}</div>
+        <span class="vol-regime ${regimeClass}">${regime}</span>
+      </div>
+      <div class="vol-blended">${fmtVol(blended)}</div>
+      <div class="vol-blend-method">${escHtml(method)}</div>
+      <div class="vol-metrics">
+        <div class="vol-metric"><span class="vol-metric-label">rv 1m</span><span class="vol-metric-val">${fmtVol(v.rv_1min)}</span></div>
+        <div class="vol-metric"><span class="vol-metric-label">rv 5m</span><span class="vol-metric-val">${fmtVol(v.rv_5min)}</span></div>
+        <div class="vol-metric"><span class="vol-metric-label">rv 15m</span><span class="vol-metric-val">${fmtVol(v.rv_15min)}</span></div>
+        <div class="vol-metric"><span class="vol-metric-label">bv 5m</span><span class="vol-metric-val">${fmtVol(v.bv_5min)}</span></div>
+        <div class="vol-metric"><span class="vol-metric-label">bv 15m</span><span class="vol-metric-val">${fmtVol(v.bv_15min)}</span></div>
+        ${dvolHtml}
+      </div>
+      ${ivSpreadHtml}
+      ${jumpHtml}
+      <div class="vol-warmup">
+        <span>${warmupLabel}</span>
+        <div class="vol-warmup-track"><div class="vol-warmup-fill" style="width:${warmupPct}%"></div></div>
+      </div>
+    </div>`;
   }
+
+  box.innerHTML = html;
+}
+
+function updateMarketTiming(s) {
+  // Next close countdown
+  nextCloseSeconds = s.seconds_to_next_close ?? null;
+  const el = $('elCloseNum');
+  if (nextCloseSeconds != null && nextCloseSeconds >= 0) {
+    el.textContent = fmtSec(nextCloseSeconds);
+    el.className = 'close-num' + (nextCloseSeconds < 30 ? ' critical' : nextCloseSeconds < 120 ? ' urgent' : '');
+    $('elNextClose').textContent = 'next close: ' + fmtSec(nextCloseSeconds);
+  } else {
+    el.textContent = '—';
+    el.className = 'close-num';
+    $('elNextClose').textContent = 'next close: —';
+  }
+
+  // Active windows per asset
+  const aw = s.active_windows;
+  if (aw) {
+    if (aw.total != null) {
+      $('elWindows').textContent = 'windows: ' + aw.total;
+      $('elCloseLabel').textContent = aw.total + ' active window' + (aw.total !== 1 ? 's' : '');
+    }
+    const byAsset = aw.by_asset ?? {};
+    for (const asset of ASSETS) {
+      const winEl = $('win' + asset);
+      if (winEl) winEl.textContent = byAsset[asset] ?? 0;
+    }
+  }
+}
+
+// Filter funnel state
+let funnelAsset = 'BTC';
+let funnelData = null;
+
+const FUNNEL_STAGES = [
+  'evaluated', 'low_prob', 'no_orderbook', 'no_best_ask',
+  'price_out_of_range', 'insufficient_edge', 'zero_sizing',
+  'strategy_wait', 'candidates'
+];
+
+const FUNNEL_COLORS = [
+  'var(--blue-0)',     // evaluated
+  'var(--text-2)',     // low_prob
+  'var(--text-3)',     // no_orderbook
+  'var(--text-3)',     // no_best_ask
+  'var(--amber-0)',    // price_out_of_range
+  'var(--red-0)',      // insufficient_edge
+  'var(--red-0)',      // zero_sizing
+  'var(--amber-0)',    // strategy_wait
+  'var(--green-0)',    // candidates
+];
+
+function renderFunnel() {
+  const stages = $('funnelStages');
+  if (!funnelData || !funnelData[funnelAsset]) {
+    stages.innerHTML = '<div class="empty">No filter data for ' + funnelAsset + '</div>';
+    return;
+  }
+
+  const data = funnelData[funnelAsset];
+  const max = Math.max(1, ...FUNNEL_STAGES.map(k => data[k] ?? 0));
+
+  stages.innerHTML = FUNNEL_STAGES.map((stage, i) => {
+    const count = data[stage] ?? 0;
+    const pct = (count / max * 100).toFixed(0);
+    const label = stage.replace(/_/g, ' ');
+    const color = FUNNEL_COLORS[i];
+    return `<div class="funnel-row">
+      <span class="funnel-label" title="${stage}">${label}</span>
+      <div class="funnel-bar-track">
+        <div class="funnel-bar-fill" style="width:${pct}%;background:${color};opacity:0.7"></div>
+      </div>
+      <span class="funnel-count">${count}</span>
+    </div>`;
+  }).join('');
+}
+
+function updateFilterFunnel(s) {
+  funnelData = s.filter_funnel;
+  if (!funnelData || typeof funnelData !== 'object') {
+    $('funnelStages').innerHTML = '<div class="empty">Waiting for filter data...</div>';
+    $('funnelTabs').innerHTML = '';
+    return;
+  }
+
+  // Render asset tabs
+  const tabsEl = $('funnelTabs');
+  const available = ASSETS.filter(a => funnelData[a]);
+  if (!available.includes(funnelAsset) && available.length) funnelAsset = available[0];
+
+  tabsEl.innerHTML = available.map(a => {
+    const cls = a === funnelAsset ? 'funnel-tab active' : 'funnel-tab';
+    return `<button class="${cls}" data-asset="${a}">${a}</button>`;
+  }).join('');
+
+  // Tab click handlers
+  tabsEl.querySelectorAll('.funnel-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      funnelAsset = btn.dataset.asset;
+      tabsEl.querySelectorAll('.funnel-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderFunnel();
+    });
+  });
+
+  renderFunnel();
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -683,7 +1090,9 @@ function update(s) {
   try { updateBalance(s); } catch (e) { console.error('updateBalance:', e); }
   try { updateBotStatus(s); } catch (e) { console.error('updateBotStatus:', e); }
   try { updateWinLoss(s); } catch (e) { console.error('updateWinLoss:', e); }
-  try { updateTiming(s); } catch (e) { console.error('updateTiming:', e); }
+  try { updateVolatility(s); } catch (e) { console.error('updateVolatility:', e); }
+  try { updateMarketTiming(s); } catch (e) { console.error('updateMarketTiming:', e); }
+  try { updateFilterFunnel(s); } catch (e) { console.error('updateFilterFunnel:', e); }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -716,6 +1125,11 @@ setInterval(() => {
   if (nextCloseSeconds != null && nextCloseSeconds > 0) {
     nextCloseSeconds = Math.max(0, nextCloseSeconds - 1);
     $('elNextClose').textContent = 'next close: ' + fmtSec(nextCloseSeconds);
+    const closeEl = $('elCloseNum');
+    if (closeEl) {
+      closeEl.textContent = fmtSec(nextCloseSeconds);
+      closeEl.className = 'close-num' + (nextCloseSeconds < 30 ? ' critical' : nextCloseSeconds < 120 ? ' urgent' : '');
+    }
   }
 }, 1000);
 
