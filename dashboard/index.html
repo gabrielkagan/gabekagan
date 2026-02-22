@@ -590,49 +590,53 @@ let uptimeSeconds = null; // tracks uptime_seconds from Firebase for local ticki
 // ══════════════════════════════════════════════════════════════════════
 
 function updateBalance(s) {
-  // current_balance is a number from Firebase (e.g. 53.36)
-  const bal = s.current_balance ?? s.balance ?? null;
+  // current_balance might be a number (53.36), a string ("53.36"), or nested object
+  const bal = extractNumber(s.current_balance ?? s.balance ?? null);
   if (bal != null) {
-    $('elBal').textContent = '$' + Number(bal).toFixed(2);
+    $('elBal').textContent = '$' + bal.toFixed(2);
   }
 
   // daily_pnl_cents is in cents — convert to dollars for display
-  const pnlCents = s.daily_pnl_cents ?? null;
-  const pnl = pnlCents != null ? pnlCents / 100 : (s.pnl ?? s.daily_pnl ?? s.session_pnl ?? 0);
-  const startBal = s.starting_balance ?? s.start_balance ?? null;
-  const pnlPct = startBal ? (pnl / startBal * 100) : (s.pnl_pct ?? 0);
+  const pnlCents = extractNumber(s.daily_pnl_cents ?? null);
+  const pnlRaw = extractNumber(s.pnl ?? s.daily_pnl ?? s.session_pnl ?? null);
+  const pnl = pnlCents != null ? pnlCents / 100 : (pnlRaw ?? 0);
+  const startBal = extractNumber(s.starting_balance ?? s.start_balance ?? null);
+  const pnlPctRaw = extractNumber(s.pnl_pct ?? null);
+  const pnlPct = startBal ? (pnl / startBal * 100) : (pnlPctRaw ?? 0);
 
   $('elPnl').textContent = fmtMoney(pnl);
   $('elPnl').className = 'pnl-abs ' + cls(pnl);
   $('elPnlPct').textContent = '(' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%)';
   $('elPnlPct').className = 'pnl-pct ' + cls(pnlPct);
 
-  if (startBal != null) $('elStart').textContent = '$' + Number(startBal).toFixed(2);
-  const peak = s.peak_balance ?? s.session_high_balance ?? s.high_balance ?? null;
-  if (peak != null) $('elPeak').textContent = '$' + Number(peak).toFixed(2);
-  const deployed = s.deployed ?? s.capital_deployed ?? 0;
-  $('elDeployed').textContent = '$' + Number(deployed).toFixed(2);
+  if (startBal != null) $('elStart').textContent = '$' + startBal.toFixed(2);
+  const peak = extractNumber(s.peak_balance ?? s.session_high_balance ?? s.high_balance ?? null);
+  if (peak != null) $('elPeak').textContent = '$' + peak.toFixed(2);
+  const deployed = extractNumber(s.deployed ?? s.capital_deployed ?? null) ?? 0;
+  $('elDeployed').textContent = '$' + deployed.toFixed(2);
   const streak = s.streak ?? s.consecutive_losses ?? s.win_streak ?? null;
   if (streak != null) $('elStreak').textContent = String(streak);
 }
 
 function updateDailyPnl(s) {
   // daily_pnl_cents is in cents from Firebase — convert to dollars
-  const pnlCents = s.daily_pnl_cents ?? null;
-  const dpnl = pnlCents != null ? pnlCents / 100 : (s.daily_pnl ?? s.pnl ?? s.session_pnl ?? 0);
+  const pnlCents = extractNumber(s.daily_pnl_cents ?? null);
+  const pnlRaw = extractNumber(s.daily_pnl ?? s.pnl ?? s.session_pnl ?? null);
+  const dpnl = pnlCents != null ? pnlCents / 100 : (pnlRaw ?? 0);
   const el = $('elDailyPnl');
   el.textContent = fmtMoney(dpnl);
   el.className = 'bal-num ' + cls(dpnl);
   el.style.fontSize = '36px';
 
-  const todayTrades = s.today_trades ?? s.trades_today ?? s.total_trades ?? 0;
+  const todayTrades = extractNumber(s.today_trades ?? s.trades_today ?? s.total_trades ?? null) ?? 0;
   $('elTodayTrades').textContent = todayTrades;
 }
 
 function updateBotStatus(s) {
-  // bot_status is already a string from Firebase (e.g. "SCANNING") — use directly
-  const raw = s.bot_status ?? s.status ?? s.state ?? 'IDLE';
-  const status = String(raw).toUpperCase();
+  // bot_status may be a string ("SCANNING") or an object ({state: "SCANNING", ...})
+  const rawVal = s.bot_status ?? s.status ?? s.state ?? 'IDLE';
+  const extracted = extractString(rawVal) ?? 'IDLE';
+  const status = extracted.toUpperCase();
   const dot = $('statusDot');
   const text = $('statusText');
 
@@ -646,11 +650,11 @@ function updateBotStatus(s) {
   text.className = 'status-text ' + statusClass;
   text.textContent = status;
 
-  // Uptime — Firebase sends uptime_seconds as a number
-  const uptimeSec = s.uptime_seconds ?? s.uptime ?? null;
+  // Uptime — Firebase sends uptime_seconds as a number (or string)
+  const uptimeSec = extractNumber(s.uptime_seconds ?? s.uptime ?? null);
   botStartTime = s.bot_start_time ?? s.start_time ?? s.session_start ?? s.uptime_since ?? null;
   if (uptimeSec != null) {
-    uptimeSeconds = Number(uptimeSec);
+    uptimeSeconds = uptimeSec;
     const uptimeStr = fmtSec(uptimeSeconds);
     $('elUptimeVal').textContent = uptimeStr;
     $('elUptime').textContent = 'uptime: ' + uptimeStr;
@@ -661,8 +665,8 @@ function updateBotStatus(s) {
 
   sessionStart = s.session_start ?? botStartTime;
   $('elSession').textContent = sessionStart ? fmtDuration(sessionStart) : '—';
-  $('elScanCount').textContent = s.scan_count ?? s.scans ?? 0;
-  $('elFills').textContent = s.fills ?? s.total_fills ?? 0;
+  $('elScanCount').textContent = extractNumber(s.scan_count ?? s.scans ?? null) ?? 0;
+  $('elFills').textContent = extractNumber(s.fills ?? s.total_fills ?? null) ?? 0;
 
   // Error message — Firebase uses last_error_message
   const errMsg = s.last_error_message ?? s.last_error ?? s.error ?? s.error_message ?? null;
@@ -676,12 +680,13 @@ function updateBotStatus(s) {
 }
 
 function updateWinLoss(s) {
-  // Firebase uses win_count, loss_count, win_rate (as numbers)
-  const w = s.win_count ?? s.wins ?? 0;
-  const l = s.loss_count ?? s.losses ?? 0;
+  // Firebase uses win_count, loss_count, win_rate (as numbers or strings)
+  const w = extractNumber(s.win_count ?? s.wins ?? null) ?? 0;
+  const l = extractNumber(s.loss_count ?? s.losses ?? null) ?? 0;
   const tot = w + l;
   // Use win_rate directly from Firebase if available, otherwise calculate
-  const wr = s.win_rate != null ? Number(s.win_rate) : (tot > 0 ? (w / tot * 100) : 0);
+  const wrRaw = extractNumber(s.win_rate ?? null);
+  const wr = wrRaw != null ? wrRaw : (tot > 0 ? (w / tot * 100) : 0);
 
   $('elW').textContent = w;
   $('elL').textContent = l;
@@ -689,23 +694,27 @@ function updateWinLoss(s) {
   $('elWinRate').textContent = 'Win Rate: ' + wr.toFixed(1) + '%';
   $('elWinRate').className = 'wr-big ' + (wr >= 50 ? 'up' : wr > 0 ? 'dn' : 'flat');
 
-  const bestTrade = s.best_trade ?? s.largest_win ?? null;
-  const worstTrade = s.worst_trade ?? s.largest_loss ?? null;
-  const avgWin = s.avg_win ?? null;
-  const avgLoss = s.avg_loss ?? null;
+  const bestTrade = extractNumber(s.best_trade ?? s.largest_win ?? null);
+  const worstTrade = extractNumber(s.worst_trade ?? s.largest_loss ?? null);
+  const avgWin = extractNumber(s.avg_win ?? null);
+  const avgLoss = extractNumber(s.avg_loss ?? null);
   if (bestTrade != null) $('elBestTrade').textContent = fmtMoney(bestTrade);
   if (worstTrade != null) $('elWorstTrade').textContent = fmtMoney(worstTrade);
-  if (avgWin != null) $('elAvgWin').textContent = '$' + Number(avgWin).toFixed(2);
-  if (avgLoss != null) $('elAvgLoss').textContent = '$' + Number(avgLoss).toFixed(2);
+  if (avgWin != null) $('elAvgWin').textContent = '$' + avgWin.toFixed(2);
+  if (avgLoss != null) $('elAvgLoss').textContent = '$' + avgLoss.toFixed(2);
 }
 
 function updateVolatility(s) {
   const assets = ['BTC', 'ETH', 'SOL', 'XRP'];
 
-  // Firebase uses current_volatility as an object {BTC: ..., ETH: ..., etc}
-  const curVol = s.current_volatility || {};
-  const garch = s.garch_vol || {};
-  const vol = s.volatility || {};
+  // Firebase current_volatility might be:
+  //   {BTC: 0.42, ETH: 0.31}                          ← flat numbers
+  //   {BTC: "0.42", ETH: "0.31"}                       ← strings
+  //   {BTC: {value: 0.42, source: "GARCH"}, ...}       ← nested objects
+  const rawVol = s.current_volatility;
+  const curVol = (rawVol && typeof rawVol === 'object') ? rawVol : {};
+  const garch = (s.garch_vol && typeof s.garch_vol === 'object') ? s.garch_vol : {};
+  const vol = (s.volatility && typeof s.volatility === 'object') ? s.volatility : {};
 
   for (const a of assets) {
     const el = $('vol' + a);
@@ -713,16 +722,14 @@ function updateVolatility(s) {
 
     let v = null;
 
-    // Check current_volatility.ASSET first (Firebase structure)
-    if (curVol[a] != null) v = Number(curVol[a]);
+    // Check current_volatility.ASSET first — could be number, string, or object
+    if (curVol[a] != null) v = extractNumber(curVol[a]);
     // Check garch_vol.ASSET.vol
-    else if (garch[a] && garch[a].vol != null) v = Number(garch[a].vol);
+    if (v == null && garch[a]) v = extractNumber(garch[a].vol ?? garch[a]);
     // Check volatility.ASSET
-    else if (vol[a] != null) v = Number(vol[a]);
-    // Check top-level volatility_ASSET
-    else if (s['volatility_' + a.toLowerCase()] != null) v = Number(s['volatility_' + a.toLowerCase()]);
-    // Check vol_ASSET
-    else if (s['vol_' + a.toLowerCase()] != null) v = Number(s['vol_' + a.toLowerCase()]);
+    if (v == null && vol[a] != null) v = extractNumber(vol[a]);
+    // Check top-level volatility_ASSET or vol_ASSET
+    if (v == null) v = extractNumber(s['volatility_' + a.toLowerCase()] ?? s['vol_' + a.toLowerCase()] ?? null);
 
     if (v != null && !isNaN(v)) {
       // If value < 1, assume it's a decimal ratio, show as percentage
@@ -734,13 +741,13 @@ function updateVolatility(s) {
   }
 
   // Update source badge
-  const src = s.vol_source ?? (Object.keys(curVol).length ? 'LIVE' : Object.keys(garch).length ? 'GARCH' : 'LIVE');
-  $('elVolSrc').textContent = String(src).toUpperCase();
+  const src = extractString(s.vol_source) ?? (Object.keys(curVol).length ? 'LIVE' : Object.keys(garch).length ? 'GARCH' : 'LIVE');
+  $('elVolSrc').textContent = src.toUpperCase();
 }
 
 function updateNextClose(s) {
-  // Firebase uses seconds_to_next_close as a number
-  nextCloseSeconds = s.seconds_to_next_close ?? s.seconds_to_close ?? s.next_close_seconds ?? s.closest_market ?? s.next_market_close ?? null;
+  // Firebase uses seconds_to_next_close as a number (or string)
+  nextCloseSeconds = extractNumber(s.seconds_to_next_close ?? s.seconds_to_close ?? s.next_close_seconds ?? s.closest_market ?? s.next_market_close ?? null);
 
   const el = $('elCloseNum');
   if (nextCloseSeconds != null && nextCloseSeconds < 100000) {
@@ -828,6 +835,80 @@ function updateTrades(s) {
 }
 
 // ══════════════════════════════════════════════════════════════════════
+// FLATTEN / RESOLVE NESTED FIREBASE DATA
+// ══════════════════════════════════════════════════════════════════════
+
+// Firebase data may arrive in various nesting patterns:
+//   { current_balance: 53.36, bot_status: "SCANNING", ... }          ← flat at root
+//   { dashboard: { current_balance: 53.36, bot_status: ... } }       ← under /dashboard
+//   { dashboard: { status: { bot_status: ... }, balance: { ... } } } ← deeply nested
+// This function resolves all of those into a single flat object.
+
+function flattenDashboardData(raw) {
+  if (!raw || typeof raw !== 'object') return {};
+
+  // Start with the dashboard child if it exists, otherwise root
+  let base = raw.dashboard ?? raw;
+
+  // If `base` only has sub-objects (no scalar dashboard fields at this level),
+  // merge all children into one flat object so fields aren't missed.
+  const knownScalars = [
+    'current_balance', 'balance', 'bot_status', 'status', 'state',
+    'win_count', 'loss_count', 'win_rate', 'uptime_seconds',
+    'daily_pnl_cents', 'scan_count', 'fills'
+  ];
+  const hasScalar = knownScalars.some(k => base[k] !== undefined && typeof base[k] !== 'object');
+
+  if (!hasScalar) {
+    // All values are sub-objects — merge them up one level
+    const merged = {};
+    for (const key of Object.keys(base)) {
+      const child = base[key];
+      if (child && typeof child === 'object' && !Array.isArray(child)) {
+        Object.assign(merged, child);
+      } else {
+        merged[key] = child;
+      }
+    }
+    // Keep the raw root too so analytics / trades aren't lost
+    base = { ...raw, ...merged };
+  }
+
+  return base;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// EXTRACT STRING — safely pull a string from a value that might be an object
+// ══════════════════════════════════════════════════════════════════════
+
+function extractString(val) {
+  if (val == null) return null;
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number') return String(val);
+  // val is an object — look for common string fields
+  if (typeof val === 'object') {
+    return val.status ?? val.state ?? val.value ?? val.label ?? val.name ?? null;
+  }
+  return String(val);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// EXTRACT NUMBER — safely pull a number from a value that might be nested
+// ══════════════════════════════════════════════════════════════════════
+
+function extractNumber(val) {
+  if (val == null) return null;
+  if (typeof val === 'number') return val;
+  if (typeof val === 'string') { const n = parseFloat(val); return isNaN(n) ? null : n; }
+  if (typeof val === 'object') {
+    // Try common numeric field names
+    const inner = val.value ?? val.val ?? val.amount ?? val.total ?? val.num ?? null;
+    if (inner != null) return extractNumber(inner);
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════════════════
 // MAIN UPDATE — dispatches to all widgets
 // ══════════════════════════════════════════════════════════════════════
 
@@ -859,18 +940,39 @@ function update(s) {
 const rootRef = ref(db);
 onValue(rootRef, snap => {
   const data = snap.val();
+
+  // ── DEBUG: log the raw Firebase snapshot structure ──
+  console.group('🔥 Firebase snapshot received');
+  console.log('Raw snapshot type:', typeof data);
+  console.log('Raw snapshot keys:', data ? Object.keys(data) : 'null');
+  console.log('Raw snapshot (full):', JSON.parse(JSON.stringify(data)));
+  if (data && data.dashboard) {
+    console.log('data.dashboard keys:', Object.keys(data.dashboard));
+    console.log('data.dashboard:', JSON.parse(JSON.stringify(data.dashboard)));
+  }
+  console.log('bot_status value:', data?.bot_status, '| type:', typeof data?.bot_status);
+  console.log('dashboard.bot_status:', data?.dashboard?.bot_status, '| type:', typeof data?.dashboard?.bot_status);
+  console.log('current_balance:', data?.current_balance ?? data?.dashboard?.current_balance);
+  console.log('current_volatility:', data?.current_volatility ?? data?.dashboard?.current_volatility);
+  console.groupEnd();
+  // ── END DEBUG ──
+
   if (!data) return;
 
-  // If data has a 'dashboard' child, use that; otherwise treat root as the dashboard
-  const s = data.dashboard ?? data;
+  // Resolve the dashboard data — check nested paths
+  const s = flattenDashboardData(data);
+
+  console.log('🎯 Resolved dashboard object keys:', Object.keys(s));
+  console.log('🎯 Resolved bot_status:', s.bot_status, '| type:', typeof s.bot_status);
+  console.log('🎯 Resolved current_balance:', s.current_balance, '| type:', typeof s.current_balance);
+  console.log('🎯 Resolved current_volatility:', s.current_volatility);
+
   update(s);
 
   // Also check for analytics node with recent_trades
-  if (data.analytics) {
-    const analytics = data.analytics;
-    if (analytics.recent_trades) {
-      updateTrades(analytics);
-    }
+  const analytics = s.analytics ?? data.analytics ?? null;
+  if (analytics && analytics.recent_trades) {
+    updateTrades(analytics);
   }
 }, err => {
   console.error("Firebase read error:", err);
