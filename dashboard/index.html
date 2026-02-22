@@ -583,18 +583,22 @@ let closeInterval = null;
 let sessionStart = null;
 let botStartTime = null;
 let nextCloseSeconds = null;
+let uptimeSeconds = null; // tracks uptime_seconds from Firebase for local ticking
 
 // ══════════════════════════════════════════════════════════════════════
 // UPDATERS
 // ══════════════════════════════════════════════════════════════════════
 
 function updateBalance(s) {
-  const bal = s.balance ?? s.current_balance ?? null;
+  // current_balance is a number from Firebase (e.g. 53.36)
+  const bal = s.current_balance ?? s.balance ?? null;
   if (bal != null) {
     $('elBal').textContent = '$' + Number(bal).toFixed(2);
   }
 
-  const pnl = s.pnl ?? s.daily_pnl ?? s.session_pnl ?? 0;
+  // daily_pnl_cents is in cents — convert to dollars for display
+  const pnlCents = s.daily_pnl_cents ?? null;
+  const pnl = pnlCents != null ? pnlCents / 100 : (s.pnl ?? s.daily_pnl ?? s.session_pnl ?? 0);
   const startBal = s.starting_balance ?? s.start_balance ?? null;
   const pnlPct = startBal ? (pnl / startBal * 100) : (s.pnl_pct ?? 0);
 
@@ -613,7 +617,9 @@ function updateBalance(s) {
 }
 
 function updateDailyPnl(s) {
-  const dpnl = s.daily_pnl ?? s.pnl ?? s.session_pnl ?? 0;
+  // daily_pnl_cents is in cents from Firebase — convert to dollars
+  const pnlCents = s.daily_pnl_cents ?? null;
+  const dpnl = pnlCents != null ? pnlCents / 100 : (s.daily_pnl ?? s.pnl ?? s.session_pnl ?? 0);
   const el = $('elDailyPnl');
   el.textContent = fmtMoney(dpnl);
   el.className = 'bal-num ' + cls(dpnl);
@@ -624,7 +630,9 @@ function updateDailyPnl(s) {
 }
 
 function updateBotStatus(s) {
-  const status = (s.bot_status ?? s.status ?? s.state ?? 'IDLE').toUpperCase();
+  // bot_status is already a string from Firebase (e.g. "SCANNING") — use directly
+  const raw = s.bot_status ?? s.status ?? s.state ?? 'IDLE';
+  const status = String(raw).toUpperCase();
   const dot = $('statusDot');
   const text = $('statusText');
 
@@ -638,11 +646,14 @@ function updateBotStatus(s) {
   text.className = 'status-text ' + statusClass;
   text.textContent = status;
 
-  // Uptime
+  // Uptime — Firebase sends uptime_seconds as a number
+  const uptimeSec = s.uptime_seconds ?? s.uptime ?? null;
   botStartTime = s.bot_start_time ?? s.start_time ?? s.session_start ?? s.uptime_since ?? null;
-  if (s.uptime != null) {
-    $('elUptimeVal').textContent = typeof s.uptime === 'number' ? fmtSec(s.uptime) : s.uptime;
-    $('elUptime').textContent = 'uptime: ' + (typeof s.uptime === 'number' ? fmtSec(s.uptime) : s.uptime);
+  if (uptimeSec != null) {
+    uptimeSeconds = Number(uptimeSec);
+    const uptimeStr = fmtSec(uptimeSeconds);
+    $('elUptimeVal').textContent = uptimeStr;
+    $('elUptime').textContent = 'uptime: ' + uptimeStr;
   } else if (botStartTime) {
     $('elUptimeVal').textContent = fmtDuration(botStartTime);
     $('elUptime').textContent = 'uptime: ' + fmtDuration(botStartTime);
@@ -653,11 +664,11 @@ function updateBotStatus(s) {
   $('elScanCount').textContent = s.scan_count ?? s.scans ?? 0;
   $('elFills').textContent = s.fills ?? s.total_fills ?? 0;
 
-  // Error message
-  const errMsg = s.last_error ?? s.error ?? s.error_message ?? null;
+  // Error message — Firebase uses last_error_message
+  const errMsg = s.last_error_message ?? s.last_error ?? s.error ?? s.error_message ?? null;
   const banner = $('errorBanner');
   if (errMsg) {
-    $('errorMsg').textContent = errMsg;
+    $('errorMsg').textContent = String(errMsg);
     banner.classList.add('visible');
   } else {
     banner.classList.remove('visible');
@@ -665,10 +676,12 @@ function updateBotStatus(s) {
 }
 
 function updateWinLoss(s) {
-  const w = s.wins ?? 0;
-  const l = s.losses ?? 0;
+  // Firebase uses win_count, loss_count, win_rate (as numbers)
+  const w = s.win_count ?? s.wins ?? 0;
+  const l = s.loss_count ?? s.losses ?? 0;
   const tot = w + l;
-  const wr = tot > 0 ? (w / tot * 100) : 0;
+  // Use win_rate directly from Firebase if available, otherwise calculate
+  const wr = s.win_rate != null ? Number(s.win_rate) : (tot > 0 ? (w / tot * 100) : 0);
 
   $('elW').textContent = w;
   $('elL').textContent = l;
@@ -689,7 +702,8 @@ function updateWinLoss(s) {
 function updateVolatility(s) {
   const assets = ['BTC', 'ETH', 'SOL', 'XRP'];
 
-  // Try garch_vol object first
+  // Firebase uses current_volatility as an object {BTC: ..., ETH: ..., etc}
+  const curVol = s.current_volatility || {};
   const garch = s.garch_vol || {};
   const vol = s.volatility || {};
 
@@ -699,16 +713,18 @@ function updateVolatility(s) {
 
     let v = null;
 
+    // Check current_volatility.ASSET first (Firebase structure)
+    if (curVol[a] != null) v = Number(curVol[a]);
     // Check garch_vol.ASSET.vol
-    if (garch[a] && garch[a].vol != null) v = garch[a].vol;
+    else if (garch[a] && garch[a].vol != null) v = Number(garch[a].vol);
     // Check volatility.ASSET
-    else if (vol[a] != null) v = vol[a];
+    else if (vol[a] != null) v = Number(vol[a]);
     // Check top-level volatility_ASSET
-    else if (s['volatility_' + a.toLowerCase()] != null) v = s['volatility_' + a.toLowerCase()];
+    else if (s['volatility_' + a.toLowerCase()] != null) v = Number(s['volatility_' + a.toLowerCase()]);
     // Check vol_ASSET
-    else if (s['vol_' + a.toLowerCase()] != null) v = s['vol_' + a.toLowerCase()];
+    else if (s['vol_' + a.toLowerCase()] != null) v = Number(s['vol_' + a.toLowerCase()]);
 
-    if (v != null) {
+    if (v != null && !isNaN(v)) {
       // If value < 1, assume it's a decimal ratio, show as percentage
       const display = v < 1 ? (v * 100).toFixed(1) + '%' : v.toFixed(1) + '%';
       el.textContent = display;
@@ -718,12 +734,13 @@ function updateVolatility(s) {
   }
 
   // Update source badge
-  const src = s.vol_source ?? (Object.keys(garch).length ? 'GARCH' : 'LIVE');
-  $('elVolSrc').textContent = src.toUpperCase();
+  const src = s.vol_source ?? (Object.keys(curVol).length ? 'LIVE' : Object.keys(garch).length ? 'GARCH' : 'LIVE');
+  $('elVolSrc').textContent = String(src).toUpperCase();
 }
 
 function updateNextClose(s) {
-  nextCloseSeconds = s.seconds_to_close ?? s.next_close_seconds ?? s.closest_market ?? s.next_market_close ?? null;
+  // Firebase uses seconds_to_next_close as a number
+  nextCloseSeconds = s.seconds_to_next_close ?? s.seconds_to_close ?? s.next_close_seconds ?? s.closest_market ?? s.next_market_close ?? null;
 
   const el = $('elCloseNum');
   if (nextCloseSeconds != null && nextCloseSeconds < 100000) {
@@ -815,7 +832,7 @@ function updateTrades(s) {
 // ══════════════════════════════════════════════════════════════════════
 
 function update(s) {
-  if (!s) return;
+  if (!s || typeof s !== 'object') return;
   lastUpdate = Date.now();
 
   // Connection indicator
@@ -823,14 +840,15 @@ function update(s) {
   $('pillText').textContent = 'LIVE';
   $('elLastUpdate').textContent = 'updated ' + fmtTime(Date.now());
 
-  updateBalance(s);
-  updateDailyPnl(s);
-  updateBotStatus(s);
-  updateWinLoss(s);
-  updateVolatility(s);
-  updateNextClose(s);
-  updatePositions(s);
-  updateTrades(s);
+  // Each updater is wrapped in try/catch so one bad field doesn't break the rest
+  try { updateBalance(s); } catch (e) { console.error('updateBalance error:', e); }
+  try { updateDailyPnl(s); } catch (e) { console.error('updateDailyPnl error:', e); }
+  try { updateBotStatus(s); } catch (e) { console.error('updateBotStatus error:', e); }
+  try { updateWinLoss(s); } catch (e) { console.error('updateWinLoss error:', e); }
+  try { updateVolatility(s); } catch (e) { console.error('updateVolatility error:', e); }
+  try { updateNextClose(s); } catch (e) { console.error('updateNextClose error:', e); }
+  try { updatePositions(s); } catch (e) { console.error('updatePositions error:', e); }
+  try { updateTrades(s); } catch (e) { console.error('updateTrades error:', e); }
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -866,8 +884,13 @@ onValue(rootRef, snap => {
 
 // Tick uptime and close countdown every second
 setInterval(() => {
-  // Uptime tick
-  if (botStartTime) {
+  // Uptime tick — increment local counter if using uptime_seconds
+  if (uptimeSeconds != null) {
+    uptimeSeconds++;
+    const uptimeStr = fmtSec(uptimeSeconds);
+    $('elUptimeVal').textContent = uptimeStr;
+    $('elUptime').textContent = 'uptime: ' + uptimeStr;
+  } else if (botStartTime) {
     $('elUptimeVal').textContent = fmtDuration(botStartTime);
     $('elUptime').textContent = 'uptime: ' + fmtDuration(botStartTime);
   }
