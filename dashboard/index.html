@@ -7,516 +7,359 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-0: #06080d;
-    --bg-1: #0c1018;
-    --bg-2: #121822;
-    --bg-3: #1a2233;
-    --border-0: #1a2233;
-    --border-1: #243044;
-    --text-0: #e8ecf4;
-    --text-1: #a0aec0;
-    --text-2: #64748b;
-    --text-3: #475569;
-    --green-0: #10b981;
-    --green-1: #059669;
-    --green-bg: rgba(16,185,129,0.07);
-    --green-border: rgba(16,185,129,0.15);
-    --red-0: #f43f5e;
-    --red-1: #e11d48;
-    --red-bg: rgba(244,63,94,0.07);
-    --red-border: rgba(244,63,94,0.15);
-    --blue-0: #38bdf8;
-    --blue-bg: rgba(56,189,248,0.07);
-    --blue-border: rgba(56,189,248,0.15);
-    --amber-0: #fbbf24;
-    --amber-bg: rgba(251,191,36,0.07);
-    --amber-border: rgba(251,191,36,0.15);
-    --violet-0: #a78bfa;
-    --violet-bg: rgba(167,139,250,0.07);
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'DM Sans', sans-serif;
-  }
+/* ═══════════════════════════════════════════════════════════════════════
+   DESIGN SYSTEM
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  --bg-0: #06080d;
+  --bg-1: #0c1018;
+  --bg-2: #121822;
+  --bg-3: #1a2233;
+  --border-0: #1a2233;
+  --border-1: #243044;
+  --border-2: #2e3d55;
+  --text-0: #e8ecf4;
+  --text-1: #a0aec0;
+  --text-2: #64748b;
+  --text-3: #475569;
+  --green-0: #10b981;
+  --green-1: #059669;
+  --green-bg: rgba(16,185,129,0.07);
+  --green-border: rgba(16,185,129,0.15);
+  --red-0: #f43f5e;
+  --red-1: #e11d48;
+  --red-bg: rgba(244,63,94,0.07);
+  --red-border: rgba(244,63,94,0.15);
+  --blue-0: #38bdf8;
+  --blue-1: #0ea5e9;
+  --blue-bg: rgba(56,189,248,0.07);
+  --blue-border: rgba(56,189,248,0.15);
+  --amber-0: #fbbf24;
+  --amber-1: #f59e0b;
+  --amber-bg: rgba(251,191,36,0.07);
+  --amber-border: rgba(251,191,36,0.15);
+  --violet-0: #a78bfa;
+  --violet-bg: rgba(167,139,250,0.07);
+  --violet-border: rgba(167,139,250,0.15);
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  body {
-    background: var(--bg-0);
-    color: var(--text-0);
-    font-family: var(--sans);
-    font-size: 14px;
-    line-height: 1.5;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+body {
+  background: var(--bg-0);
+  color: var(--text-0);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9999;
-  }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
 
-  /* ═══ Header ═══ */
-  .hdr {
-    position: sticky; top: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 28px;
-    background: rgba(6,8,13,0.85);
-    backdrop-filter: blur(16px) saturate(1.2);
-    border-bottom: 1px solid var(--border-0);
-  }
-  .hdr-left { display: flex; align-items: center; gap: 16px; }
-  .hdr-logo {
-    font-family: var(--mono); font-weight: 700; font-size: 15px;
-    letter-spacing: 1px; color: var(--text-2);
-  }
-  .hdr-logo b { color: var(--green-0); }
-  .hdr-pill {
-    font-family: var(--mono); font-size: 10px; font-weight: 600;
-    padding: 3px 10px; border-radius: 100px;
-    display: flex; align-items: center; gap: 5px;
-    transition: all 0.3s ease;
-  }
-  .hdr-pill.live { background: var(--green-bg); color: var(--green-0); border: 1px solid var(--green-border); }
-  .hdr-pill.stale { background: var(--amber-bg); color: var(--amber-0); border: 1px solid var(--amber-border); }
-  .hdr-pill.off { background: var(--red-bg); color: var(--red-0); border: 1px solid var(--red-border); }
-  .hdr-dot {
-    width: 5px; height: 5px; border-radius: 50%;
-    background: currentColor;
-    animation: blink 2s ease-in-out infinite;
-  }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .hdr-right {
-    display: flex; align-items: center; gap: 14px;
-    font-family: var(--mono); font-size: 11px; color: var(--text-3);
-  }
-  .hdr-sep { color: var(--border-1); }
+/* ═══════════════════════════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════════════════════════ */
+.hdr {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px;
+  background: rgba(6,8,13,0.88);
+  backdrop-filter: blur(16px) saturate(1.2);
+  border-bottom: 1px solid var(--border-0);
+}
+.hdr-left { display: flex; align-items: center; gap: 14px; }
+.hdr-logo {
+  font-family: var(--mono); font-weight: 700; font-size: 14px;
+  letter-spacing: 1px; color: var(--text-2);
+}
+.hdr-logo b { color: var(--green-0); }
+.hdr-pill {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  padding: 3px 10px; border-radius: 100px;
+  display: flex; align-items: center; gap: 5px;
+  transition: all 0.3s ease;
+}
+.hdr-pill.live { background: var(--green-bg); color: var(--green-0); border: 1px solid var(--green-border); }
+.hdr-pill.stale { background: var(--amber-bg); color: var(--amber-0); border: 1px solid var(--amber-border); }
+.hdr-pill.off { background: var(--red-bg); color: var(--red-0); border: 1px solid var(--red-border); }
+.hdr-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: currentColor;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.hdr-right {
+  display: flex; align-items: center; gap: 14px;
+  font-family: var(--mono); font-size: 11px; color: var(--text-3);
+}
+.hdr-sep { color: var(--border-1); }
 
-  /* ═══ Grid layout ═══ */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 1px;
-    background: var(--border-0);
-    margin-top: 1px;
-  }
-  .cell {
-    background: var(--bg-1);
-    padding: 20px 22px;
-    overflow: hidden;
-    min-width: 0;
-    animation: cellIn 0.4s ease both;
-  }
-  @keyframes cellIn { from { opacity: 0; transform: translateY(6px); } }
-  .cell:nth-child(1) { animation-delay: 0.05s; }
-  .cell:nth-child(2) { animation-delay: 0.1s; }
-  .cell:nth-child(3) { animation-delay: 0.15s; }
-  .cell:nth-child(4) { animation-delay: 0.2s; }
-  .cell:nth-child(5) { animation-delay: 0.25s; }
-  .cell:nth-child(6) { animation-delay: 0.3s; }
-  .cell:nth-child(7) { animation-delay: 0.35s; }
-  .cell:nth-child(8) { animation-delay: 0.4s; }
-  .cell:nth-child(9) { animation-delay: 0.45s; }
+/* ═══════════════════════════════════════════════════════════════════════
+   SPOT PRICES TICKER STRIP
+   ═══════════════════════════════════════════════════════════════════════ */
+.spot-strip {
+  display: flex; align-items: center; gap: 0;
+  border-bottom: 1px solid var(--border-0);
+  background: var(--bg-1);
+  overflow-x: auto;
+}
+.spot-item {
+  flex: 1;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px;
+  min-width: 180px;
+  border-right: 1px solid var(--border-0);
+  transition: background 0.2s;
+}
+.spot-item:last-child { border-right: none; }
+.spot-item:hover { background: var(--bg-2); }
+.spot-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.spot-label {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--text-2); min-width: 28px;
+}
+.spot-price {
+  font-family: var(--mono); font-size: 14px; font-weight: 600;
+  color: var(--text-0); letter-spacing: -0.3px;
+}
 
-  .cell-label {
-    font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
-    text-transform: uppercase; color: var(--text-3); margin-bottom: 14px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .cell-label .tag {
-    font-size: 9px; padding: 2px 7px; border-radius: 4px;
-    font-weight: 600; letter-spacing: 0.5px; text-transform: none;
-  }
+/* ═══════════════════════════════════════════════════════════════════════
+   GRID LAYOUT
+   ═══════════════════════════════════════════════════════════════════════ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1px;
+  background: var(--border-0);
+  margin-top: 1px;
+}
+.cell {
+  background: var(--bg-1);
+  padding: 20px 22px;
+  overflow: hidden;
+  min-width: 0;
+  animation: cellIn 0.4s ease both;
+}
+@keyframes cellIn { from { opacity: 0; transform: translateY(6px); } }
+.cell:nth-child(1) { animation-delay: 0.05s; }
+.cell:nth-child(2) { animation-delay: 0.1s; }
+.cell:nth-child(3) { animation-delay: 0.15s; }
+.cell:nth-child(4) { animation-delay: 0.2s; }
+.cell:nth-child(5) { animation-delay: 0.25s; }
+.cell:nth-child(6) { animation-delay: 0.3s; }
 
-  /* ═══ Hero — Balance ═══ */
-  .hero { grid-column: span 4; }
-  .bal-num {
-    font-family: var(--mono); font-size: 46px; font-weight: 700;
-    letter-spacing: -2px; line-height: 1;
-  }
-  .pnl-row { display: flex; align-items: baseline; gap: 10px; margin-top: 12px; }
-  .pnl-abs { font-family: var(--mono); font-size: 22px; font-weight: 600; }
-  .pnl-pct { font-family: var(--mono); font-size: 14px; font-weight: 500; }
-  .up { color: var(--green-0); }
-  .dn { color: var(--red-0); }
-  .flat { color: var(--text-3); }
-  .bal-meta {
-    margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-  }
-  .bm { font-size: 12px; color: var(--text-3); }
-  .bm span { font-family: var(--mono); color: var(--text-1); font-weight: 500; }
+.cell-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cell-label .tag {
+  font-size: 9px; padding: 2px 7px; border-radius: 4px;
+  font-weight: 600; letter-spacing: 0.5px; text-transform: none;
+}
 
-  /* ═══ Bot Status ═══ */
-  .status-cell { grid-column: span 4; }
-  .status-indicator {
-    display: flex; align-items: center; gap: 12px;
-    margin-bottom: 16px;
-  }
-  .status-dot {
-    width: 12px; height: 12px; border-radius: 50%;
-    flex-shrink: 0;
-    box-shadow: 0 0 8px currentColor;
-  }
-  .status-dot.scanning { background: var(--blue-0); color: var(--blue-0); animation: pulse 2s ease-in-out infinite; }
-  .status-dot.trading { background: var(--green-0); color: var(--green-0); animation: pulse 1s ease-in-out infinite; }
-  .status-dot.idle { background: var(--amber-0); color: var(--amber-0); }
-  .status-dot.error { background: var(--red-0); color: var(--red-0); animation: pulse 0.5s ease-in-out infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
-  .status-text {
-    font-family: var(--mono); font-size: 24px; font-weight: 700;
-    letter-spacing: 2px; text-transform: uppercase;
-  }
-  .status-text.scanning { color: var(--blue-0); }
-  .status-text.trading { color: var(--green-0); }
-  .status-text.idle { color: var(--amber-0); }
-  .status-text.error { color: var(--red-0); }
-  .status-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .error-banner {
-    margin-top: 12px; padding: 8px 12px; border-radius: 6px;
-    background: var(--red-bg); border: 1px solid var(--red-border);
-    font-family: var(--mono); font-size: 10px; color: var(--red-0);
-    word-break: break-word; display: none;
-  }
-  .error-banner.visible { display: block; }
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION DIVIDERS
+   ═══════════════════════════════════════════════════════════════════════ */
+.section-divider {
+  grid-column: 1 / -1;
+  background: var(--bg-0);
+  padding: 18px 22px 6px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-divider .divider-label {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-3);
+  white-space: nowrap;
+}
+.section-divider .divider-line {
+  flex: 1; height: 1px; background: var(--border-0);
+}
 
-  /* ═══ Win/Loss ═══ */
-  .wl-cell { grid-column: span 4; }
-  .wl-top { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
-  .wl-nums { white-space: nowrap; }
-  .wl-big { font-family: var(--mono); font-size: 28px; font-weight: 700; }
-  .wl-lbl { font-size: 13px; color: var(--text-3); }
-  .wl-slash { color: var(--text-3); margin: 0 4px; font-size: 20px; }
-  .wl-track {
-    flex: 1; height: 6px; border-radius: 3px;
-    background: var(--red-bg); overflow: hidden;
-  }
-  .wl-fill {
-    height: 100%; border-radius: 3px;
-    background: linear-gradient(90deg, var(--green-1), var(--green-0));
-    transition: width 0.6s ease;
-  }
-  .wr-big {
-    font-family: var(--mono); font-size: 18px; font-weight: 600;
-    margin-top: 8px;
-  }
-  .wl-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
+/* ═══════════════════════════════════════════════════════════════════════
+   BALANCE CARD
+   ═══════════════════════════════════════════════════════════════════════ */
+.hero { grid-column: span 4; }
+.bal-num {
+  font-family: var(--mono); font-size: 44px; font-weight: 700;
+  letter-spacing: -2px; line-height: 1;
+}
+.pnl-row { display: flex; align-items: baseline; gap: 10px; margin-top: 12px; }
+.pnl-abs { font-family: var(--mono); font-size: 20px; font-weight: 600; }
+.pnl-pct { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+.up { color: var(--green-0); }
+.dn { color: var(--red-0); }
+.flat { color: var(--text-3); }
+.bal-meta {
+  margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+.bm { font-size: 12px; color: var(--text-3); }
+.bm span { font-family: var(--mono); color: var(--text-1); font-weight: 500; }
 
-  /* ═══ Volatility Cards ═══ */
-  .vol-cell { grid-column: span 4; }
-  .vol-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .vol-box {
-    padding: 12px 14px; border-radius: 8px;
-    border: 1px solid var(--border-0); background: var(--bg-2);
-    transition: border-color 0.3s;
-  }
-  .vol-box:hover { border-color: var(--border-1); }
-  .vol-name {
-    font-family: var(--mono); font-size: 11px; font-weight: 600;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .vol-name .dot { width: 6px; height: 6px; border-radius: 50%; }
-  .vol-val { font-family: var(--mono); font-size: 22px; font-weight: 600; margin-top: 4px; }
-  .vol-sub { font-family: var(--mono); font-size: 9px; color: var(--text-3); margin-top: 2px; }
+/* Drawdown protection indicator */
+.drawdown-bar {
+  margin-top: 14px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  border: 1px solid var(--border-0);
+}
+.drawdown-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--text-3);
+  margin-bottom: 6px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.drawdown-label span {
+  font-family: var(--mono); color: var(--text-1); text-transform: none;
+  letter-spacing: 0;
+}
+.drawdown-track {
+  height: 6px; border-radius: 3px;
+  background: var(--bg-0); overflow: hidden;
+}
+.drawdown-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 0.6s ease, background 0.3s;
+}
 
-  /* ═══ Market Close ═══ */
-  .close-cell { grid-column: span 4; }
-  .close-num {
-    font-family: var(--mono); font-size: 42px; font-weight: 700;
-    letter-spacing: -1px; line-height: 1;
-    color: var(--text-0);
-  }
-  .close-num.urgent { color: var(--amber-0); }
-  .close-num.critical { color: var(--red-0); }
-  .close-label {
-    font-family: var(--mono); font-size: 12px; color: var(--text-3);
-    margin-top: 6px;
-  }
+/* ═══════════════════════════════════════════════════════════════════════
+   BOT STATUS CARD
+   ═══════════════════════════════════════════════════════════════════════ */
+.status-cell { grid-column: span 4; }
+.status-indicator {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+}
+.status-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
+}
+.status-dot.scanning { background: var(--blue-0); color: var(--blue-0); animation: pulse 2s ease-in-out infinite; }
+.status-dot.trading { background: var(--green-0); color: var(--green-0); animation: pulse 1s ease-in-out infinite; }
+.status-dot.idle { background: var(--amber-0); color: var(--amber-0); }
+.status-dot.error { background: var(--red-0); color: var(--red-0); animation: pulse 0.5s ease-in-out infinite; }
+.status-dot.unknown { background: var(--text-3); color: var(--text-3); }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
+.status-text {
+  font-family: var(--mono); font-size: 24px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.status-text.scanning { color: var(--blue-0); }
+.status-text.trading { color: var(--green-0); }
+.status-text.idle { color: var(--amber-0); }
+.status-text.error { color: var(--red-0); }
+.status-text.unknown { color: var(--text-3); }
+.status-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.error-banner {
+  margin-top: 12px; padding: 8px 12px; border-radius: var(--radius-sm);
+  background: var(--red-bg); border: 1px solid var(--red-border);
+  font-family: var(--mono); font-size: 10px; color: var(--red-0);
+  word-break: break-word; display: none;
+}
+.error-banner.visible { display: block; }
 
-  /* ═══ Active Positions ═══ */
-  .positions-cell { grid-column: span 4; }
-  .pos-item {
-    padding: 10px 12px; border-radius: 6px; margin-bottom: 5px;
-    border: 1px solid var(--border-0); background: var(--bg-2);
-    transition: border-color 0.2s;
-  }
-  .pos-item:hover { border-color: var(--border-1); }
-  .pos-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-  .pos-ticker { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--text-0); }
-  .pos-dir {
-    font-family: var(--mono); font-size: 9px; padding: 2px 6px;
-    border-radius: 3px; font-weight: 700; text-transform: uppercase;
-  }
-  .pos-dir.long { background: var(--green-bg); color: var(--green-0); }
-  .pos-dir.short { background: var(--red-bg); color: var(--red-0); }
-  .pos-details {
-    display: flex; gap: 12px; font-family: var(--mono); font-size: 10px; color: var(--text-1);
-  }
-  .pos-details .dim { color: var(--text-3); }
-  .pos-pnl { font-weight: 600; }
+/* ═══════════════════════════════════════════════════════════════════════
+   WIN/LOSS CARD
+   ═══════════════════════════════════════════════════════════════════════ */
+.wl-cell { grid-column: span 4; }
+.wl-top { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.wl-nums { white-space: nowrap; }
+.wl-big { font-family: var(--mono); font-size: 28px; font-weight: 700; }
+.wl-lbl { font-size: 13px; color: var(--text-3); }
+.wl-slash { color: var(--text-3); margin: 0 4px; font-size: 20px; }
+.wl-track {
+  flex: 1; height: 6px; border-radius: 3px;
+  background: var(--red-bg); overflow: hidden;
+}
+.wl-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--green-1), var(--green-0));
+  transition: width 0.6s ease;
+}
+.wr-big {
+  font-family: var(--mono); font-size: 18px; font-weight: 600;
+  margin-top: 8px;
+}
+.wl-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
 
-  /* ═══ Recent Trades Table ═══ */
-  .trades-cell { grid-column: span 12; }
-  .trades-scroll {
-    max-height: 420px; overflow-y: auto;
-    scrollbar-width: thin; scrollbar-color: var(--border-1) transparent;
-  }
-  .trades-scroll::-webkit-scrollbar { width: 3px; }
-  .trades-scroll::-webkit-scrollbar-thumb { background: var(--border-1); border-radius: 2px; }
-  .trades-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: var(--mono);
-    font-size: 11px;
-  }
-  .trades-table thead {
-    position: sticky; top: 0;
-    background: var(--bg-1);
-    z-index: 2;
-  }
-  .trades-table th {
-    text-align: left;
-    font-size: 9px; font-weight: 600; letter-spacing: 0.8px;
-    text-transform: uppercase; color: var(--text-3);
-    padding: 8px 10px 10px;
-    border-bottom: 1px solid var(--border-0);
-  }
-  .trades-table td {
-    padding: 8px 10px;
-    color: var(--text-1);
-    border-bottom: 1px solid rgba(255,255,255,0.02);
-    white-space: nowrap;
-  }
-  .trades-table tr:hover td { background: var(--bg-2); }
-  .trades-table .outcome-win { color: var(--green-0); font-weight: 600; }
-  .trades-table .outcome-loss { color: var(--red-0); font-weight: 600; }
-  .trades-table .outcome-pending { color: var(--amber-0); }
-  .trades-table .pnl-pos { color: var(--green-0); font-weight: 600; }
-  .trades-table .pnl-neg { color: var(--red-0); font-weight: 600; }
+/* Daily P&L sub-card */
+.daily-pnl-cell { grid-column: span 4; }
+.daily-pnl-num {
+  font-family: var(--mono); font-size: 36px; font-weight: 700;
+  letter-spacing: -1px; line-height: 1;
+}
+.daily-pnl-pct {
+  font-family: var(--mono); font-size: 14px; font-weight: 500;
+  margin-top: 6px;
+}
 
-  /* ═══ Empty state ═══ */
-  .empty {
-    text-align: center; padding: 28px 12px;
-    color: var(--text-3); font-size: 12px;
-    font-family: var(--mono);
-  }
+/* ═══════════════════════════════════════════════════════════════════════
+   EMPTY STATES
+   ═══════════════════════════════════════════════════════════════════════ */
+.empty {
+  text-align: center; padding: 28px 12px;
+  color: var(--text-3); font-size: 12px;
+  font-family: var(--mono);
+}
 
-  /* ═══ Strategy Breakdown ═══ */
-  .strat-cell { grid-column: span 4; }
-  .strat-bar-row {
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 6px; font-family: var(--mono); font-size: 11px;
-  }
-  .strat-bar-label {
-    width: 120px; flex-shrink: 0;
-    color: var(--text-1); font-weight: 500;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .strat-bar-track {
-    flex: 1; height: 16px; border-radius: 3px;
-    background: var(--bg-2); overflow: hidden;
-    position: relative;
-  }
-  .strat-bar-fill {
-    height: 100%; border-radius: 3px;
-    transition: width 0.6s ease;
-    min-width: 2px;
-  }
-  .strat-bar-fill.wait { background: var(--text-3); }
-  .strat-bar-fill.maker-patient { background: var(--blue-0); }
-  .strat-bar-fill.maker-aggressive { background: var(--amber-0); }
-  .strat-bar-fill.taker-now { background: var(--green-0); }
-  .strat-bar-fill.panic-capture { background: var(--red-0); }
-  .strat-bar-fill.other-strat { background: var(--violet-0); }
-  .strat-bar-count {
-    width: 36px; text-align: right; flex-shrink: 0;
-    color: var(--text-2); font-weight: 600;
-  }
+/* ═══════════════════════════════════════════════════════════════════════
+   PLACEHOLDER SECTIONS (will be populated in later pieces)
+   ═══════════════════════════════════════════════════════════════════════ */
+.placeholder-section {
+  grid-column: span 12;
+  padding: 14px 22px;
+  background: var(--bg-1);
+  color: var(--text-3);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: center;
+  opacity: 0.5;
+}
 
-  /* ═══ Session Stats ═══ */
-  .sess-cell { grid-column: span 4; }
-  .sess-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .sess-stat {
-    padding: 12px 14px; border-radius: 8px;
-    border: 1px solid var(--border-0); background: var(--bg-2);
-  }
-  .sess-stat-label {
-    font-size: 10px; font-weight: 600; letter-spacing: 0.8px;
-    text-transform: uppercase; color: var(--text-3);
-  }
-  .sess-stat-val {
-    font-family: var(--mono); font-size: 22px; font-weight: 700;
-    color: var(--text-0); margin-top: 2px;
-  }
-  .sess-stat-sub {
-    font-family: var(--mono); font-size: 9px; color: var(--text-3); margin-top: 2px;
-  }
-
-  /* ═══ Simulated Performance ═══ */
-  .sim-cell { grid-column: span 4; }
-  .sim-hero {
-    font-family: var(--mono); font-size: 32px; font-weight: 700;
-    letter-spacing: -1px; line-height: 1;
-  }
-  .sim-sub { margin-top: 8px; font-family: var(--mono); font-size: 13px; color: var(--text-1); }
-  .sim-meta { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .sim-bar-track {
-    margin-top: 10px; height: 6px; border-radius: 3px;
-    background: var(--red-bg); overflow: hidden;
-  }
-  .sim-bar-fill {
-    height: 100%; border-radius: 3px;
-    background: linear-gradient(90deg, var(--green-1), var(--green-0));
-    transition: width 0.6s ease;
-  }
-
-  /* ═══ Asset Performance ═══ */
-  .asset-cell { grid-column: span 6; }
-  .asset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .asset-card {
-    padding: 14px 16px; border-radius: 8px;
-    border: 1px solid var(--border-0); background: var(--bg-2);
-    transition: border-color 0.2s;
-  }
-  .asset-card:hover { border-color: var(--border-1); }
-  .asset-card-name {
-    font-family: var(--mono); font-size: 13px; font-weight: 700;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .asset-card-name .dot { width: 8px; height: 8px; border-radius: 50%; }
-  .asset-card-rate {
-    font-family: var(--mono); font-size: 22px; font-weight: 700;
-    margin-top: 4px;
-  }
-  .asset-card-detail {
-    font-family: var(--mono); font-size: 10px; color: var(--text-2);
-    margin-top: 4px; display: flex; gap: 10px;
-  }
-  .asset-card-bar {
-    margin-top: 8px; height: 4px; border-radius: 2px;
-    background: var(--bg-0); overflow: hidden;
-  }
-  .asset-card-bar-fill {
-    height: 100%; border-radius: 2px;
-    background: linear-gradient(90deg, var(--blue-0), var(--green-0));
-    transition: width 0.6s ease;
-  }
-
-  /* ═══ Rejection Summary ═══ */
-  .rej-cell { grid-column: span 6; }
-  .rej-list { display: flex; flex-direction: column; gap: 5px; }
-  .rej-row {
-    display: flex; align-items: center; gap: 8px;
-    font-family: var(--mono); font-size: 11px;
-  }
-  .rej-label {
-    flex: 1; color: var(--text-1); font-weight: 500;
-    font-size: 10px; line-height: 1.3;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .rej-label:hover {
-    white-space: normal; word-break: break-word;
-  }
-  .rej-bar-track {
-    width: 120px; flex-shrink: 0; height: 14px; border-radius: 3px;
-    background: var(--bg-2); overflow: hidden;
-  }
-  .rej-bar-fill {
-    height: 100%; border-radius: 3px;
-    background: var(--red-0); opacity: 0.7;
-    transition: width 0.6s ease;
-  }
-  .rej-count {
-    width: 32px; text-align: right; flex-shrink: 0;
-    color: var(--text-2); font-weight: 600;
-  }
-
-  /* ═══ Recent Opportunities Table ═══ */
-  .opps-cell { grid-column: span 12; }
-  .opps-scroll {
-    max-height: 460px; overflow-y: auto;
-    scrollbar-width: thin; scrollbar-color: var(--border-1) transparent;
-  }
-  .opps-scroll::-webkit-scrollbar { width: 3px; }
-  .opps-scroll::-webkit-scrollbar-thumb { background: var(--border-1); border-radius: 2px; }
-  .opps-table {
-    width: 100%; border-collapse: collapse;
-    font-family: var(--mono); font-size: 11px;
-  }
-  .opps-table thead {
-    position: sticky; top: 0;
-    background: var(--bg-1); z-index: 2;
-  }
-  .opps-table th {
-    text-align: left;
-    font-size: 9px; font-weight: 600; letter-spacing: 0.8px;
-    text-transform: uppercase; color: var(--text-3);
-    padding: 8px 10px 10px;
-    border-bottom: 1px solid var(--border-0);
-  }
-  .opps-table td {
-    padding: 7px 10px;
-    color: var(--text-1);
-    border-bottom: 1px solid rgba(255,255,255,0.02);
-    white-space: nowrap;
-  }
-  .opps-table tr:hover td { background: var(--bg-2); }
-  .strat-tag {
-    font-size: 9px; padding: 2px 6px; border-radius: 3px;
-    font-weight: 700; display: inline-block;
-  }
-  .strat-tag.wait { background: rgba(100,116,139,0.15); color: var(--text-2); }
-  .strat-tag.maker-patient { background: var(--blue-bg); color: var(--blue-0); }
-  .strat-tag.maker-aggressive { background: var(--amber-bg); color: var(--amber-0); }
-  .strat-tag.taker-now { background: var(--green-bg); color: var(--green-0); }
-  .strat-tag.panic-capture { background: var(--red-bg); color: var(--red-0); }
-  .strat-tag.rejected { background: rgba(100,116,139,0.1); color: var(--text-3); }
-
-  /* ═══ Section Divider ═══ */
-  .section-divider {
-    grid-column: 1 / -1;
-    background: var(--bg-0);
-    padding: 18px 22px 6px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .section-divider .divider-label {
-    font-family: var(--mono); font-size: 11px; font-weight: 600;
-    letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-3);
-    white-space: nowrap;
-  }
-  .section-divider .divider-line {
-    flex: 1; height: 1px; background: var(--border-0);
-  }
-
-  /* ═══ Responsive ═══ */
-  @media (max-width: 1100px) {
-    .grid { grid-template-columns: repeat(6, 1fr); }
-    .hero, .status-cell, .wl-cell { grid-column: span 6; }
-    .vol-cell, .close-cell, .positions-cell { grid-column: span 6; }
-    .strat-cell, .sess-cell, .sim-cell { grid-column: span 6; }
-    .asset-cell, .rej-cell { grid-column: span 6; }
-    .trades-cell, .opps-cell { grid-column: span 6; }
-  }
-  @media (max-width: 700px) {
-    .grid { grid-template-columns: 1fr; }
-    .hero, .status-cell, .wl-cell, .vol-cell, .close-cell,
-    .positions-cell, .trades-cell, .strat-cell, .sess-cell,
-    .sim-cell, .asset-cell, .rej-cell, .opps-cell { grid-column: 1 / -1; }
-    .bal-num { font-size: 34px; }
-    .hdr { padding: 12px 16px; }
-    .hdr-right { display: none; }
-    .vol-grid { grid-template-columns: repeat(2, 1fr); }
-    .asset-grid { grid-template-columns: 1fr; }
-  }
+/* ═══════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: repeat(6, 1fr); }
+  .hero, .status-cell, .wl-cell, .daily-pnl-cell { grid-column: span 6; }
+  .spot-item { min-width: 140px; }
+}
+@media (max-width: 700px) {
+  .grid { grid-template-columns: 1fr; }
+  .hero, .status-cell, .wl-cell, .daily-pnl-cell { grid-column: 1 / -1; }
+  .bal-num { font-size: 34px; }
+  .hdr { padding: 12px 16px; }
+  .hdr-right { display: none; }
+  .spot-strip { flex-wrap: wrap; }
+  .spot-item { min-width: 50%; flex: none; }
+}
 </style>
 </head>
 <body>
 
+<!-- ═══════════════════════════════════════════════════════════════════════
+     HEADER BAR
+     ═══════════════════════════════════════════════════════════════════════ -->
 <div class="hdr">
   <div class="hdr-left">
-    <div class="hdr-logo"><b>◆</b> KALSHI BOT</div>
+    <div class="hdr-logo"><b>&#9670;</b> KALSHI BOT</div>
     <div class="hdr-pill off" id="pill">
       <div class="hdr-dot"></div>
       <span id="pillText">CONNECTING</span>
@@ -524,16 +367,47 @@
   </div>
   <div class="hdr-right">
     <span id="elUptime">uptime: —</span>
-    <span class="hdr-sep">·</span>
+    <span class="hdr-sep">&middot;</span>
     <span id="elNextClose">next close: —</span>
-    <span class="hdr-sep">·</span>
+    <span class="hdr-sep">&middot;</span>
+    <span id="elWindows">windows: —</span>
+    <span class="hdr-sep">&middot;</span>
     <span id="elLastUpdate">—</span>
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SPOT PRICES STRIP
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="spot-strip" id="spotStrip">
+  <div class="spot-item">
+    <div class="spot-dot" style="background:#f7931a"></div>
+    <span class="spot-label">BTC</span>
+    <span class="spot-price" id="spotBTC">$—</span>
+  </div>
+  <div class="spot-item">
+    <div class="spot-dot" style="background:#849dff"></div>
+    <span class="spot-label">ETH</span>
+    <span class="spot-price" id="spotETH">$—</span>
+  </div>
+  <div class="spot-item">
+    <div class="spot-dot" style="background:#b86eff"></div>
+    <span class="spot-label">SOL</span>
+    <span class="spot-price" id="spotSOL">$—</span>
+  </div>
+  <div class="spot-item">
+    <div class="spot-dot" style="background:#23c4d8"></div>
+    <span class="spot-label">XRP</span>
+    <span class="spot-price" id="spotXRP">$—</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     MAIN GRID
+     ═══════════════════════════════════════════════════════════════════════ -->
 <div class="grid">
 
-  <!-- ════════════════════════ ROW 1: Core Metrics ════════════════════════ -->
+  <!-- ══════════════ ROW 1: Core Metrics ══════════════ -->
 
   <!-- Balance -->
   <div class="cell hero">
@@ -546,23 +420,28 @@
     <div class="bal-meta">
       <div class="bm">Start <span id="elStart">$—</span></div>
       <div class="bm">Peak <span id="elPeak">$—</span></div>
-      <div class="bm">Deployed <span id="elDeployed">$0</span></div>
-      <div class="bm">Streak <span id="elStreak">—</span></div>
+    </div>
+    <div class="drawdown-bar">
+      <div class="drawdown-label">
+        Kelly Sizing
+        <span id="elDrawdownVal">100%</span>
+      </div>
+      <div class="drawdown-track">
+        <div class="drawdown-fill" id="elDrawdownFill" style="width:100%;background:var(--green-0)"></div>
+      </div>
     </div>
   </div>
 
   <!-- Bot Status -->
   <div class="cell status-cell">
-    <div class="cell-label">Bot Status</div>
+    <div class="cell-label">System Status</div>
     <div class="status-indicator">
       <div class="status-dot idle" id="statusDot"></div>
       <div class="status-text idle" id="statusText">IDLE</div>
     </div>
     <div class="status-meta">
       <div class="bm">Uptime <span id="elUptimeVal">—</span></div>
-      <div class="bm">Scan # <span id="elScanCount">0</span></div>
-      <div class="bm">Session <span id="elSession">—</span></div>
-      <div class="bm">Fills <span id="elFills">0</span></div>
+      <div class="bm">Timestamp <span id="elTimestamp">—</span></div>
     </div>
     <div class="error-banner" id="errorBanner">
       <strong>LAST ERROR:</strong> <span id="errorMsg">—</span>
@@ -582,245 +461,35 @@
     </div>
     <div class="wr-big" id="elWinRate">Win Rate: —</div>
     <div class="wl-meta">
-      <div class="bm">Best <span id="elBestTrade">$—</span></div>
-      <div class="bm">Worst <span id="elWorstTrade">$—</span></div>
-      <div class="bm">Avg Win <span id="elAvgWin">$—</span></div>
-      <div class="bm">Avg Loss <span id="elAvgLoss">$—</span></div>
+      <div class="bm">Daily P&L <span id="elDailyPnl">$0.00</span></div>
+      <div class="bm">Daily % <span id="elDailyPct">0.0%</span></div>
+      <div class="bm">Streak <span id="elStreak">0</span></div>
+      <div class="bm">Pending <span id="elPending">0</span></div>
     </div>
   </div>
 
-  <!-- ════════════════════════ ROW 2: Market Data ════════════════════════ -->
-
-  <div class="section-divider">
-    <span class="divider-label">Market Data</span>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- Daily P&L -->
-  <div class="cell" style="grid-column: span 4;">
-    <div class="cell-label">Daily P&L</div>
-    <div class="bal-num" id="elDailyPnl" style="font-size:36px">$0.00</div>
-    <div style="margin-top:8px">
-      <div class="bm">Today's Trades <span id="elTodayTrades">0</span></div>
-    </div>
-  </div>
-
-  <!-- Volatility Cards -->
-  <div class="cell vol-cell">
-    <div class="cell-label">
-      Volatility
-      <span class="tag" id="elVolSrc" style="background:var(--blue-bg);color:var(--blue-0)">LIVE</span>
-    </div>
-    <div class="vol-grid" id="elVol">
-      <div class="vol-box">
-        <div class="vol-name"><div class="dot" style="background:#f7931a"></div> BTC</div>
-        <div class="vol-val" id="volBTC">—</div>
-      </div>
-      <div class="vol-box">
-        <div class="vol-name"><div class="dot" style="background:#849dff"></div> ETH</div>
-        <div class="vol-val" id="volETH">—</div>
-      </div>
-      <div class="vol-box">
-        <div class="vol-name"><div class="dot" style="background:#b86eff"></div> SOL</div>
-        <div class="vol-val" id="volSOL">—</div>
-      </div>
-      <div class="vol-box">
-        <div class="vol-name"><div class="dot" style="background:#23c4d8"></div> XRP</div>
-        <div class="vol-val" id="volXRP">—</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Next Market Close -->
-  <div class="cell close-cell">
-    <div class="cell-label">Next Market Close</div>
-    <div class="close-num" id="elCloseNum">—</div>
-    <div class="close-label" id="elCloseLabel">seconds remaining</div>
-  </div>
-
-  <!-- ════════════════════════ ROW 3: Decision Engine ════════════════════════ -->
-
-  <div class="section-divider">
-    <span class="divider-label">Decision Engine</span>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- Strategy Breakdown -->
-  <div class="cell strat-cell">
-    <div class="cell-label">Strategy Breakdown</div>
-    <div id="elStratBreakdown">
-      <div class="empty">Waiting for strategy data…</div>
-    </div>
-  </div>
-
-  <!-- Session Stats -->
-  <div class="cell sess-cell">
-    <div class="cell-label">Session Stats</div>
-    <div class="sess-grid" id="elSessionStats">
-      <div class="sess-stat">
-        <div class="sess-stat-label">Opportunities</div>
-        <div class="sess-stat-val" id="elSessOpps">0</div>
-      </div>
-      <div class="sess-stat">
-        <div class="sess-stat-label">Markets Scanned</div>
-        <div class="sess-stat-val" id="elSessMarkets">0</div>
-      </div>
-      <div class="sess-stat">
-        <div class="sess-stat-label">Eval Rate</div>
-        <div class="sess-stat-val" id="elSessEvalRate">—</div>
-        <div class="sess-stat-sub">per minute</div>
-      </div>
-      <div class="sess-stat">
-        <div class="sess-stat-label">Uptime</div>
-        <div class="sess-stat-val" id="elSessUptime">—</div>
-        <div class="sess-stat-sub" id="elSessLastOpp">last opp: —</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Simulated Performance -->
-  <div class="cell sim-cell">
-    <div class="cell-label">
-      Simulated Performance
-      <span class="tag" style="background:var(--amber-bg);color:var(--amber-0)">OBSERVATION</span>
-    </div>
-    <div class="sim-hero" id="elSimPnl">$0.00</div>
-    <div class="sim-sub" id="elSimRecord">0W – 0L</div>
-    <div class="sim-bar-track">
-      <div class="sim-bar-fill" id="elSimBar" style="width:50%"></div>
-    </div>
-    <div class="sim-meta">
-      <div class="bm">Trades <span id="elSimTrades">0</span></div>
-      <div class="bm">Win Rate <span id="elSimWinRate">—</span></div>
-      <div class="bm">Wins <span id="elSimWins">0</span></div>
-      <div class="bm">Losses <span id="elSimLosses">0</span></div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════ ROW 4: Asset Analysis ════════════════════════ -->
-
-  <div class="section-divider">
-    <span class="divider-label">Asset Analysis</span>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- Asset Performance -->
-  <div class="cell asset-cell">
-    <div class="cell-label">Asset Performance</div>
-    <div class="asset-grid" id="elAssetPerf">
-      <div class="empty">Waiting for asset data…</div>
-    </div>
-  </div>
-
-  <!-- Rejection Summary -->
-  <div class="cell rej-cell">
-    <div class="cell-label">Rejection Summary</div>
-    <div class="rej-list" id="elRejections">
-      <div class="empty">Waiting for rejection data…</div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════ ROW 5: Recent Opportunities ════════════════════════ -->
-
-  <div class="section-divider">
-    <span class="divider-label">Recent Opportunities</span>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- Recent Opportunities Table -->
-  <div class="cell opps-cell">
-    <div class="cell-label">
-      Last 20 Evaluated
-      <span class="tag" id="elOppsN" style="background:var(--blue-bg);color:var(--blue-0)">0</span>
-    </div>
-    <div class="opps-scroll">
-      <table class="opps-table">
-        <thead>
-          <tr>
-            <th>Ticker</th>
-            <th>Asset</th>
-            <th>Time to Close</th>
-            <th>Best Ask</th>
-            <th>Edge</th>
-            <th>Strategy</th>
-            <th>Rejection</th>
-          </tr>
-        </thead>
-        <tbody id="oppsBody">
-          <tr><td colspan="7" class="empty">Waiting for opportunity data…</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ════════════════════════ ROW 6: Positions ════════════════════════ -->
-
-  <div class="section-divider">
-    <span class="divider-label">Positions</span>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- Active Positions -->
-  <div class="cell positions-cell" style="grid-column: span 12;">
-    <div class="cell-label">
-      Active Positions
-      <span class="tag" id="elPosCount" style="background:var(--green-bg);color:var(--green-0)">0</span>
-    </div>
-    <div id="elPositions" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px;">
-      <div class="empty">No active positions</div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════ ROW 4: Trades ════════════════════════ -->
-
-  <div class="section-divider">
-    <span class="divider-label">Recent Trades</span>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- Recent Trades Table -->
-  <div class="cell trades-cell">
-    <div class="cell-label">
-      Last 10 Trades
-      <span class="tag" id="elTradesN" style="background:var(--blue-bg);color:var(--blue-0)">0</span>
-    </div>
-    <div class="trades-scroll">
-      <table class="trades-table">
-        <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>Ticker</th>
-            <th>Direction</th>
-            <th>Entry</th>
-            <th>Outcome</th>
-            <th>Profit</th>
-          </tr>
-        </thead>
-        <tbody id="tradesBody">
-          <tr><td colspan="6" class="empty">Waiting for trades…</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <!-- Remaining sections will be added in subsequent pieces -->
 
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════════════════ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
 
-// ══════════════════════════════════════════════════════════════════════
-// FIREBASE CONFIG — kalshi-dash-v2
-// ══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+// FIREBASE CONFIG
+// ═══════════════════════════════════════════════════════════════════════
 const app = initializeApp({
   databaseURL: "https://kalshi-dash-v2-default-rtdb.firebaseio.com"
 });
 const db = getDatabase(app);
 
-// ══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // HELPERS
-// ══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 const $ = id => document.getElementById(id);
 const cls = v => v > 0 ? 'up' : v < 0 ? 'dn' : 'flat';
 
@@ -830,30 +499,17 @@ function fmtMoney(v) {
   return sign + Math.abs(v).toFixed(2);
 }
 
+function fmtPrice(v) {
+  if (v == null || v === 0) return '$—';
+  if (v >= 1000) return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (v >= 1) return '$' + v.toFixed(4);
+  return '$' + v.toFixed(6);
+}
+
 function fmtTime(ts) {
   if (!ts) return '—';
   const d = new Date(typeof ts === 'number' ? ts : ts);
   return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-}
-
-function fmtTimestamp(ts) {
-  if (!ts) return '—';
-  const d = new Date(typeof ts === 'number' ? ts : ts);
-  const date = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const time = d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  return date + ' ' + time;
-}
-
-function fmtDuration(startTs) {
-  if (!startTs) return '—';
-  const start = new Date(typeof startTs === 'number' ? startTs : startTs).getTime();
-  const s = Math.max(0, Math.floor((Date.now() - start) / 1000));
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
-  if (h > 0) return h + 'h ' + m + 'm';
-  if (m > 0) return m + 'm ' + sec + 's';
-  return sec + 's';
 }
 
 function fmtSec(s) {
@@ -864,105 +520,100 @@ function fmtSec(s) {
   return s + 's';
 }
 
-// ══════════════════════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════════════════════
-let lastUpdate = 0;
-let uptimeInterval = null;
-let closeInterval = null;
-let sessionStart = null;
-let botStartTime = null;
-let nextCloseSeconds = null;
-let uptimeSeconds = null; // tracks uptime_seconds from Firebase for local ticking
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
-// ══════════════════════════════════════════════════════════════════════
-// UPDATERS
-// ══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════
+let lastUpdate = 0;
+let uptimeSeconds = null;
+let nextCloseSeconds = null;
+
+// ═══════════════════════════════════════════════════════════════════════
+// UPDATERS — PIECE 1
+// ═══════════════════════════════════════════════════════════════════════
+
+function updateSpotPrices(s) {
+  const prices = s.spot_prices;
+  if (!prices || typeof prices !== 'object') return;
+  for (const asset of ['BTC', 'ETH', 'SOL', 'XRP']) {
+    const el = $('spot' + asset);
+    if (!el) continue;
+    const v = prices[asset];
+    el.textContent = v != null ? fmtPrice(v) : '$—';
+  }
+}
 
 function updateBalance(s) {
-  // current_balance might be a number (53.36), a string ("53.36"), or nested object
-  const bal = extractNumber(s.current_balance ?? s.balance ?? null);
-  if (bal != null) {
-    $('elBal').textContent = '$' + bal.toFixed(2);
-  }
+  const bal = s.current_balance;
+  if (bal != null) $('elBal').textContent = '$' + Number(bal).toFixed(2);
 
-  // daily_pnl_cents is in cents — convert to dollars for display
-  const pnlCents = extractNumber(s.daily_pnl_cents ?? null);
-  const pnlRaw = extractNumber(s.pnl ?? s.daily_pnl ?? s.session_pnl ?? null);
-  const pnl = pnlCents != null ? pnlCents / 100 : (pnlRaw ?? 0);
-  const startBal = extractNumber(s.starting_balance ?? s.start_balance ?? null);
-  const pnlPctRaw = extractNumber(s.pnl_pct ?? null);
-  const pnlPct = startBal ? (pnl / startBal * 100) : (pnlPctRaw ?? 0);
+  const startBal = s.starting_balance;
+  const peak = s.peak_balance;
+  if (startBal != null) $('elStart').textContent = '$' + Number(startBal).toFixed(2);
+  if (peak != null) $('elPeak').textContent = '$' + Number(peak).toFixed(2);
+
+  // Daily P&L
+  const pnlCents = s.daily_pnl_cents ?? 0;
+  const pnl = pnlCents / 100;
+  const pnlPct = s.daily_pnl_pct ?? (startBal ? pnl / startBal * 100 : 0);
 
   $('elPnl').textContent = fmtMoney(pnl);
   $('elPnl').className = 'pnl-abs ' + cls(pnl);
-  $('elPnlPct').textContent = '(' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%)';
+  $('elPnlPct').textContent = '(' + (pnlPct >= 0 ? '+' : '') + Number(pnlPct).toFixed(1) + '%)';
   $('elPnlPct').className = 'pnl-pct ' + cls(pnlPct);
 
-  if (startBal != null) $('elStart').textContent = '$' + startBal.toFixed(2);
-  const peak = extractNumber(s.peak_balance ?? s.session_high_balance ?? s.high_balance ?? null);
-  if (peak != null) $('elPeak').textContent = '$' + peak.toFixed(2);
-  const deployed = extractNumber(s.deployed ?? s.capital_deployed ?? null) ?? 0;
-  $('elDeployed').textContent = '$' + deployed.toFixed(2);
-  const streak = s.streak ?? s.consecutive_losses ?? s.win_streak ?? null;
-  if (streak != null) $('elStreak').textContent = String(streak);
-}
-
-function updateDailyPnl(s) {
-  // daily_pnl_cents is in cents from Firebase — convert to dollars
-  const pnlCents = extractNumber(s.daily_pnl_cents ?? null);
-  const pnlRaw = extractNumber(s.daily_pnl ?? s.pnl ?? s.session_pnl ?? null);
-  const dpnl = pnlCents != null ? pnlCents / 100 : (pnlRaw ?? 0);
-  const el = $('elDailyPnl');
-  el.textContent = fmtMoney(dpnl);
-  el.className = 'bal-num ' + cls(dpnl);
-  el.style.fontSize = '36px';
-
-  const todayTrades = extractNumber(s.today_trades ?? s.trades_today ?? s.total_trades ?? null) ?? 0;
-  $('elTodayTrades').textContent = todayTrades;
+  // Drawdown Kelly multiplier
+  const dkm = s.drawdown_kelly_mult ?? 1.0;
+  const dkmPct = (dkm * 100).toFixed(0);
+  $('elDrawdownVal').textContent = dkmPct + '%';
+  $('elDrawdownFill').style.width = dkmPct + '%';
+  // Color: green at 100%, amber below 75%, red below 50%
+  if (dkm >= 0.75) {
+    $('elDrawdownFill').style.background = 'var(--green-0)';
+  } else if (dkm >= 0.5) {
+    $('elDrawdownFill').style.background = 'var(--amber-0)';
+  } else {
+    $('elDrawdownFill').style.background = 'var(--red-0)';
+  }
 }
 
 function updateBotStatus(s) {
-  // bot_status may be a string ("SCANNING") or an object ({state: "SCANNING", ...})
-  const rawVal = s.bot_status ?? s.status ?? s.state ?? 'IDLE';
-  const extracted = extractString(rawVal) ?? 'IDLE';
-  const status = extracted.toUpperCase();
+  const status = (s.bot_status ?? 'UNKNOWN').toUpperCase();
   const dot = $('statusDot');
   const text = $('statusText');
 
-  let statusClass = 'idle';
+  let statusClass = 'unknown';
   if (/SCAN/.test(status)) statusClass = 'scanning';
-  else if (/TRAD|ACTIVE|RUNNING/.test(status)) statusClass = 'trading';
-  else if (/ERR|FAIL|DOWN/.test(status)) statusClass = 'error';
-  else if (/IDLE|WAIT|PAUSE/.test(status)) statusClass = 'idle';
+  else if (/TRAD/.test(status)) statusClass = 'trading';
+  else if (/ERR/.test(status)) statusClass = 'error';
+  else if (/IDLE/.test(status)) statusClass = 'idle';
 
   dot.className = 'status-dot ' + statusClass;
   text.className = 'status-text ' + statusClass;
   text.textContent = status;
 
-  // Uptime — Firebase sends uptime_seconds as a number (or string)
-  const uptimeSec = extractNumber(s.uptime_seconds ?? s.uptime ?? null);
-  botStartTime = s.bot_start_time ?? s.start_time ?? s.session_start ?? s.uptime_since ?? null;
-  if (uptimeSec != null) {
-    uptimeSeconds = uptimeSec;
-    const uptimeStr = fmtSec(uptimeSeconds);
-    $('elUptimeVal').textContent = uptimeStr;
-    $('elUptime').textContent = 'uptime: ' + uptimeStr;
-  } else if (botStartTime) {
-    $('elUptimeVal').textContent = fmtDuration(botStartTime);
-    $('elUptime').textContent = 'uptime: ' + fmtDuration(botStartTime);
+  // Uptime
+  const uSec = s.uptime_seconds;
+  if (uSec != null) {
+    uptimeSeconds = Number(uSec);
+    const str = fmtSec(uptimeSeconds);
+    $('elUptimeVal').textContent = str;
+    $('elUptime').textContent = 'uptime: ' + str;
   }
 
-  sessionStart = s.session_start ?? botStartTime;
-  $('elSession').textContent = sessionStart ? fmtDuration(sessionStart) : '—';
-  $('elScanCount').textContent = extractNumber(s.scan_count ?? s.scans ?? null) ?? 0;
-  $('elFills').textContent = extractNumber(s.fills ?? s.total_fills ?? null) ?? 0;
+  // Snapshot timestamp
+  if (s.timestamp) {
+    $('elTimestamp').textContent = fmtTime(s.timestamp);
+  }
 
-  // Error message — Firebase uses last_error_message
-  const errMsg = s.last_error_message ?? s.last_error ?? s.error ?? s.error_message ?? null;
+  // Error banner
+  const errMsg = s.last_error_message;
   const banner = $('errorBanner');
-  if (errMsg) {
-    $('errorMsg').textContent = String(errMsg);
+  if (errMsg && errMsg.length > 0) {
+    $('errorMsg').textContent = errMsg;
     banner.classList.add('visible');
   } else {
     banner.classList.remove('visible');
@@ -970,13 +621,12 @@ function updateBotStatus(s) {
 }
 
 function updateWinLoss(s) {
-  // Firebase uses win_count, loss_count, win_rate (as numbers or strings)
-  const w = extractNumber(s.win_count ?? s.wins ?? null) ?? 0;
-  const l = extractNumber(s.loss_count ?? s.losses ?? null) ?? 0;
+  const w = s.win_count ?? 0;
+  const l = s.loss_count ?? 0;
   const tot = w + l;
-  // Use win_rate directly from Firebase if available, otherwise calculate
-  const wrRaw = extractNumber(s.win_rate ?? null);
-  const wr = wrRaw != null ? wrRaw : (tot > 0 ? (w / tot * 100) : 0);
+  const wrRaw = s.win_rate ?? (tot > 0 ? w / tot : 0);
+  // win_rate is 0-1, display as percentage
+  const wr = wrRaw <= 1 ? wrRaw * 100 : wrRaw;
 
   $('elW').textContent = w;
   $('elL').textContent = l;
@@ -984,440 +634,42 @@ function updateWinLoss(s) {
   $('elWinRate').textContent = 'Win Rate: ' + wr.toFixed(1) + '%';
   $('elWinRate').className = 'wr-big ' + (wr >= 50 ? 'up' : wr > 0 ? 'dn' : 'flat');
 
-  const bestTrade = extractNumber(s.best_trade ?? s.largest_win ?? null);
-  const worstTrade = extractNumber(s.worst_trade ?? s.largest_loss ?? null);
-  const avgWin = extractNumber(s.avg_win ?? null);
-  const avgLoss = extractNumber(s.avg_loss ?? null);
-  if (bestTrade != null) $('elBestTrade').textContent = fmtMoney(bestTrade);
-  if (worstTrade != null) $('elWorstTrade').textContent = fmtMoney(worstTrade);
-  if (avgWin != null) $('elAvgWin').textContent = '$' + avgWin.toFixed(2);
-  if (avgLoss != null) $('elAvgLoss').textContent = '$' + avgLoss.toFixed(2);
-}
-
-function updateVolatility(s) {
-  const assets = ['BTC', 'ETH', 'SOL', 'XRP'];
-
-  // Firebase current_volatility might be:
-  //   {BTC: 0.42, ETH: 0.31}                          ← flat numbers
-  //   {BTC: "0.42", ETH: "0.31"}                       ← strings
-  //   {BTC: {value: 0.42, source: "GARCH"}, ...}       ← nested objects
-  const rawVol = s.current_volatility;
-  const curVol = (rawVol && typeof rawVol === 'object') ? rawVol : {};
-  const garch = (s.garch_vol && typeof s.garch_vol === 'object') ? s.garch_vol : {};
-  const vol = (s.volatility && typeof s.volatility === 'object') ? s.volatility : {};
-
-  for (const a of assets) {
-    const el = $('vol' + a);
-    if (!el) continue;
-
-    let v = null;
-
-    // Check current_volatility.ASSET first — could be number, string, or object
-    if (curVol[a] != null) v = extractNumber(curVol[a]);
-    // Check garch_vol.ASSET.vol
-    if (v == null && garch[a]) v = extractNumber(garch[a].vol ?? garch[a]);
-    // Check volatility.ASSET
-    if (v == null && vol[a] != null) v = extractNumber(vol[a]);
-    // Check top-level volatility_ASSET or vol_ASSET
-    if (v == null) v = extractNumber(s['volatility_' + a.toLowerCase()] ?? s['vol_' + a.toLowerCase()] ?? null);
-
-    if (v != null && !isNaN(v)) {
-      // If value < 1, assume it's a decimal ratio, show as percentage
-      const display = v < 1 ? (v * 100).toFixed(1) + '%' : v.toFixed(1) + '%';
-      el.textContent = display;
-    } else {
-      el.textContent = '—';
-    }
-  }
-
-  // Update source badge
-  const src = extractString(s.vol_source) ?? (Object.keys(curVol).length ? 'LIVE' : Object.keys(garch).length ? 'GARCH' : 'LIVE');
-  $('elVolSrc').textContent = src.toUpperCase();
-}
-
-function updateNextClose(s) {
-  // Firebase uses seconds_to_next_close as a number (or string)
-  nextCloseSeconds = extractNumber(s.seconds_to_next_close ?? s.seconds_to_close ?? s.next_close_seconds ?? s.closest_market ?? s.next_market_close ?? null);
-
-  const el = $('elCloseNum');
-  if (nextCloseSeconds != null && nextCloseSeconds < 100000) {
-    el.textContent = fmtSec(nextCloseSeconds);
-    el.className = 'close-num' + (nextCloseSeconds < 30 ? ' critical' : nextCloseSeconds < 120 ? ' urgent' : '');
-    $('elNextClose').textContent = 'next close: ' + fmtSec(nextCloseSeconds);
-  } else {
-    el.textContent = '—';
-    el.className = 'close-num';
-    $('elNextClose').textContent = 'next close: —';
-  }
-}
-
-function updatePositions(s) {
-  const positions = s.active_positions ?? s.positions ?? s.pending_positions ?? s.resting_orders ?? [];
-  const posArr = Array.isArray(positions) ? positions : Object.values(positions);
-  const box = $('elPositions');
-  $('elPosCount').textContent = posArr.length;
-
-  if (!posArr.length) {
-    box.innerHTML = '<div class="empty">No active positions</div>';
-    return;
-  }
-
-  box.innerHTML = posArr.map(p => {
-    const ticker = p.ticker ?? p.symbol ?? p.market ?? '??';
-    const short = ticker.length > 28 ? '…' + ticker.slice(-24) : ticker;
-    const dir = (p.direction ?? p.dir ?? p.side ?? '?').toUpperCase();
-    const isLong = /YES|LONG|BUY/i.test(dir);
-    const entry = p.entry_price ?? p.price ?? p.price_cents ?? p.bid ?? '—';
-    const entryStr = typeof entry === 'number' ? entry + '¢' : entry;
-    const pnl = p.current_pnl ?? p.pnl ?? p.unrealized_pnl ?? null;
-    const pnlStr = pnl != null ? fmtMoney(pnl) : '—';
-    const pnlClass = pnl > 0 ? 'up' : pnl < 0 ? 'dn' : 'flat';
-    const qty = p.quantity ?? p.count ?? p.size ?? p.position_size ?? '';
-    const asset = p.asset ?? '';
-
-    return `<div class="pos-item">
-      <div class="pos-top">
-        <span class="pos-ticker">${short}</span>
-        <span class="pos-dir ${isLong ? 'long' : 'short'}">${dir}</span>
-      </div>
-      <div class="pos-details">
-        ${asset ? `<span style="color:var(--text-2)">${asset}</span>` : ''}
-        <span><span class="dim">entry</span> ${entryStr}</span>
-        ${qty ? `<span><span class="dim">qty</span> ${qty}</span>` : ''}
-        <span class="pos-pnl ${pnlClass}">${pnlStr}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function updateTrades(s) {
-  const trades = s.recent_trades ?? s.trades ?? s.trade_history ?? [];
-  const tradesArr = Array.isArray(trades) ? trades : Object.values(trades);
-  const last10 = tradesArr.slice(-10).reverse();
-  $('elTradesN').textContent = last10.length;
-  const tbody = $('tradesBody');
-
-  if (!last10.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">Waiting for trades…</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = last10.map(t => {
-    const ts = t.timestamp ?? t.fill_time ?? t.entry_time ?? t.time ?? t.ts ?? null;
-    const ticker = t.ticker ?? t.symbol ?? t.market ?? t.asset ?? '?';
-    const short = ticker.length > 30 ? '…' + ticker.slice(-26) : ticker;
-    const outcome = (t.outcome ?? t.result ?? t.status ?? 'PENDING').toUpperCase();
-    const outcomeClass = /WIN/.test(outcome) ? 'outcome-win' : /LOSS/.test(outcome) ? 'outcome-loss' : 'outcome-pending';
-    const profit = t.profit ?? t.pnl ?? t.realized_pnl ?? null;
-    const profitStr = profit != null ? fmtMoney(profit) : '—';
-    const profitClass = profit > 0 ? 'pnl-pos' : profit < 0 ? 'pnl-neg' : '';
-    const dir = (t.direction ?? t.dir ?? t.side ?? '—').toUpperCase();
-
-    return `<tr>
-      <td>${fmtTimestamp(ts)}</td>
-      <td>${short}</td>
-      <td>${dir}</td>
-      <td>${t.entry_price ?? t.price ?? t.bid_price_cents ?? '—'}${typeof (t.entry_price ?? t.price ?? t.bid_price_cents) === 'number' ? '¢' : ''}</td>
-      <td class="${outcomeClass}">${outcome}</td>
-      <td class="${profitClass}">${profitStr}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ══════════════════════════════════════════════════════════════════════
-// UPDATERS — NEW PERFORMANCE METRICS
-// ══════════════════════════════════════════════════════════════════════
-
-const STRATEGY_COLORS = {
-  WAIT: 'wait',
-  MAKER_PATIENT: 'maker-patient',
-  MAKER_AGGRESSIVE: 'maker-aggressive',
-  TAKER_NOW: 'taker-now',
-  PANIC_CAPTURE: 'panic-capture',
-};
-
-function stratClass(name) {
-  return STRATEGY_COLORS[name] || 'other-strat';
-}
-
-function updateStrategyBreakdown(s) {
-  const raw = s.strategy_breakdown ?? null;
-  const box = $('elStratBreakdown');
-  if (!raw || typeof raw !== 'object') {
-    box.innerHTML = '<div class="empty">No strategy data yet</div>';
-    return;
-  }
-
-  const entries = Object.entries(raw).sort((a, b) => b[1] - a[1]);
-  const max = Math.max(1, ...entries.map(e => e[1]));
-
-  box.innerHTML = entries.map(([name, count]) => {
-    const pct = (count / max * 100).toFixed(0);
-    const css = stratClass(name);
-    return `<div class="strat-bar-row">
-      <span class="strat-bar-label">${name}</span>
-      <div class="strat-bar-track">
-        <div class="strat-bar-fill ${css}" style="width:${pct}%"></div>
-      </div>
-      <span class="strat-bar-count">${count}</span>
-    </div>`;
-  }).join('');
-}
-
-function updateSessionStats(s) {
-  const stats = s.session_stats ?? {};
-  const opps = extractNumber(stats.total_opportunities_found ?? s.total_opportunities_found ?? null) ?? 0;
-  const markets = extractNumber(stats.total_markets_scanned ?? s.total_markets_scanned ?? null) ?? 0;
-  const evalRate = extractNumber(stats.evaluation_rate ?? s.evaluation_rate ?? null);
-  const uptimeMin = extractNumber(stats.uptime_minutes ?? s.uptime_minutes ?? null);
-  const lastOppTs = stats.last_opportunity_timestamp ?? s.last_opportunity_timestamp ?? null;
-
-  $('elSessOpps').textContent = opps;
-  $('elSessMarkets').textContent = markets;
-  $('elSessEvalRate').textContent = evalRate != null ? evalRate.toFixed(1) : '—';
-  $('elSessUptime').textContent = uptimeMin != null ? uptimeMin.toFixed(0) + 'm' : '—';
-  $('elSessLastOpp').textContent = 'last opp: ' + (lastOppTs ? fmtTime(lastOppTs) : '—');
-}
-
-function updateSimulatedPerformance(s) {
-  const sim = s.simulated_performance ?? {};
-  const trades = extractNumber(sim.simulated_trades_count ?? s.simulated_trades_count ?? null) ?? 0;
-  const wins = extractNumber(sim.simulated_wins ?? s.simulated_wins ?? null) ?? 0;
-  const losses = extractNumber(sim.simulated_losses ?? s.simulated_losses ?? null) ?? 0;
-  const pnlCents = extractNumber(sim.simulated_pnl_cents ?? s.simulated_pnl_cents ?? null) ?? 0;
+  // Daily P&L in win/loss card
+  const pnlCents = s.daily_pnl_cents ?? 0;
   const pnl = pnlCents / 100;
-  const tot = wins + losses;
-  const wr = tot > 0 ? (wins / tot * 100) : 0;
+  const dailyPnlEl = $('elDailyPnl');
+  dailyPnlEl.textContent = fmtMoney(pnl);
+  dailyPnlEl.className = '';
+  dailyPnlEl.style.color = pnl > 0 ? 'var(--green-0)' : pnl < 0 ? 'var(--red-0)' : 'var(--text-3)';
 
-  const elPnl = $('elSimPnl');
-  elPnl.textContent = fmtMoney(pnl);
-  elPnl.className = 'sim-hero ' + cls(pnl);
-  $('elSimRecord').textContent = wins + 'W – ' + losses + 'L';
-  $('elSimBar').style.width = (tot > 0 ? wins / tot * 100 : 50) + '%';
-  $('elSimTrades').textContent = trades;
-  $('elSimWinRate').textContent = tot > 0 ? wr.toFixed(1) + '%' : '—';
-  $('elSimWins').textContent = wins;
-  $('elSimLosses').textContent = losses;
+  const pnlPct = s.daily_pnl_pct ?? 0;
+  $('elDailyPct').textContent = (pnlPct >= 0 ? '+' : '') + Number(pnlPct).toFixed(1) + '%';
+  $('elDailyPct').style.color = pnlPct > 0 ? 'var(--green-0)' : pnlPct < 0 ? 'var(--red-0)' : 'var(--text-3)';
+
+  $('elStreak').textContent = s.consecutive_losses ?? 0;
+  $('elPending').textContent = s.pending_settlements ?? 0;
 }
 
-const ASSET_COLORS = {
-  BTC: '#f7931a', ETH: '#849dff', SOL: '#b86eff', XRP: '#23c4d8',
-};
-
-function updateAssetPerformance(s) {
-  const raw = s.asset_performance ?? null;
-  const box = $('elAssetPerf');
-  if (!raw || typeof raw !== 'object') {
-    box.innerHTML = '<div class="empty">No asset performance data yet</div>';
-    return;
+function updateTiming(s) {
+  // Next close
+  nextCloseSeconds = s.seconds_to_next_close ?? null;
+  const el = $('elNextClose');
+  if (nextCloseSeconds != null && nextCloseSeconds >= 0) {
+    el.textContent = 'next close: ' + fmtSec(nextCloseSeconds);
+  } else {
+    el.textContent = 'next close: —';
   }
 
-  const assets = Object.entries(raw);
-  if (!assets.length) {
-    box.innerHTML = '<div class="empty">No asset performance data yet</div>';
-    return;
+  // Active windows
+  const aw = s.active_windows;
+  if (aw && aw.total != null) {
+    $('elWindows').textContent = 'windows: ' + aw.total;
   }
-
-  box.innerHTML = assets.map(([name, data]) => {
-    const found = extractNumber(data.opportunities_found) ?? 0;
-    const selected = extractNumber(data.times_selected) ?? 0;
-    const rejected = extractNumber(data.times_rejected) ?? 0;
-    const rate = extractNumber(data.selection_rate) ?? (found > 0 ? selected / found * 100 : 0);
-    const ratePct = rate > 1 ? rate : rate * 100; // handle both 0.75 and 75 formats
-    const color = ASSET_COLORS[name] || 'var(--text-1)';
-
-    return `<div class="asset-card">
-      <div class="asset-card-name"><div class="dot" style="background:${color}"></div> ${name}</div>
-      <div class="asset-card-rate" style="color:${color}">${ratePct.toFixed(0)}%</div>
-      <div class="asset-card-detail">
-        <span>${selected}/${found} selected</span>
-        <span>${rejected} rejected</span>
-      </div>
-      <div class="asset-card-bar">
-        <div class="asset-card-bar-fill" style="width:${Math.min(100, ratePct).toFixed(0)}%;background:${color}"></div>
-      </div>
-    </div>`;
-  }).join('');
 }
 
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function updateRejectionSummary(s) {
-  const raw = s.rejection_summary ?? null;
-  const box = $('elRejections');
-  if (!raw || typeof raw !== 'object') {
-    box.innerHTML = '<div class="empty">No rejection data yet</div>';
-    return;
-  }
-
-  // Group similar rejection reasons (e.g. z_score rejections with different thresholds)
-  // Keys from Firebase look like: "|z_score|=8.1 > 8.0 — volatility estimate likely wrong..."
-  const grouped = {};
-  for (const [reason, count] of Object.entries(raw)) {
-    // Try to extract a short category from the verbose reason
-    // Pattern: "|z_score|=X > Y — description" → "z_score (description)"
-    // Pattern: "some_short_key" → "some short key"
-    const zsMatch = reason.match(/\|([^|]+)\|.*?—\s*(.+)/);
-    let key;
-    if (zsMatch) {
-      key = zsMatch[1] + ': ' + zsMatch[2].trim();
-    } else {
-      key = reason;
-    }
-    grouped[key] = (grouped[key] || 0) + count;
-  }
-
-  const entries = Object.entries(grouped).sort((a, b) => b[1] - a[1]);
-  if (!entries.length) {
-    box.innerHTML = '<div class="empty">No rejections recorded</div>';
-    return;
-  }
-
-  const max = Math.max(1, ...entries.map(e => e[1]));
-  const total = entries.reduce((sum, e) => sum + e[1], 0);
-
-  box.innerHTML = entries.map(([reason, count]) => {
-    const pct = (count / max * 100).toFixed(0);
-    const label = escHtml(reason.replace(/_/g, ' '));
-    return `<div class="rej-row">
-      <span class="rej-label" title="${escHtml(reason)}">${label}</span>
-      <div class="rej-bar-track">
-        <div class="rej-bar-fill" style="width:${pct}%"></div>
-      </div>
-      <span class="rej-count">${count}</span>
-    </div>`;
-  }).join('') + `<div style="margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--text-3)">Total rejections: ${total}</div>`;
-}
-
-function updateRecentOpportunities(s) {
-  const raw = s.recent_opportunities ?? [];
-  const opps = Array.isArray(raw) ? raw : Object.values(raw);
-  $('elOppsN').textContent = opps.length;
-  const tbody = $('oppsBody');
-
-  if (!opps.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty">Waiting for opportunity data…</td></tr>';
-    return;
-  }
-
-  // Show newest first
-  const items = opps.slice().reverse();
-
-  tbody.innerHTML = items.map(o => {
-    const ticker = o.ticker ?? '—';
-    const short = ticker.length > 30 ? '…' + ticker.slice(-26) : ticker;
-    const asset = o.asset ?? '—';
-    const ttc = o.seconds_to_close != null ? fmtSec(o.seconds_to_close) : '—';
-    const ask = o.best_ask != null ? o.best_ask + '¢' : '—';
-    const edge = o.edge_bps != null ? o.edge_bps.toFixed(1) + ' bps' : '—';
-    const strat = o.chosen_strategy ?? null;
-    const rejection = o.rejection_reason ?? null;
-
-    let stratHtml;
-    if (strat && strat !== 'WAIT' && !rejection) {
-      stratHtml = `<span class="strat-tag ${stratClass(strat)}">${strat}</span>`;
-    } else if (strat === 'WAIT') {
-      stratHtml = `<span class="strat-tag wait">WAIT</span>`;
-    } else {
-      stratHtml = `<span style="color:var(--text-3)">—</span>`;
-    }
-
-    const rejHtml = rejection
-      ? `<span style="color:var(--red-0);font-size:10px">${rejection.replace(/_/g, ' ')}</span>`
-      : `<span style="color:var(--text-3)">—</span>`;
-
-    return `<tr>
-      <td>${short}</td>
-      <td>${asset}</td>
-      <td>${ttc}</td>
-      <td>${ask}</td>
-      <td>${edge}</td>
-      <td>${stratHtml}</td>
-      <td>${rejHtml}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ══════════════════════════════════════════════════════════════════════
-// FLATTEN / RESOLVE NESTED FIREBASE DATA
-// ══════════════════════════════════════════════════════════════════════
-
-// Firebase data may arrive in various nesting patterns:
-//   { current_balance: 53.36, bot_status: "SCANNING", ... }          ← flat at root
-//   { dashboard: { current_balance: 53.36, bot_status: ... } }       ← under /dashboard
-//   { dashboard: { status: { bot_status: ... }, balance: { ... } } } ← deeply nested
-// This function resolves all of those into a single flat object.
-
-function flattenDashboardData(raw) {
-  if (!raw || typeof raw !== 'object') return {};
-
-  // Start with the dashboard child if it exists, otherwise root
-  let base = raw.dashboard ?? raw;
-
-  // If `base` only has sub-objects (no scalar dashboard fields at this level),
-  // merge all children into one flat object so fields aren't missed.
-  const knownScalars = [
-    'current_balance', 'balance', 'bot_status', 'status', 'state',
-    'win_count', 'loss_count', 'win_rate', 'uptime_seconds',
-    'daily_pnl_cents', 'scan_count', 'fills'
-  ];
-  const hasScalar = knownScalars.some(k => base[k] !== undefined && typeof base[k] !== 'object');
-
-  if (!hasScalar) {
-    // All values are sub-objects — merge them up one level
-    const merged = {};
-    for (const key of Object.keys(base)) {
-      const child = base[key];
-      if (child && typeof child === 'object' && !Array.isArray(child)) {
-        Object.assign(merged, child);
-      } else {
-        merged[key] = child;
-      }
-    }
-    // Keep the raw root too so analytics / trades aren't lost
-    base = { ...raw, ...merged };
-  }
-
-  return base;
-}
-
-// ══════════════════════════════════════════════════════════════════════
-// EXTRACT STRING — safely pull a string from a value that might be an object
-// ══════════════════════════════════════════════════════════════════════
-
-function extractString(val) {
-  if (val == null) return null;
-  if (typeof val === 'string') return val;
-  if (typeof val === 'number') return String(val);
-  // val is an object — look for common string fields
-  if (typeof val === 'object') {
-    return val.status ?? val.state ?? val.value ?? val.label ?? val.name ?? null;
-  }
-  return String(val);
-}
-
-// ══════════════════════════════════════════════════════════════════════
-// EXTRACT NUMBER — safely pull a number from a value that might be nested
-// ══════════════════════════════════════════════════════════════════════
-
-function extractNumber(val) {
-  if (val == null) return null;
-  if (typeof val === 'number') return val;
-  if (typeof val === 'string') { const n = parseFloat(val); return isNaN(n) ? null : n; }
-  if (typeof val === 'object') {
-    // Try common numeric field names
-    const inner = val.value ?? val.val ?? val.amount ?? val.total ?? val.num ?? null;
-    if (inner != null) return extractNumber(inner);
-  }
-  return null;
-}
-
-// ══════════════════════════════════════════════════════════════════════
-// MAIN UPDATE — dispatches to all widgets
-// ══════════════════════════════════════════════════════════════════════
-
+// ═══════════════════════════════════════════════════════════════════════
+// MAIN UPDATE
+// ═══════════════════════════════════════════════════════════════════════
 function update(s) {
   if (!s || typeof s !== 'object') return;
   lastUpdate = Date.now();
@@ -1427,97 +679,42 @@ function update(s) {
   $('pillText').textContent = 'LIVE';
   $('elLastUpdate').textContent = 'updated ' + fmtTime(Date.now());
 
-  // Each updater is wrapped in try/catch so one bad field doesn't break the rest
-  try { updateBalance(s); } catch (e) { console.error('updateBalance error:', e); }
-  try { updateDailyPnl(s); } catch (e) { console.error('updateDailyPnl error:', e); }
-  try { updateBotStatus(s); } catch (e) { console.error('updateBotStatus error:', e); }
-  try { updateWinLoss(s); } catch (e) { console.error('updateWinLoss error:', e); }
-  try { updateVolatility(s); } catch (e) { console.error('updateVolatility error:', e); }
-  try { updateNextClose(s); } catch (e) { console.error('updateNextClose error:', e); }
-  try { updatePositions(s); } catch (e) { console.error('updatePositions error:', e); }
-  try { updateTrades(s); } catch (e) { console.error('updateTrades error:', e); }
-  try { updateStrategyBreakdown(s); } catch (e) { console.error('updateStrategyBreakdown error:', e); }
-  try { updateSessionStats(s); } catch (e) { console.error('updateSessionStats error:', e); }
-  try { updateSimulatedPerformance(s); } catch (e) { console.error('updateSimulatedPerformance error:', e); }
-  try { updateAssetPerformance(s); } catch (e) { console.error('updateAssetPerformance error:', e); }
-  try { updateRejectionSummary(s); } catch (e) { console.error('updateRejectionSummary error:', e); }
-  try { updateRecentOpportunities(s); } catch (e) { console.error('updateRecentOpportunities error:', e); }
+  try { updateSpotPrices(s); } catch (e) { console.error('updateSpotPrices:', e); }
+  try { updateBalance(s); } catch (e) { console.error('updateBalance:', e); }
+  try { updateBotStatus(s); } catch (e) { console.error('updateBotStatus:', e); }
+  try { updateWinLoss(s); } catch (e) { console.error('updateWinLoss:', e); }
+  try { updateTiming(s); } catch (e) { console.error('updateTiming:', e); }
 }
 
-// ══════════════════════════════════════════════════════════════════════
-// FIREBASE LISTENERS
-// ══════════════════════════════════════════════════════════════════════
-
-// Listen to the root — the dashboard data might be at root or under /dashboard
-const rootRef = ref(db);
-onValue(rootRef, snap => {
+// ═══════════════════════════════════════════════════════════════════════
+// FIREBASE LISTENER
+// ═══════════════════════════════════════════════════════════════════════
+const statusRef = ref(db, 'bot_status');
+onValue(statusRef, snap => {
   const data = snap.val();
-
-  // ── DEBUG: log the raw Firebase snapshot structure ──
-  console.group('🔥 Firebase snapshot received');
-  console.log('Raw snapshot type:', typeof data);
-  console.log('Raw snapshot keys:', data ? Object.keys(data) : 'null');
-  console.log('Raw snapshot (full):', JSON.parse(JSON.stringify(data)));
-  if (data && data.dashboard) {
-    console.log('data.dashboard keys:', Object.keys(data.dashboard));
-    console.log('data.dashboard:', JSON.parse(JSON.stringify(data.dashboard)));
-  }
-  console.log('bot_status value:', data?.bot_status, '| type:', typeof data?.bot_status);
-  console.log('dashboard.bot_status:', data?.dashboard?.bot_status, '| type:', typeof data?.dashboard?.bot_status);
-  console.log('current_balance:', data?.current_balance ?? data?.dashboard?.current_balance);
-  console.log('current_volatility:', data?.current_volatility ?? data?.dashboard?.current_volatility);
-  console.groupEnd();
-  // ── END DEBUG ──
-
   if (!data) return;
-
-  // Resolve the dashboard data — check nested paths
-  const s = flattenDashboardData(data);
-
-  console.log('🎯 Resolved dashboard object keys:', Object.keys(s));
-  console.log('🎯 Resolved bot_status:', s.bot_status, '| type:', typeof s.bot_status);
-  console.log('🎯 Resolved current_balance:', s.current_balance, '| type:', typeof s.current_balance);
-  console.log('🎯 Resolved current_volatility:', s.current_volatility);
-
-  update(s);
-
-  // Also check for analytics node with recent_trades
-  const analytics = s.analytics ?? data.analytics ?? null;
-  if (analytics && analytics.recent_trades) {
-    updateTrades(analytics);
-  }
+  update(data);
 }, err => {
   console.error("Firebase read error:", err);
   $('pill').className = 'hdr-pill off';
   $('pillText').textContent = 'ERROR';
 });
 
-// ══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // TICKING TIMERS
-// ══════════════════════════════════════════════════════════════════════
-
-// Tick uptime and close countdown every second
+// ═══════════════════════════════════════════════════════════════════════
 setInterval(() => {
-  // Uptime tick — increment local counter if using uptime_seconds
+  // Uptime tick
   if (uptimeSeconds != null) {
     uptimeSeconds++;
-    const uptimeStr = fmtSec(uptimeSeconds);
-    $('elUptimeVal').textContent = uptimeStr;
-    $('elUptime').textContent = 'uptime: ' + uptimeStr;
-  } else if (botStartTime) {
-    $('elUptimeVal').textContent = fmtDuration(botStartTime);
-    $('elUptime').textContent = 'uptime: ' + fmtDuration(botStartTime);
-  }
-  if (sessionStart) {
-    $('elSession').textContent = fmtDuration(sessionStart);
+    const str = fmtSec(uptimeSeconds);
+    $('elUptimeVal').textContent = str;
+    $('elUptime').textContent = 'uptime: ' + str;
   }
 
-  // Countdown tick — decrement local counter
+  // Close countdown tick
   if (nextCloseSeconds != null && nextCloseSeconds > 0) {
     nextCloseSeconds = Math.max(0, nextCloseSeconds - 1);
-    const el = $('elCloseNum');
-    el.textContent = fmtSec(nextCloseSeconds);
-    el.className = 'close-num' + (nextCloseSeconds < 30 ? ' critical' : nextCloseSeconds < 120 ? ' urgent' : '');
     $('elNextClose').textContent = 'next close: ' + fmtSec(nextCloseSeconds);
   }
 }, 1000);
