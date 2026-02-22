@@ -303,6 +303,177 @@
     font-family: var(--mono);
   }
 
+  /* ═══ Strategy Breakdown ═══ */
+  .strat-cell { grid-column: span 4; }
+  .strat-bar-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px; font-family: var(--mono); font-size: 11px;
+  }
+  .strat-bar-label {
+    width: 120px; flex-shrink: 0;
+    color: var(--text-1); font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .strat-bar-track {
+    flex: 1; height: 16px; border-radius: 3px;
+    background: var(--bg-2); overflow: hidden;
+    position: relative;
+  }
+  .strat-bar-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 0.6s ease;
+    min-width: 2px;
+  }
+  .strat-bar-fill.wait { background: var(--text-3); }
+  .strat-bar-fill.maker-patient { background: var(--blue-0); }
+  .strat-bar-fill.maker-aggressive { background: var(--amber-0); }
+  .strat-bar-fill.taker-now { background: var(--green-0); }
+  .strat-bar-fill.panic-capture { background: var(--red-0); }
+  .strat-bar-fill.other-strat { background: var(--violet-0); }
+  .strat-bar-count {
+    width: 36px; text-align: right; flex-shrink: 0;
+    color: var(--text-2); font-weight: 600;
+  }
+
+  /* ═══ Session Stats ═══ */
+  .sess-cell { grid-column: span 4; }
+  .sess-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sess-stat {
+    padding: 12px 14px; border-radius: 8px;
+    border: 1px solid var(--border-0); background: var(--bg-2);
+  }
+  .sess-stat-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.8px;
+    text-transform: uppercase; color: var(--text-3);
+  }
+  .sess-stat-val {
+    font-family: var(--mono); font-size: 22px; font-weight: 700;
+    color: var(--text-0); margin-top: 2px;
+  }
+  .sess-stat-sub {
+    font-family: var(--mono); font-size: 9px; color: var(--text-3); margin-top: 2px;
+  }
+
+  /* ═══ Simulated Performance ═══ */
+  .sim-cell { grid-column: span 4; }
+  .sim-hero {
+    font-family: var(--mono); font-size: 32px; font-weight: 700;
+    letter-spacing: -1px; line-height: 1;
+  }
+  .sim-sub { margin-top: 8px; font-family: var(--mono); font-size: 13px; color: var(--text-1); }
+  .sim-meta { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sim-bar-track {
+    margin-top: 10px; height: 6px; border-radius: 3px;
+    background: var(--red-bg); overflow: hidden;
+  }
+  .sim-bar-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--green-1), var(--green-0));
+    transition: width 0.6s ease;
+  }
+
+  /* ═══ Asset Performance ═══ */
+  .asset-cell { grid-column: span 6; }
+  .asset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .asset-card {
+    padding: 14px 16px; border-radius: 8px;
+    border: 1px solid var(--border-0); background: var(--bg-2);
+    transition: border-color 0.2s;
+  }
+  .asset-card:hover { border-color: var(--border-1); }
+  .asset-card-name {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .asset-card-name .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .asset-card-rate {
+    font-family: var(--mono); font-size: 22px; font-weight: 700;
+    margin-top: 4px;
+  }
+  .asset-card-detail {
+    font-family: var(--mono); font-size: 10px; color: var(--text-2);
+    margin-top: 4px; display: flex; gap: 10px;
+  }
+  .asset-card-bar {
+    margin-top: 8px; height: 4px; border-radius: 2px;
+    background: var(--bg-0); overflow: hidden;
+  }
+  .asset-card-bar-fill {
+    height: 100%; border-radius: 2px;
+    background: linear-gradient(90deg, var(--blue-0), var(--green-0));
+    transition: width 0.6s ease;
+  }
+
+  /* ═══ Rejection Summary ═══ */
+  .rej-cell { grid-column: span 6; }
+  .rej-list { display: flex; flex-direction: column; gap: 5px; }
+  .rej-row {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 11px;
+  }
+  .rej-label {
+    flex: 1; color: var(--text-1); font-weight: 500;
+    font-size: 10px; line-height: 1.3;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .rej-label:hover {
+    white-space: normal; word-break: break-word;
+  }
+  .rej-bar-track {
+    width: 120px; flex-shrink: 0; height: 14px; border-radius: 3px;
+    background: var(--bg-2); overflow: hidden;
+  }
+  .rej-bar-fill {
+    height: 100%; border-radius: 3px;
+    background: var(--red-0); opacity: 0.7;
+    transition: width 0.6s ease;
+  }
+  .rej-count {
+    width: 32px; text-align: right; flex-shrink: 0;
+    color: var(--text-2); font-weight: 600;
+  }
+
+  /* ═══ Recent Opportunities Table ═══ */
+  .opps-cell { grid-column: span 12; }
+  .opps-scroll {
+    max-height: 460px; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: var(--border-1) transparent;
+  }
+  .opps-scroll::-webkit-scrollbar { width: 3px; }
+  .opps-scroll::-webkit-scrollbar-thumb { background: var(--border-1); border-radius: 2px; }
+  .opps-table {
+    width: 100%; border-collapse: collapse;
+    font-family: var(--mono); font-size: 11px;
+  }
+  .opps-table thead {
+    position: sticky; top: 0;
+    background: var(--bg-1); z-index: 2;
+  }
+  .opps-table th {
+    text-align: left;
+    font-size: 9px; font-weight: 600; letter-spacing: 0.8px;
+    text-transform: uppercase; color: var(--text-3);
+    padding: 8px 10px 10px;
+    border-bottom: 1px solid var(--border-0);
+  }
+  .opps-table td {
+    padding: 7px 10px;
+    color: var(--text-1);
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    white-space: nowrap;
+  }
+  .opps-table tr:hover td { background: var(--bg-2); }
+  .strat-tag {
+    font-size: 9px; padding: 2px 6px; border-radius: 3px;
+    font-weight: 700; display: inline-block;
+  }
+  .strat-tag.wait { background: rgba(100,116,139,0.15); color: var(--text-2); }
+  .strat-tag.maker-patient { background: var(--blue-bg); color: var(--blue-0); }
+  .strat-tag.maker-aggressive { background: var(--amber-bg); color: var(--amber-0); }
+  .strat-tag.taker-now { background: var(--green-bg); color: var(--green-0); }
+  .strat-tag.panic-capture { background: var(--red-bg); color: var(--red-0); }
+  .strat-tag.rejected { background: rgba(100,116,139,0.1); color: var(--text-3); }
+
   /* ═══ Section Divider ═══ */
   .section-divider {
     grid-column: 1 / -1;
@@ -324,16 +495,20 @@
     .grid { grid-template-columns: repeat(6, 1fr); }
     .hero, .status-cell, .wl-cell { grid-column: span 6; }
     .vol-cell, .close-cell, .positions-cell { grid-column: span 6; }
-    .trades-cell { grid-column: span 6; }
+    .strat-cell, .sess-cell, .sim-cell { grid-column: span 6; }
+    .asset-cell, .rej-cell { grid-column: span 6; }
+    .trades-cell, .opps-cell { grid-column: span 6; }
   }
   @media (max-width: 700px) {
     .grid { grid-template-columns: 1fr; }
     .hero, .status-cell, .wl-cell, .vol-cell, .close-cell,
-    .positions-cell, .trades-cell { grid-column: 1 / -1; }
+    .positions-cell, .trades-cell, .strat-cell, .sess-cell,
+    .sim-cell, .asset-cell, .rej-cell, .opps-cell { grid-column: 1 / -1; }
     .bal-num { font-size: 34px; }
     .hdr { padding: 12px 16px; }
     .hdr-right { display: none; }
     .vol-grid { grid-template-columns: repeat(2, 1fr); }
+    .asset-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -463,7 +638,122 @@
     <div class="close-label" id="elCloseLabel">seconds remaining</div>
   </div>
 
-  <!-- ════════════════════════ ROW 3: Positions ════════════════════════ -->
+  <!-- ════════════════════════ ROW 3: Decision Engine ════════════════════════ -->
+
+  <div class="section-divider">
+    <span class="divider-label">Decision Engine</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Strategy Breakdown -->
+  <div class="cell strat-cell">
+    <div class="cell-label">Strategy Breakdown</div>
+    <div id="elStratBreakdown">
+      <div class="empty">Waiting for strategy data…</div>
+    </div>
+  </div>
+
+  <!-- Session Stats -->
+  <div class="cell sess-cell">
+    <div class="cell-label">Session Stats</div>
+    <div class="sess-grid" id="elSessionStats">
+      <div class="sess-stat">
+        <div class="sess-stat-label">Opportunities</div>
+        <div class="sess-stat-val" id="elSessOpps">0</div>
+      </div>
+      <div class="sess-stat">
+        <div class="sess-stat-label">Markets Scanned</div>
+        <div class="sess-stat-val" id="elSessMarkets">0</div>
+      </div>
+      <div class="sess-stat">
+        <div class="sess-stat-label">Eval Rate</div>
+        <div class="sess-stat-val" id="elSessEvalRate">—</div>
+        <div class="sess-stat-sub">per minute</div>
+      </div>
+      <div class="sess-stat">
+        <div class="sess-stat-label">Uptime</div>
+        <div class="sess-stat-val" id="elSessUptime">—</div>
+        <div class="sess-stat-sub" id="elSessLastOpp">last opp: —</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simulated Performance -->
+  <div class="cell sim-cell">
+    <div class="cell-label">
+      Simulated Performance
+      <span class="tag" style="background:var(--amber-bg);color:var(--amber-0)">OBSERVATION</span>
+    </div>
+    <div class="sim-hero" id="elSimPnl">$0.00</div>
+    <div class="sim-sub" id="elSimRecord">0W – 0L</div>
+    <div class="sim-bar-track">
+      <div class="sim-bar-fill" id="elSimBar" style="width:50%"></div>
+    </div>
+    <div class="sim-meta">
+      <div class="bm">Trades <span id="elSimTrades">0</span></div>
+      <div class="bm">Win Rate <span id="elSimWinRate">—</span></div>
+      <div class="bm">Wins <span id="elSimWins">0</span></div>
+      <div class="bm">Losses <span id="elSimLosses">0</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════ ROW 4: Asset Analysis ════════════════════════ -->
+
+  <div class="section-divider">
+    <span class="divider-label">Asset Analysis</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Asset Performance -->
+  <div class="cell asset-cell">
+    <div class="cell-label">Asset Performance</div>
+    <div class="asset-grid" id="elAssetPerf">
+      <div class="empty">Waiting for asset data…</div>
+    </div>
+  </div>
+
+  <!-- Rejection Summary -->
+  <div class="cell rej-cell">
+    <div class="cell-label">Rejection Summary</div>
+    <div class="rej-list" id="elRejections">
+      <div class="empty">Waiting for rejection data…</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════ ROW 5: Recent Opportunities ════════════════════════ -->
+
+  <div class="section-divider">
+    <span class="divider-label">Recent Opportunities</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Recent Opportunities Table -->
+  <div class="cell opps-cell">
+    <div class="cell-label">
+      Last 20 Evaluated
+      <span class="tag" id="elOppsN" style="background:var(--blue-bg);color:var(--blue-0)">0</span>
+    </div>
+    <div class="opps-scroll">
+      <table class="opps-table">
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Asset</th>
+            <th>Time to Close</th>
+            <th>Best Ask</th>
+            <th>Edge</th>
+            <th>Strategy</th>
+            <th>Rejection</th>
+          </tr>
+        </thead>
+        <tbody id="oppsBody">
+          <tr><td colspan="7" class="empty">Waiting for opportunity data…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════ ROW 6: Positions ════════════════════════ -->
 
   <div class="section-divider">
     <span class="divider-label">Positions</span>
@@ -835,6 +1125,222 @@ function updateTrades(s) {
 }
 
 // ══════════════════════════════════════════════════════════════════════
+// UPDATERS — NEW PERFORMANCE METRICS
+// ══════════════════════════════════════════════════════════════════════
+
+const STRATEGY_COLORS = {
+  WAIT: 'wait',
+  MAKER_PATIENT: 'maker-patient',
+  MAKER_AGGRESSIVE: 'maker-aggressive',
+  TAKER_NOW: 'taker-now',
+  PANIC_CAPTURE: 'panic-capture',
+};
+
+function stratClass(name) {
+  return STRATEGY_COLORS[name] || 'other-strat';
+}
+
+function updateStrategyBreakdown(s) {
+  const raw = s.strategy_breakdown ?? null;
+  const box = $('elStratBreakdown');
+  if (!raw || typeof raw !== 'object') {
+    box.innerHTML = '<div class="empty">No strategy data yet</div>';
+    return;
+  }
+
+  const entries = Object.entries(raw).sort((a, b) => b[1] - a[1]);
+  const max = Math.max(1, ...entries.map(e => e[1]));
+
+  box.innerHTML = entries.map(([name, count]) => {
+    const pct = (count / max * 100).toFixed(0);
+    const css = stratClass(name);
+    return `<div class="strat-bar-row">
+      <span class="strat-bar-label">${name}</span>
+      <div class="strat-bar-track">
+        <div class="strat-bar-fill ${css}" style="width:${pct}%"></div>
+      </div>
+      <span class="strat-bar-count">${count}</span>
+    </div>`;
+  }).join('');
+}
+
+function updateSessionStats(s) {
+  const stats = s.session_stats ?? {};
+  const opps = extractNumber(stats.total_opportunities_found ?? s.total_opportunities_found ?? null) ?? 0;
+  const markets = extractNumber(stats.total_markets_scanned ?? s.total_markets_scanned ?? null) ?? 0;
+  const evalRate = extractNumber(stats.evaluation_rate ?? s.evaluation_rate ?? null);
+  const uptimeMin = extractNumber(stats.uptime_minutes ?? s.uptime_minutes ?? null);
+  const lastOppTs = stats.last_opportunity_timestamp ?? s.last_opportunity_timestamp ?? null;
+
+  $('elSessOpps').textContent = opps;
+  $('elSessMarkets').textContent = markets;
+  $('elSessEvalRate').textContent = evalRate != null ? evalRate.toFixed(1) : '—';
+  $('elSessUptime').textContent = uptimeMin != null ? uptimeMin.toFixed(0) + 'm' : '—';
+  $('elSessLastOpp').textContent = 'last opp: ' + (lastOppTs ? fmtTime(lastOppTs) : '—');
+}
+
+function updateSimulatedPerformance(s) {
+  const sim = s.simulated_performance ?? {};
+  const trades = extractNumber(sim.simulated_trades_count ?? s.simulated_trades_count ?? null) ?? 0;
+  const wins = extractNumber(sim.simulated_wins ?? s.simulated_wins ?? null) ?? 0;
+  const losses = extractNumber(sim.simulated_losses ?? s.simulated_losses ?? null) ?? 0;
+  const pnlCents = extractNumber(sim.simulated_pnl_cents ?? s.simulated_pnl_cents ?? null) ?? 0;
+  const pnl = pnlCents / 100;
+  const tot = wins + losses;
+  const wr = tot > 0 ? (wins / tot * 100) : 0;
+
+  const elPnl = $('elSimPnl');
+  elPnl.textContent = fmtMoney(pnl);
+  elPnl.className = 'sim-hero ' + cls(pnl);
+  $('elSimRecord').textContent = wins + 'W – ' + losses + 'L';
+  $('elSimBar').style.width = (tot > 0 ? wins / tot * 100 : 50) + '%';
+  $('elSimTrades').textContent = trades;
+  $('elSimWinRate').textContent = tot > 0 ? wr.toFixed(1) + '%' : '—';
+  $('elSimWins').textContent = wins;
+  $('elSimLosses').textContent = losses;
+}
+
+const ASSET_COLORS = {
+  BTC: '#f7931a', ETH: '#849dff', SOL: '#b86eff', XRP: '#23c4d8',
+};
+
+function updateAssetPerformance(s) {
+  const raw = s.asset_performance ?? null;
+  const box = $('elAssetPerf');
+  if (!raw || typeof raw !== 'object') {
+    box.innerHTML = '<div class="empty">No asset performance data yet</div>';
+    return;
+  }
+
+  const assets = Object.entries(raw);
+  if (!assets.length) {
+    box.innerHTML = '<div class="empty">No asset performance data yet</div>';
+    return;
+  }
+
+  box.innerHTML = assets.map(([name, data]) => {
+    const found = extractNumber(data.opportunities_found) ?? 0;
+    const selected = extractNumber(data.times_selected) ?? 0;
+    const rejected = extractNumber(data.times_rejected) ?? 0;
+    const rate = extractNumber(data.selection_rate) ?? (found > 0 ? selected / found * 100 : 0);
+    const ratePct = rate > 1 ? rate : rate * 100; // handle both 0.75 and 75 formats
+    const color = ASSET_COLORS[name] || 'var(--text-1)';
+
+    return `<div class="asset-card">
+      <div class="asset-card-name"><div class="dot" style="background:${color}"></div> ${name}</div>
+      <div class="asset-card-rate" style="color:${color}">${ratePct.toFixed(0)}%</div>
+      <div class="asset-card-detail">
+        <span>${selected}/${found} selected</span>
+        <span>${rejected} rejected</span>
+      </div>
+      <div class="asset-card-bar">
+        <div class="asset-card-bar-fill" style="width:${Math.min(100, ratePct).toFixed(0)}%;background:${color}"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function updateRejectionSummary(s) {
+  const raw = s.rejection_summary ?? null;
+  const box = $('elRejections');
+  if (!raw || typeof raw !== 'object') {
+    box.innerHTML = '<div class="empty">No rejection data yet</div>';
+    return;
+  }
+
+  // Group similar rejection reasons (e.g. z_score rejections with different thresholds)
+  // Keys from Firebase look like: "|z_score|=8.1 > 8.0 — volatility estimate likely wrong..."
+  const grouped = {};
+  for (const [reason, count] of Object.entries(raw)) {
+    // Try to extract a short category from the verbose reason
+    // Pattern: "|z_score|=X > Y — description" → "z_score (description)"
+    // Pattern: "some_short_key" → "some short key"
+    const zsMatch = reason.match(/\|([^|]+)\|.*?—\s*(.+)/);
+    let key;
+    if (zsMatch) {
+      key = zsMatch[1] + ': ' + zsMatch[2].trim();
+    } else {
+      key = reason;
+    }
+    grouped[key] = (grouped[key] || 0) + count;
+  }
+
+  const entries = Object.entries(grouped).sort((a, b) => b[1] - a[1]);
+  if (!entries.length) {
+    box.innerHTML = '<div class="empty">No rejections recorded</div>';
+    return;
+  }
+
+  const max = Math.max(1, ...entries.map(e => e[1]));
+  const total = entries.reduce((sum, e) => sum + e[1], 0);
+
+  box.innerHTML = entries.map(([reason, count]) => {
+    const pct = (count / max * 100).toFixed(0);
+    const label = escHtml(reason.replace(/_/g, ' '));
+    return `<div class="rej-row">
+      <span class="rej-label" title="${escHtml(reason)}">${label}</span>
+      <div class="rej-bar-track">
+        <div class="rej-bar-fill" style="width:${pct}%"></div>
+      </div>
+      <span class="rej-count">${count}</span>
+    </div>`;
+  }).join('') + `<div style="margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--text-3)">Total rejections: ${total}</div>`;
+}
+
+function updateRecentOpportunities(s) {
+  const raw = s.recent_opportunities ?? [];
+  const opps = Array.isArray(raw) ? raw : Object.values(raw);
+  $('elOppsN').textContent = opps.length;
+  const tbody = $('oppsBody');
+
+  if (!opps.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">Waiting for opportunity data…</td></tr>';
+    return;
+  }
+
+  // Show newest first
+  const items = opps.slice().reverse();
+
+  tbody.innerHTML = items.map(o => {
+    const ticker = o.ticker ?? '—';
+    const short = ticker.length > 30 ? '…' + ticker.slice(-26) : ticker;
+    const asset = o.asset ?? '—';
+    const ttc = o.seconds_to_close != null ? fmtSec(o.seconds_to_close) : '—';
+    const ask = o.best_ask != null ? o.best_ask + '¢' : '—';
+    const edge = o.edge_bps != null ? o.edge_bps.toFixed(1) + ' bps' : '—';
+    const strat = o.chosen_strategy ?? null;
+    const rejection = o.rejection_reason ?? null;
+
+    let stratHtml;
+    if (strat && strat !== 'WAIT' && !rejection) {
+      stratHtml = `<span class="strat-tag ${stratClass(strat)}">${strat}</span>`;
+    } else if (strat === 'WAIT') {
+      stratHtml = `<span class="strat-tag wait">WAIT</span>`;
+    } else {
+      stratHtml = `<span style="color:var(--text-3)">—</span>`;
+    }
+
+    const rejHtml = rejection
+      ? `<span style="color:var(--red-0);font-size:10px">${rejection.replace(/_/g, ' ')}</span>`
+      : `<span style="color:var(--text-3)">—</span>`;
+
+    return `<tr>
+      <td>${short}</td>
+      <td>${asset}</td>
+      <td>${ttc}</td>
+      <td>${ask}</td>
+      <td>${edge}</td>
+      <td>${stratHtml}</td>
+      <td>${rejHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════
 // FLATTEN / RESOLVE NESTED FIREBASE DATA
 // ══════════════════════════════════════════════════════════════════════
 
@@ -930,6 +1436,12 @@ function update(s) {
   try { updateNextClose(s); } catch (e) { console.error('updateNextClose error:', e); }
   try { updatePositions(s); } catch (e) { console.error('updatePositions error:', e); }
   try { updateTrades(s); } catch (e) { console.error('updateTrades error:', e); }
+  try { updateStrategyBreakdown(s); } catch (e) { console.error('updateStrategyBreakdown error:', e); }
+  try { updateSessionStats(s); } catch (e) { console.error('updateSessionStats error:', e); }
+  try { updateSimulatedPerformance(s); } catch (e) { console.error('updateSimulatedPerformance error:', e); }
+  try { updateAssetPerformance(s); } catch (e) { console.error('updateAssetPerformance error:', e); }
+  try { updateRejectionSummary(s); } catch (e) { console.error('updateRejectionSummary error:', e); }
+  try { updateRecentOpportunities(s); } catch (e) { console.error('updateRecentOpportunities error:', e); }
 }
 
 // ══════════════════════════════════════════════════════════════════════
