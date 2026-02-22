@@ -413,7 +413,11 @@
   }
   .rej-label {
     flex: 1; color: var(--text-1); font-weight: 500;
+    font-size: 10px; line-height: 1.3;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .rej-label:hover {
+    white-space: normal; word-break: break-word;
   }
   .rej-bar-track {
     width: 120px; flex-shrink: 0; height: 14px; border-radius: 3px;
@@ -1236,6 +1240,10 @@ function updateAssetPerformance(s) {
   }).join('');
 }
 
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function updateRejectionSummary(s) {
   const raw = s.rejection_summary ?? null;
   const box = $('elRejections');
@@ -1244,7 +1252,24 @@ function updateRejectionSummary(s) {
     return;
   }
 
-  const entries = Object.entries(raw).sort((a, b) => b[1] - a[1]);
+  // Group similar rejection reasons (e.g. z_score rejections with different thresholds)
+  // Keys from Firebase look like: "|z_score|=8.1 > 8.0 — volatility estimate likely wrong..."
+  const grouped = {};
+  for (const [reason, count] of Object.entries(raw)) {
+    // Try to extract a short category from the verbose reason
+    // Pattern: "|z_score|=X > Y — description" → "z_score (description)"
+    // Pattern: "some_short_key" → "some short key"
+    const zsMatch = reason.match(/\|([^|]+)\|.*?—\s*(.+)/);
+    let key;
+    if (zsMatch) {
+      key = zsMatch[1] + ': ' + zsMatch[2].trim();
+    } else {
+      key = reason;
+    }
+    grouped[key] = (grouped[key] || 0) + count;
+  }
+
+  const entries = Object.entries(grouped).sort((a, b) => b[1] - a[1]);
   if (!entries.length) {
     box.innerHTML = '<div class="empty">No rejections recorded</div>';
     return;
@@ -1255,9 +1280,9 @@ function updateRejectionSummary(s) {
 
   box.innerHTML = entries.map(([reason, count]) => {
     const pct = (count / max * 100).toFixed(0);
-    const label = reason.replace(/_/g, ' ');
+    const label = escHtml(reason.replace(/_/g, ' '));
     return `<div class="rej-row">
-      <span class="rej-label">${label}</span>
+      <span class="rej-label" title="${escHtml(reason)}">${label}</span>
       <div class="rej-bar-track">
         <div class="rej-bar-fill" style="width:${pct}%"></div>
       </div>
