@@ -1230,6 +1230,92 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   SHADOW MODE RESEARCH PANELS
+   ═══════════════════════════════════════════════════════════════════════ */
+.har-diag-cell { grid-column: span 6; }
+.egarch-diag-cell { grid-column: span 3; }
+.ark-diag-cell { grid-column: span 3; }
+
+.shadow-metrics {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3px 10px;
+}
+.shadow-metric {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--mono); font-size: 10px;
+}
+.shadow-metric-label { color: var(--text-3); }
+.shadow-metric-val { color: var(--text-1); font-weight: 500; }
+
+.model-chip {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  padding: 2px 7px; border-radius: 3px;
+  text-transform: none; letter-spacing: 0.3px;
+  display: inline-block;
+}
+
+.diag-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--mono); font-size: 10px;
+}
+.diag-table th {
+  text-align: left; font-size: 9px; font-weight: 600;
+  letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-3);
+  padding: 6px 6px 8px; border-bottom: 1px solid var(--border-0);
+}
+.diag-table td {
+  padding: 6px; color: var(--text-1);
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+  white-space: nowrap;
+}
+.diag-table tr:hover td { background: var(--bg-2); }
+
+.diag-asset-block {
+  padding: 8px 0;
+}
+.diag-asset-block + .diag-asset-block {
+  border-top: 1px solid var(--border-0);
+}
+.diag-asset-name {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  margin-bottom: 4px;
+}
+
+/* Vol card shadow section */
+.vol-shadow {
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--border-0);
+}
+.vol-shadow-label {
+  font-family: var(--mono); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-3);
+  margin-bottom: 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.vol-shadow-label .shadow-tag {
+  font-size: 8px; padding: 1px 5px; border-radius: 3px;
+  background: var(--violet-bg); color: var(--violet-0);
+  border: 1px solid var(--violet-border);
+  letter-spacing: 0.5px;
+}
+.vol-shadow-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--mono); font-size: 10px;
+  padding: 1px 0;
+}
+.vrp-tag {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  padding: 1px 5px; border-radius: 3px;
+}
+.vrp-tag.positive { background: var(--green-bg); color: var(--green-0); }
+.vrp-tag.negative { background: var(--red-bg); color: var(--red-0); }
+.vrp-tag.flat { color: var(--text-3); }
+
+/* CTZ jump detail */
+.ctz-detail {
+  font-family: var(--mono); font-size: 9px; margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════════════════ */
 @media (max-width: 1100px) {
@@ -1254,6 +1340,9 @@ body::before {
   .cf-buckets { grid-template-columns: repeat(2, 1fr); }
   .spot-item { min-width: 140px; }
   .rejection-label { min-width: 120px; }
+  .har-diag-cell { grid-column: span 6; }
+  .egarch-diag-cell { grid-column: span 3; }
+  .ark-diag-cell { grid-column: span 3; }
 }
 @media (max-width: 700px) {
   .grid { grid-template-columns: 1fr; }
@@ -1265,7 +1354,8 @@ body::before {
   .session-cell, .stratbd-cell, .assetperf-cell,
   .ratelimit-cell, .rejection-cell,
   .trades-cell, .opps-cell,
-  .cal-cell, .cf-cell, .askdist-cell { grid-column: 1 / -1; }
+  .cal-cell, .cf-cell, .askdist-cell,
+  .har-diag-cell, .egarch-diag-cell, .ark-diag-cell { grid-column: 1 / -1; }
   .cf-summary { grid-template-columns: 1fr; }
   .cf-buckets { grid-template-columns: repeat(2, 1fr); }
   .bal-num { font-size: 34px; }
@@ -1526,6 +1616,46 @@ body::before {
       <div class="feed-dots" id="elFeedDots">
         <div class="empty" style="padding:8px">Waiting...</div>
       </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ROW 4b: Volatility Research (Shadow Mode) ══════════════ -->
+
+  <div class="section-divider">
+    <span class="divider-label">Volatility Research (Shadow)</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- HAR Model Diagnostics -->
+  <div class="cell har-diag-cell">
+    <div class="cell-label">
+      HAR Model Estimation
+      <span class="tag" id="harDiagTag" style="background:var(--violet-bg);color:var(--violet-0);border:1px solid var(--violet-border)">SHADOW</span>
+    </div>
+    <div id="elHARDiag">
+      <div class="empty">Waiting for HAR diagnostics...</div>
+    </div>
+  </div>
+
+  <!-- EGARCH Diagnostics -->
+  <div class="cell egarch-diag-cell">
+    <div class="cell-label">
+      EGARCH(1,1)
+      <span class="tag" style="background:var(--violet-bg);color:var(--violet-0);border:1px solid var(--violet-border)">SHADOW</span>
+    </div>
+    <div id="elEGARCHDiag">
+      <div class="empty">Waiting for EGARCH diagnostics...</div>
+    </div>
+  </div>
+
+  <!-- Adaptive RK Diagnostics -->
+  <div class="cell ark-diag-cell">
+    <div class="cell-label">
+      Adaptive RK Bandwidth
+      <span class="tag" style="background:var(--violet-bg);color:var(--violet-0);border:1px solid var(--violet-border)">SHADOW</span>
+    </div>
+    <div id="elARKDiag">
+      <div class="empty">Waiting for RK diagnostics...</div>
     </div>
   </div>
 
@@ -2097,6 +2227,60 @@ function updateVolatility(s) {
       </div>`;
     }
 
+    // Additional shadow estimator metrics for the metrics grid
+    const medrvHtml = v.medrv_5min != null
+      ? `<div class="vol-metric"><span class="vol-metric-label">medrv 5m</span><span class="vol-metric-val">${fmtVol(v.medrv_5min)}</span></div>` : '';
+    const tbpvHtml = v.tbpv_5min != null
+      ? `<div class="vol-metric"><span class="vol-metric-label">tbpv 5m</span><span class="vol-metric-val">${fmtVol(v.tbpv_5min)}</span></div>` : '';
+    const egarchHtml = v.egarch_sigma != null
+      ? `<div class="vol-metric"><span class="vol-metric-label">egarch σ</span><span class="vol-metric-val">${fmtVol(v.egarch_sigma)}</span></div>` : '';
+    const arkHtml = v.ark_5min != null
+      ? `<div class="vol-metric"><span class="vol-metric-label">ark 5m</span><span class="vol-metric-val">${fmtVol(v.ark_5min)}</span></div>` : '';
+
+    // CTZ jump detection detail (append to jumpHtml)
+    const ctzStat = v.ctz_stat;
+    const ctzJump = v.ctz_jump_detected;
+    let ctzHtml = '';
+    if (ctzStat != null) {
+      const ctzColor = ctzJump ? 'var(--red-0)' : 'var(--text-2)';
+      ctzHtml = `<div class="ctz-detail">
+        <span style="color:var(--text-3)">CTZ: </span>
+        <span style="color:${ctzColor};font-weight:${ctzJump ? '700' : '400'}">${Number(ctzStat).toFixed(2)}${ctzJump ? ' JUMP' : ''}</span>
+        ${v.jump_event_count ? `<span style="color:var(--text-3);margin-left:6px">(${v.jump_event_count} events)</span>` : ''}
+      </div>`;
+    }
+
+    // Shadow mode comparison section
+    let shadowHtml = '';
+    const harModel = v.har_model;
+    const harBlendRv = v.har_blend_rv;
+    const harIvShadow = v.har_iv_shadow_rv;
+    const vrpVal = v.vrp;
+    const dvol_sq_hourly = v.dvol_sq_hourly;
+    const hasAnyShadow = (harModel && harModel !== 'fixed') || harIvShadow != null || vrpVal != null || dvol_sq_hourly != null;
+
+    if (hasAnyShadow) {
+      let sRows = '';
+      if (harModel && harModel !== 'fixed') {
+        sRows += `<div class="vol-shadow-row"><span class="vol-metric-label">HAR model</span><span class="model-chip" style="background:var(--violet-bg);color:var(--violet-0)">${escHtml(harModel)}</span></div>`;
+      }
+      if (harBlendRv != null) {
+        sRows += `<div class="vol-shadow-row"><span class="vol-metric-label">HAR σ</span><span class="vol-metric-val">${fmtVol(harBlendRv)}</span></div>`;
+      }
+      if (harIvShadow != null) {
+        sRows += `<div class="vol-shadow-row"><span class="vol-metric-label">HAR-IV σ</span><span class="vol-metric-val">${fmtVol(harIvShadow)}</span></div>`;
+      }
+      if (dvol_sq_hourly != null) {
+        sRows += `<div class="vol-shadow-row"><span class="vol-metric-label">DVOL² 1h</span><span class="vol-metric-val">${Number(dvol_sq_hourly).toExponential(2)}</span></div>`;
+      }
+      if (vrpVal != null) {
+        const vrpCls = vrpVal > 0 ? 'positive' : vrpVal < 0 ? 'negative' : 'flat';
+        const vrpLabel = vrpVal > 0 ? 'IV>RV' : vrpVal < 0 ? 'RV>IV' : '';
+        sRows += `<div class="vol-shadow-row"><span class="vol-metric-label">VRP</span><span class="vrp-tag ${vrpCls}">${Number(vrpVal).toExponential(2)} ${vrpLabel}</span></div>`;
+      }
+      shadowHtml = `<div class="vol-shadow"><div class="vol-shadow-label">Shadow Mode <span class="shadow-tag">RESEARCH</span></div>${sRows}</div>`;
+    }
+
     // Warmup indicator
     const numReturns = v.num_returns ?? 0;
     const warmupPct = Math.min(100, numReturns / 180 * 100).toFixed(0);
@@ -2116,9 +2300,15 @@ function updateVolatility(s) {
         <div class="vol-metric"><span class="vol-metric-label">bv 5m</span><span class="vol-metric-val">${fmtVol(v.bv_5min)}</span></div>
         <div class="vol-metric"><span class="vol-metric-label">bv 15m</span><span class="vol-metric-val">${fmtVol(v.bv_15min)}</span></div>
         ${dvolHtml}
+        ${medrvHtml}
+        ${tbpvHtml}
+        ${egarchHtml}
+        ${arkHtml}
       </div>
       ${ivSpreadHtml}
       ${jumpHtml}
+      ${ctzHtml}
+      ${shadowHtml}
       <div class="vol-warmup">
         <span>${warmupLabel}</span>
         <div class="vol-warmup-track"><div class="vol-warmup-fill" style="width:${warmupPct}%"></div></div>
@@ -3195,6 +3385,178 @@ function updateAskDistribution(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// UPDATERS — SHADOW MODE DIAGNOSTICS
+// ═══════════════════════════════════════════════════════════════════════
+
+function updateHARDiagnostics(s) {
+  const har = s.har_estimation;
+  const box = $('elHARDiag');
+  if (!har || typeof har !== 'object') {
+    box.innerHTML = '<div class="empty">Waiting for HAR diagnostics... (requires ~3h warmup)</div>';
+    return;
+  }
+
+  // Check if any asset has data
+  const hasData = ASSETS.some(a => har[a] && typeof har[a] === 'object');
+  if (!hasData) {
+    // Maybe it's a flat structure, just display raw
+    box.innerHTML = '<div class="empty">HAR collecting observations...</div>';
+    return;
+  }
+
+  let html = '<table class="diag-table"><thead><tr>';
+  html += '<th>Asset</th><th>Model</th><th>QLIKE</th><th>N</th><th>DVOL %</th><th>VRP</th>';
+  html += '</tr></thead><tbody>';
+
+  for (const asset of ASSETS) {
+    const d = har[asset];
+    if (!d || typeof d !== 'object') {
+      html += `<tr><td><span style="color:${ASSET_COLORS[asset]};font-weight:600">${asset}</span></td><td colspan="5" style="color:var(--text-3)">warming up</td></tr>`;
+      continue;
+    }
+
+    const model = d.active_model ?? '—';
+    const qlScores = d.qlike_scores ?? {};
+    const bestQlike = qlScores[model];
+    const nObs = d.n_observations ?? '—';
+    const dvolFrac = d.dvol_obs_fraction;
+    const vrpLast = d.vrp_last;
+    const qlikeVsFixed = d.qlike_vs_fixed_pct;
+
+    const isIvModel = model.includes('iv') || model.includes('vrp');
+    const isHar = model !== 'fixed' && model !== '—';
+    const modelBg = isIvModel ? 'var(--green-bg)' : isHar ? 'var(--blue-bg)' : 'var(--bg-2)';
+    const modelColor = isIvModel ? 'var(--green-0)' : isHar ? 'var(--blue-0)' : 'var(--text-3)';
+
+    html += `<tr>
+      <td><span style="color:${ASSET_COLORS[asset]};font-weight:600">${asset}</span></td>
+      <td><span class="model-chip" style="background:${modelBg};color:${modelColor}">${escHtml(model)}</span></td>
+      <td>${bestQlike != null ? Number(bestQlike).toFixed(4) : '—'}${qlikeVsFixed != null ? ` <span style="color:${qlikeVsFixed < 0 ? 'var(--green-0)' : 'var(--red-0)'};font-size:9px">(${qlikeVsFixed > 0 ? '+' : ''}${qlikeVsFixed}%)</span>` : ''}</td>
+      <td>${nObs}</td>
+      <td>${dvolFrac != null ? (Number(dvolFrac) * 100).toFixed(0) + '%' : '—'}</td>
+      <td>${vrpLast != null ? Number(vrpLast).toExponential(2) : '—'}</td>
+    </tr>`;
+  }
+
+  html += '</tbody></table>';
+
+  // Show model competition summary if available
+  let competitionHtml = '';
+  for (const asset of ASSETS) {
+    const d = har[asset];
+    if (!d || typeof d !== 'object') continue;
+    const allModels = d.qlike_scores;
+    if (allModels && typeof allModels === 'object') {
+      const entries = Object.entries(allModels).sort((a, b) => a[1] - b[1]);
+      if (entries.length > 1) {
+        competitionHtml += `<div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--text-3)">`;
+        competitionHtml += `<span style="color:${ASSET_COLORS[asset]};font-weight:600">${asset}</span> QLIKE: `;
+        competitionHtml += entries.map(([m, q]) => {
+          const isBest = m === d.active_model;
+          return `<span style="color:${isBest ? 'var(--green-0)' : 'var(--text-2)'};${isBest ? 'font-weight:700' : ''}">${m}=${Number(q).toFixed(4)}</span>`;
+        }).join(' · ');
+        competitionHtml += '</div>';
+      }
+    }
+  }
+
+  box.innerHTML = html + competitionHtml;
+}
+
+function updateEGARCHDiagnostics(s) {
+  const eg = s.egarch_estimation;
+  const box = $('elEGARCHDiag');
+  if (!eg || typeof eg !== 'object') {
+    box.innerHTML = '<div class="empty">Waiting for EGARCH diagnostics...</div>';
+    return;
+  }
+
+  let html = '';
+  for (const asset of ASSETS) {
+    const d = eg[asset];
+    if (!d || typeof d !== 'object') continue;
+    const color = ASSET_COLORS[asset];
+
+    const sigma = d.current_sigma;
+    const logVar = d.current_log_var;
+    const nUpdates = d.n_updates;
+    const params = d.params;
+    const mleConv = d.mle_converged;
+    const uncondVol = d.unconditional_vol;
+    const halfLife = d.half_life_seconds;
+    const asymGamma = d.asymmetry_gamma;
+
+    // Convergence indicator
+    const convColor = mleConv ? 'var(--green-0)' : d.has_params ? 'var(--amber-0)' : 'var(--text-3)';
+    const convLabel = mleConv ? 'MLE' : d.has_params ? 'SEED' : 'INIT';
+
+    html += `<div class="diag-asset-block">
+      <div class="diag-asset-name" style="color:${color}">
+        ${asset}
+        <span class="model-chip" style="background:${mleConv ? 'var(--green-bg)' : 'var(--amber-bg)'};color:${convColor};margin-left:6px;font-size:8px">${convLabel}</span>
+      </div>
+      <div class="shadow-metrics">
+        <div class="shadow-metric"><span class="shadow-metric-label">σ</span><span class="shadow-metric-val">${sigma != null ? fmtVol(sigma) : '—'}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">log σ²</span><span class="shadow-metric-val">${logVar != null ? Number(logVar).toFixed(3) : '—'}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">updates</span><span class="shadow-metric-val">${nUpdates ?? '—'}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">uncond σ</span><span class="shadow-metric-val">${uncondVol != null ? fmtVol(uncondVol) : '—'}</span></div>
+        ${params ? `<div class="shadow-metric"><span class="shadow-metric-label">ω</span><span class="shadow-metric-val">${Number(params.omega).toExponential(2)}</span></div>` : ''}
+        ${params ? `<div class="shadow-metric"><span class="shadow-metric-label">α</span><span class="shadow-metric-val">${Number(params.alpha).toFixed(4)}</span></div>` : ''}
+        ${params ? `<div class="shadow-metric"><span class="shadow-metric-label">β</span><span class="shadow-metric-val">${Number(params.beta).toFixed(4)}</span></div>` : ''}
+        ${asymGamma != null ? `<div class="shadow-metric"><span class="shadow-metric-label">γ (asym)</span><span class="shadow-metric-val">${Number(asymGamma).toFixed(4)}</span></div>` : ''}
+        ${halfLife != null ? `<div class="shadow-metric"><span class="shadow-metric-label">½-life</span><span class="shadow-metric-val">${Number(halfLife).toFixed(0)}s</span></div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  box.innerHTML = html || '<div class="empty">No EGARCH data</div>';
+}
+
+function updateAdaptiveRK(s) {
+  const ark = s.rk_adaptive_diagnostics;
+  const box = $('elARKDiag');
+  if (!ark || typeof ark !== 'object') {
+    box.innerHTML = '<div class="empty">Waiting for adaptive RK data...</div>';
+    return;
+  }
+
+  let html = '';
+  for (const asset of ASSETS) {
+    const d = ark[asset];
+    if (!d || typeof d !== 'object') continue;
+    const color = ASSET_COLORS[asset];
+
+    const omegaSq = d.omega_sq_current;
+    const omegaMean = d.omega_sq_1h_mean;
+    const h5Adaptive = d.H_adaptive_5_current;
+    const h5Fixed = d.H_fixed_5;
+    const h15Adaptive = d.H_adaptive_15_current;
+    const h15Fixed = d.H_fixed_15;
+    const adaptPct = d.adaptive_pct_different_1h;
+    const delta5 = d.mean_delta_5_1h;
+    const delta15 = d.mean_delta_15_1h;
+
+    // Is adaptive actually diverging from fixed?
+    const isDiverging = adaptPct != null && adaptPct > 0.1;
+    const divergeColor = isDiverging ? 'var(--amber-0)' : 'var(--text-2)';
+
+    html += `<div class="diag-asset-block">
+      <div class="diag-asset-name" style="color:${color}">${asset}</div>
+      <div class="shadow-metrics">
+        <div class="shadow-metric"><span class="shadow-metric-label">ω²</span><span class="shadow-metric-val">${omegaSq != null ? Number(omegaSq).toExponential(2) : '—'}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">ω² 1h μ</span><span class="shadow-metric-val">${omegaMean != null ? Number(omegaMean).toExponential(2) : '—'}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">H₅</span><span class="shadow-metric-val">${h5Adaptive != null ? Number(h5Adaptive).toFixed(1) : '—'}${h5Fixed != null ? ' / ' + Number(h5Fixed).toFixed(1) : ''}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">H₁₅</span><span class="shadow-metric-val">${h15Adaptive != null ? Number(h15Adaptive).toFixed(1) : '—'}${h15Fixed != null ? ' / ' + Number(h15Fixed).toFixed(1) : ''}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">adapt %</span><span class="shadow-metric-val" style="color:${divergeColor}">${adaptPct != null ? (Number(adaptPct) * 100).toFixed(0) + '%' : '—'}</span></div>
+        ${delta5 != null ? `<div class="shadow-metric"><span class="shadow-metric-label">Δ₅ 1h</span><span class="shadow-metric-val">${Number(delta5).toExponential(2)}</span></div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  box.innerHTML = html || '<div class="empty">No adaptive RK data</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // MAIN UPDATE
 // ═══════════════════════════════════════════════════════════════════════
 function update(s) {
@@ -3233,6 +3595,9 @@ function update(s) {
   try { updateCalibration(s); } catch (e) { console.error('updateCalibration:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
+  try { updateHARDiagnostics(s); } catch (e) { console.error('updateHARDiagnostics:', e); }
+  try { updateEGARCHDiagnostics(s); } catch (e) { console.error('updateEGARCHDiagnostics:', e); }
+  try { updateAdaptiveRK(s); } catch (e) { console.error('updateAdaptiveRK:', e); }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
