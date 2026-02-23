@@ -1058,7 +1058,7 @@ body::before {
 /* ═══════════════════════════════════════════════════════════════════════
    CALIBRATION ENGINE PANEL
    ═══════════════════════════════════════════════════════════════════════ */
-.cal-cell { grid-column: span 4; }
+.cal-cell { grid-column: span 3; }
 .cal-hero {
   display: flex; align-items: center; gap: 10px;
   margin-bottom: 14px;
@@ -1119,7 +1119,7 @@ body::before {
 .cal-method-status {
   font-family: var(--mono); font-size: 10px; font-weight: 600;
 }
-.cal-method-status.active-status { color: var(--amber-0); }
+.cal-method-status.active-status { color: var(--green-0); }
 .cal-method-status.trained-status { color: var(--green-0); }
 .cal-method-status.count-status { color: var(--text-2); }
 .cal-params {
@@ -1130,7 +1130,7 @@ body::before {
 /* ═══════════════════════════════════════════════════════════════════════
    COUNTERFACTUAL ANALYSIS PANEL
    ═══════════════════════════════════════════════════════════════════════ */
-.cf-cell { grid-column: span 8; }
+.cf-cell { grid-column: span 6; }
 .cf-summary {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
   margin-bottom: 14px;
@@ -1193,7 +1193,7 @@ body::before {
 /* ═══════════════════════════════════════════════════════════════════════
    ASK PRICE DISTRIBUTION PANEL
    ═══════════════════════════════════════════════════════════════════════ */
-.askdist-cell { grid-column: span 4; }
+.askdist-cell { grid-column: span 3; }
 .askdist-bars { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
 .askdist-row {
   display: flex; align-items: center; gap: 8px;
@@ -3083,7 +3083,7 @@ function updateCalibration(s) {
 
   // Platt A/B params
   const paramEl = $('calParams');
-  if (cal.platt_trained && cal.platt_A != null) {
+  if (cal.platt_trained && cal.platt_A != null && cal.platt_B != null) {
     paramEl.textContent = 'A=' + cal.platt_A.toFixed(4) + '  B=' + cal.platt_B.toFixed(4);
   } else {
     paramEl.textContent = '';
@@ -3149,6 +3149,11 @@ function updateCounterfactual(s) {
         <div class="cf-bucket-wr" style="color:${wrColor}">${wr}%</div>
         <div class="cf-bucket-be">BE: ${be}% · n=${b.total}</div>
       </div>`;
+    }).join('');
+  } else {
+    bucketContainer.innerHTML = bucketOrder.map(label => {
+      const be = beMap[label];
+      return `<div class="cf-bucket"><div class="cf-bucket-label">${label}&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: ${be}%</div></div>`;
     }).join('');
   }
 }
