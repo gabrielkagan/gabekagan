@@ -1091,6 +1091,36 @@ body::before {
   font-family: var(--mono); font-size: 11px; color: var(--amber-0); opacity: 0.8;
 }
 
+/* Live trading banner */
+.live-banner {
+  grid-column: 1 / -1;
+  display: none;
+  align-items: center; justify-content: center; gap: 16px;
+  padding: 14px 22px;
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+}
+.live-banner.visible { display: flex; }
+.live-banner-label {
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  letter-spacing: 1.5px; color: var(--green-0);
+}
+.live-banner-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--green-0);
+  animation: blink 2s ease-in-out infinite;
+}
+
+/* Position execution badges */
+.pos-badge {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  padding: 1px 5px; border-radius: 3px; letter-spacing: 0.5px;
+}
+.pos-badge.maker { background: var(--green-bg); color: var(--green-0); }
+.pos-badge.taker { background: var(--amber-bg); color: var(--amber-0); }
+.pos-badge.ws { background: var(--blue-bg, rgba(56,189,248,0.12)); color: var(--blue-0, #38bdf8); }
+.pos-badge.rest { background: var(--surface-2); color: var(--text-3); }
+
 /* ═══════════════════════════════════════════════════════════════════════
    CALIBRATION ENGINE PANEL
    ═══════════════════════════════════════════════════════════════════════ */
@@ -1579,6 +1609,12 @@ body::before {
   <div class="obs-banner" id="obsBanner">
     <span class="obs-banner-label">OBSERVATION MODE &mdash; Paper Trading</span>
     <span class="obs-banner-meta" id="obsMetaText"></span>
+  </div>
+
+  <!-- Live Trading Banner -->
+  <div class="live-banner" id="liveBanner">
+    <div class="live-banner-dot"></div>
+    <span class="live-banner-label">LIVE TRADING &mdash; Real Money</span>
   </div>
 
   <!-- ══════════════ EQUITY CURVE ══════════════ -->
@@ -2901,16 +2937,37 @@ function updatePositions(s) {
     const costDollars = (totalCost / 100).toFixed(2);
     const openedAt = p.opened_at ? fmtTimestamp(p.opened_at) : '—';
 
+    // Execution details (new fields)
+    const fillLatency = p.fill_latency_seconds != null ? p.fill_latency_seconds.toFixed(1) + 's' : '';
+    const isTaker = p.is_taker === 1 || p.is_taker === true;
+    const tierBadge = isTaker
+      ? '<span class="pos-badge taker">TAKER</span>'
+      : '<span class="pos-badge maker">MAKER</span>';
+    const fillSrc = p.fill_source;
+    const srcBadge = fillSrc === 'websocket'
+      ? '<span class="pos-badge ws">WS</span>'
+      : fillSrc === 'rest_poll'
+        ? '<span class="pos-badge rest">REST</span>'
+        : '';
+    const execMethod = p.execution_method ?? '';
+    const edge = p.edge != null ? (p.edge * 100).toFixed(1) + '%' : '';
+    const strategy = p.strategy ?? '';
+
     return `<div class="pos-item">
       <div class="pos-top">
         <span class="pos-ticker" title="${escHtml(ticker)}">${escHtml(short)}</span>
         <span class="pos-side ${sideClass}">${side.toUpperCase()}</span>
+        ${tierBadge}${srcBadge}
       </div>
       <div class="pos-details">
         ${asset ? `<span><span class="dim">asset</span>${asset}</span>` : ''}
         <span><span class="dim">qty</span>${count}</span>
         <span><span class="dim">avg</span>${avgPrice}¢</span>
         <span><span class="dim">cost</span>$${costDollars}</span>
+        ${edge ? `<span><span class="dim">edge</span>${edge}</span>` : ''}
+        ${fillLatency ? `<span><span class="dim">fill</span>${fillLatency}</span>` : ''}
+        ${execMethod ? `<span><span class="dim">exec</span>${execMethod}</span>` : ''}
+        ${strategy ? `<span><span class="dim">strat</span>${escHtml(strategy)}</span>` : ''}
         <span><span class="dim">opened</span>${openedAt}</span>
       </div>
     </div>`;
@@ -3559,10 +3616,12 @@ function updateRecentOpportunities(s) {
 // OBSERVATION MODE BANNER
 // ═══════════════════════════════════════════════════════════════════════
 function updateObservationMode(s) {
-  const banner = $('obsBanner');
+  const obsBanner = $('obsBanner');
+  const liveBanner = $('liveBanner');
   const isObs = s.observation_mode;
   if (isObs) {
-    banner.classList.add('visible');
+    obsBanner.classList.add('visible');
+    liveBanner.classList.remove('visible');
     const sim = s.simulated_performance || {};
     const cnt = sim.simulated_trades_count ?? 0;
     const pnlCents = sim.simulated_pnl_cents ?? 0;
@@ -3570,7 +3629,8 @@ function updateObservationMode(s) {
     const pnlStr = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2);
     $('obsMetaText').textContent = cnt + ' sim trades · ' + pnlStr + ' paper P&L';
   } else {
-    banner.classList.remove('visible');
+    obsBanner.classList.remove('visible');
+    liveBanner.classList.add('visible');
   }
 }
 
