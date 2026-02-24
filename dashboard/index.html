@@ -1901,6 +1901,17 @@ body::before {
     </div>
   </div>
 
+  <!-- EGARCH Blend Diagnostics -->
+  <div class="cell egarch-blend-diag-cell">
+    <div class="cell-label">
+      EGARCH-RK Blend
+      <span class="tag" style="background:var(--violet-bg);color:var(--violet-0);border:1px solid var(--violet-border)">SHADOW</span>
+    </div>
+    <div id="elEGARCHBlendDiag">
+      <div class="empty">Waiting for EGARCH blend data...</div>
+    </div>
+  </div>
+
   <!-- Adaptive RK Diagnostics -->
   <div class="cell ark-diag-cell">
     <div class="cell-label">
@@ -3841,14 +3852,25 @@ function updateHARDiagnostics(s) {
     return;
   }
 
-  let html = '<table class="diag-table"><thead><tr>';
-  html += '<th>Asset</th><th>Model</th><th>QLIKE</th><th>N</th><th>DVOL %</th><th>VRP</th>';
+  // Header badges for new HAR features
+  const firstAssetData = ASSETS.map(a => har[a]).find(d => d && typeof d === 'object');
+  let headerBadges = '';
+  if (firstAssetData) {
+    headerBadges += `<div style="margin-bottom:6px;display:flex;gap:4px;flex-wrap:wrap">`;
+    headerBadges += `<span class="shadow-tag" style="background:var(--accent-dim);font-size:8px;padding:1px 5px">target=${firstAssetData.prediction_target ?? 'rv5'}</span>`;
+    headerBadges += `<span class="shadow-tag" style="background:var(--accent-dim);font-size:8px;padding:1px 5px">ridge=${firstAssetData.ridge_lambda ?? '—'}</span>`;
+    headerBadges += `<span class="shadow-tag" style="background:var(--accent-dim);font-size:8px;padding:1px 5px">WLS=${firstAssetData.wls_weight_scheme ?? '1/√t'}</span>`;
+    headerBadges += `</div>`;
+  }
+
+  let html = headerBadges + '<table class="diag-table"><thead><tr>';
+  html += '<th>Asset</th><th>Model</th><th>QLIKE</th><th>N</th><th>Hrs</th><th>DVOL %</th><th>VRP</th>';
   html += '</tr></thead><tbody>';
 
   for (const asset of ASSETS) {
     const d = har[asset];
     if (!d || typeof d !== 'object') {
-      html += `<tr><td><span style="color:${ASSET_COLORS[asset]};font-weight:600">${asset}</span></td><td colspan="5" style="color:var(--text-3)">warming up</td></tr>`;
+      html += `<tr><td><span style="color:${ASSET_COLORS[asset]};font-weight:600">${asset}</span></td><td colspan="6" style="color:var(--text-3)">warming up</td></tr>`;
       continue;
     }
 
@@ -3865,11 +3887,13 @@ function updateHARDiagnostics(s) {
     const modelBg = isIvModel ? 'var(--green-bg)' : isHar ? 'var(--blue-bg)' : 'var(--bg-2)';
     const modelColor = isIvModel ? 'var(--green-0)' : isHar ? 'var(--blue-0)' : 'var(--text-3)';
 
+    const bufHrs = d.buffer_hours;
     html += `<tr>
       <td><span style="color:${ASSET_COLORS[asset]};font-weight:600">${asset}</span></td>
       <td><span class="model-chip" style="background:${modelBg};color:${modelColor}">${escHtml(model)}</span></td>
       <td>${bestQlike != null ? Number(bestQlike).toFixed(4) : '—'}${qlikeVsFixed != null ? ` <span style="color:${qlikeVsFixed < 0 ? 'var(--green-0)' : 'var(--red-0)'};font-size:9px">(${qlikeVsFixed > 0 ? '+' : ''}${qlikeVsFixed}%)</span>` : ''}</td>
       <td>${nObs}</td>
+      <td>${bufHrs != null ? Number(bufHrs).toFixed(1) : '—'}</td>
       <td>${dvolFrac != null ? (Number(dvolFrac) * 100).toFixed(0) + '%' : '—'}</td>
       <td>${vrpLast != null ? Number(vrpLast).toExponential(2) : '—'}</td>
     </tr>`;
@@ -3942,6 +3966,10 @@ function updateEGARCHDiagnostics(s) {
         ${params ? `<div class="shadow-metric"><span class="shadow-metric-label">β</span><span class="shadow-metric-val">${Number(params.beta).toFixed(4)}</span></div>` : ''}
         ${asymGamma != null ? `<div class="shadow-metric"><span class="shadow-metric-label">γ (asym)</span><span class="shadow-metric-val">${Number(asymGamma).toFixed(4)}</span></div>` : ''}
         ${halfLife != null ? `<div class="shadow-metric"><span class="shadow-metric-label">½-life</span><span class="shadow-metric-val">${Number(halfLife).toFixed(0)}s</span></div>` : ''}
+        ${d.student_t_df != null ? `<div class="shadow-metric"><span class="shadow-metric-label">df (t)</span><span class="shadow-metric-val">${Number(d.student_t_df).toFixed(1)}</span></div>` : ''}
+        ${d.distribution ? `<div class="shadow-metric"><span class="shadow-metric-label">dist</span><span class="shadow-metric-val">${d.distribution}</span></div>` : ''}
+        ${d.student_t_e_abs_z != null ? `<div class="shadow-metric"><span class="shadow-metric-label">E[|z|]</span><span class="shadow-metric-val">${Number(d.student_t_e_abs_z).toFixed(4)}</span></div>` : ''}
+        ${d.refit_interval_s != null ? `<div class="shadow-metric"><span class="shadow-metric-label">refit</span><span class="shadow-metric-val">${(d.refit_interval_s / 3600).toFixed(1)}h</span></div>` : ''}
       </div>
     </div>`;
   }
@@ -3991,6 +4019,55 @@ function updateAdaptiveRK(s) {
   }
 
   box.innerHTML = html || '<div class="empty">No adaptive RK data</div>';
+}
+
+function updateEGARCHBlendDiag(s) {
+  const blend = s.egarch_blend;
+  const box = $('elEGARCHBlendDiag');
+  if (!blend || typeof blend !== 'object') {
+    box.innerHTML = '<div class="empty">Waiting for EGARCH blend data...</div>';
+    return;
+  }
+
+  const emaLambda = blend.ema_lambda;
+  const eqThresh = blend.equal_weight_threshold;
+  const mzWindow = blend.mz_window;
+
+  let headerBadges = `<div style="margin-bottom:6px;display:flex;gap:4px;flex-wrap:wrap">`;
+  if (emaLambda != null) headerBadges += `<span class="shadow-tag" style="background:var(--accent-dim);font-size:8px;padding:1px 5px">EMA λ=${emaLambda}</span>`;
+  if (eqThresh != null) headerBadges += `<span class="shadow-tag" style="background:var(--accent-dim);font-size:8px;padding:1px 5px">R² fallback<${eqThresh}</span>`;
+  if (mzWindow != null) headerBadges += `<span class="shadow-tag" style="background:var(--accent-dim);font-size:8px;padding:1px 5px">window=${mzWindow}</span>`;
+  headerBadges += `</div>`;
+
+  let html = headerBadges;
+  const weights = blend.weights ?? {};
+  const rSq = blend.r_squared ?? {};
+  const qlike = blend.qlike ?? {};
+  const obsCnt = blend.obs_count ?? {};
+  const prevWeights = blend.prev_weights ?? {};
+
+  for (const asset of ASSETS) {
+    const color = ASSET_COLORS[asset];
+    const w = weights[asset];
+    const r2 = rSq[asset];
+    const ql = qlike[asset];
+    const obs = obsCnt[asset];
+    const pw = prevWeights[asset];
+    const r2Color = r2 != null && r2 < (eqThresh ?? 0.10) ? 'var(--red-0)' : 'var(--text-1)';
+
+    html += `<div class="diag-asset-block">
+      <div class="diag-asset-name" style="color:${color}">${asset}</div>
+      <div class="shadow-metrics">
+        <div class="shadow-metric"><span class="shadow-metric-label">weight</span><span class="shadow-metric-val">${w != null ? Number(w).toFixed(4) : '—'}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">R²</span><span class="shadow-metric-val" style="color:${r2Color}">${r2 != null ? Number(r2).toFixed(4) : '—'}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">QLIKE</span><span class="shadow-metric-val">${ql != null ? Number(ql).toFixed(4) : '—'}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">obs</span><span class="shadow-metric-val">${obs ?? '—'}${mzWindow ? '/' + mzWindow : ''}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">prev w</span><span class="shadow-metric-val">${pw != null ? Number(pw).toFixed(4) : '—'}</span></div>
+      </div>
+    </div>`;
+  }
+
+  box.innerHTML = html || '<div class="empty">No blend data</div>';
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -4131,6 +4208,7 @@ function update(s) {
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
   try { updateHARDiagnostics(s); } catch (e) { console.error('updateHARDiagnostics:', e); }
   try { updateEGARCHDiagnostics(s); } catch (e) { console.error('updateEGARCHDiagnostics:', e); }
+  try { updateEGARCHBlendDiag(s); } catch (e) { console.error('updateEGARCHBlendDiag:', e); }
   try { updateAdaptiveRK(s); } catch (e) { console.error('updateAdaptiveRK:', e); }
   try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
   try { updateActiveOrderExecFields(s); } catch (e) { console.error('updateActiveOrderExecFields:', e); }
