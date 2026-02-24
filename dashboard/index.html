@@ -745,63 +745,199 @@ body::before {
 .feed-dot-indicator.down { background: var(--red-0); box-shadow: 0 0 6px var(--red-0); }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   SIMULATED PERFORMANCE
+   TRADE ANALYTICS
    ═══════════════════════════════════════════════════════════════════════ */
-.sim-cell { grid-column: span 4; }
-.sim-hero {
+.ta-overview-cell { grid-column: span 4; }
+.ta-hero {
   font-family: var(--mono); font-size: 36px; font-weight: 700;
   letter-spacing: -1px; line-height: 1;
 }
-.sim-sub {
+.ta-sub {
   margin-top: 8px; font-family: var(--mono); font-size: 14px;
   color: var(--text-1);
 }
-.sim-bar-track {
+.ta-bar-track {
   margin-top: 10px; height: 6px; border-radius: 3px;
   background: var(--red-bg); overflow: hidden;
 }
-.sim-bar-fill {
+.ta-bar-fill {
   height: 100%; border-radius: 3px;
   background: linear-gradient(90deg, var(--green-1), var(--green-0));
   transition: width 0.6s ease;
 }
-.sim-meta {
+.ta-meta {
   margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
 }
+.ta-notable {
+  margin-top: 12px; padding: 8px 10px; border-radius: var(--radius-sm);
+  background: var(--bg-2); border: 1px solid var(--border-0);
+  font-family: var(--mono); font-size: 10px; color: var(--text-2);
+}
+.ta-notable b { color: var(--text-0); }
 
-/* Sim breakdowns */
-.sim-breakdowns-cell { grid-column: span 8; }
-.sim-bd-tabs {
+/* Trade Analytics Breakdowns */
+.ta-breakdowns-cell { grid-column: span 4; }
+.ta-bd-tabs {
   display: flex; gap: 4px; margin-bottom: 12px;
 }
-.sim-bd-tab {
+.ta-bd-tab {
   font-family: var(--mono); font-size: 10px; font-weight: 600;
   padding: 3px 8px; border-radius: 4px;
   background: var(--bg-2); color: var(--text-3);
   border: 1px solid var(--border-0);
   cursor: pointer; transition: all 0.2s;
 }
-.sim-bd-tab:hover { border-color: var(--border-1); color: var(--text-1); }
-.sim-bd-tab.active { background: var(--violet-bg); color: var(--violet-0); border-color: var(--violet-border); }
-.sim-bd-grid {
+.ta-bd-tab:hover { border-color: var(--border-1); color: var(--text-1); }
+.ta-bd-tab.active { background: var(--green-bg); color: var(--green-0); border-color: var(--green-border); }
+.ta-bd-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px;
 }
-.sim-bd-card {
-  padding: 12px 14px; border-radius: var(--radius-sm);
+.ta-bd-card {
+  padding: 10px 12px; border-radius: var(--radius-sm);
   border: 1px solid var(--border-0); background: var(--bg-2);
   transition: border-color 0.2s;
 }
-.sim-bd-card:hover { border-color: var(--border-1); }
-.sim-bd-name {
+.ta-bd-card:hover { border-color: var(--border-1); }
+.ta-bd-name {
   font-family: var(--mono); font-size: 11px; font-weight: 700;
-  color: var(--text-0); margin-bottom: 4px;
+  color: var(--text-0); margin-bottom: 2px;
 }
-.sim-bd-pnl {
+.ta-bd-pnl {
   font-family: var(--mono); font-size: 18px; font-weight: 700;
 }
-.sim-bd-detail {
+.ta-bd-detail {
   font-family: var(--mono); font-size: 9px; color: var(--text-3);
   margin-top: 2px;
+}
+
+/* Cumulative P&L chart */
+.ta-chart-cell { grid-column: span 4; }
+.ta-chart-wrap {
+  width: 100%; height: 200px; position: relative;
+}
+.ta-chart-wrap canvas { width: 100%; height: 100%; }
+
+/* Escalation funnel */
+.execeng-funnel {
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid var(--border-0);
+}
+.execeng-funnel-label {
+  font-family: var(--mono); font-size: 9px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-3); margin-bottom: 8px;
+}
+.funnel-steps {
+  display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+}
+.funnel-step {
+  display: flex; flex-direction: column; align-items: center;
+  flex: 1; min-width: 60px;
+}
+.funnel-step-bar {
+  width: 100%; height: 6px; border-radius: 3px;
+  background: var(--bg-3); overflow: hidden;
+  margin-bottom: 4px;
+}
+.funnel-step-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.funnel-step-val {
+  font-family: var(--mono); font-size: 14px; font-weight: 700;
+  color: var(--text-0);
+}
+.funnel-step-name {
+  font-family: var(--mono); font-size: 8px; font-weight: 600;
+  text-transform: uppercase; color: var(--text-3);
+  letter-spacing: 0.5px; margin-top: 1px;
+}
+.funnel-arrow {
+  font-family: var(--mono); font-size: 10px; color: var(--text-3);
+  padding: 0 4px; align-self: center;
+}
+.funnel-conv {
+  font-family: var(--mono); font-size: 8px; color: var(--text-3);
+  text-align: center; margin-top: 1px;
+}
+
+/* NIG Distribution */
+.nig-cell { grid-column: span 6; }
+.nig-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px;
+}
+.nig-card {
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-0); background: var(--bg-2);
+}
+.nig-card-asset {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  color: var(--text-0); margin-bottom: 6px;
+}
+.nig-param {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 10px; color: var(--text-2);
+  padding: 2px 0;
+}
+.nig-param-val {
+  color: var(--text-0); font-weight: 500;
+}
+
+/* Trade heatmap */
+.heatmap-cell { grid-column: span 6; }
+.heatmap-grid {
+  display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px;
+}
+.heatmap-hour {
+  aspect-ratio: 1; border-radius: 3px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 8px;
+  transition: transform 0.2s;
+  cursor: default;
+}
+.heatmap-hour:hover { transform: scale(1.2); z-index: 2; }
+.heatmap-hour-label {
+  font-size: 7px; color: var(--text-3); margin-top: 1px;
+}
+.heatmap-legend {
+  display: flex; gap: 12px; margin-top: 6px;
+  font-family: var(--mono); font-size: 9px; color: var(--text-3);
+}
+
+/* Equity curve toggle */
+.eq-toggle {
+  display: inline-flex; gap: 2px; margin-left: 8px;
+}
+.eq-btn {
+  font-family: var(--mono); font-size: 9px; font-weight: 600;
+  padding: 2px 6px; border-radius: 3px;
+  background: var(--bg-2); color: var(--text-3);
+  border: 1px solid var(--border-0);
+  cursor: pointer; transition: all 0.2s;
+}
+.eq-btn:hover { border-color: var(--border-1); color: var(--text-1); }
+.eq-btn.active { background: var(--blue-bg); color: var(--blue-0); border-color: var(--blue-border); }
+
+/* Trade alert banner */
+.trade-alert {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 200; padding: 8px 24px;
+  font-family: var(--mono); font-size: 13px; font-weight: 600;
+  text-align: center;
+  transform: translateY(-100%);
+  transition: transform 0.4s ease;
+}
+.trade-alert.visible { transform: translateY(0); }
+.trade-alert.win {
+  background: linear-gradient(90deg, rgba(16,185,129,0.15), rgba(16,185,129,0.25), rgba(16,185,129,0.15));
+  color: var(--green-0);
+  border-bottom: 1px solid var(--green-border);
+}
+.trade-alert.loss {
+  background: linear-gradient(90deg, rgba(244,63,94,0.15), rgba(244,63,94,0.25), rgba(244,63,94,0.15));
+  color: var(--red-0);
+  border-bottom: 1px solid var(--red-border);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1490,9 +1626,11 @@ body::before {
   .positions-cell, .resting-cell { grid-column: span 6; }
   .xchg-cell { grid-column: span 6; }
   .oflow-cell, .funding-cell { grid-column: span 3; }
-  .sim-cell { grid-column: span 6; }
-  .sim-breakdowns-cell { grid-column: span 6; }
-  .simtrades-cell { grid-column: span 6; }
+  .ta-overview-cell { grid-column: span 6; }
+  .ta-breakdowns-cell { grid-column: span 6; }
+  .ta-chart-cell { grid-column: span 6; }
+  .nig-cell { grid-column: span 6; }
+  .heatmap-cell { grid-column: span 6; }
   .session-cell, .stratbd-cell, .assetperf-cell { grid-column: span 6; }
   .ratelimit-cell { grid-column: span 3; }
   .rejection-cell { grid-column: span 6; }
@@ -1516,7 +1654,8 @@ body::before {
   .vol-cell, .timing-cell, .funnel-cell,
   .order-cell, .positions-cell, .resting-cell,
   .xchg-cell, .oflow-cell, .funding-cell,
-  .sim-cell, .sim-breakdowns-cell, .simtrades-cell,
+  .ta-overview-cell, .ta-breakdowns-cell, .ta-chart-cell,
+  .nig-cell, .heatmap-cell,
   .session-cell, .stratbd-cell, .assetperf-cell,
   .ratelimit-cell, .rejection-cell,
   .trades-cell, .opps-cell,
@@ -1605,6 +1744,9 @@ body::before {
      ═══════════════════════════════════════════════════════════════════════ -->
 <div class="grid">
 
+  <!-- Trade Alert Banner -->
+  <div class="trade-alert" id="tradeAlert"></div>
+
   <!-- Observation Mode Banner -->
   <div class="obs-banner" id="obsBanner">
     <span class="obs-banner-label">OBSERVATION MODE &mdash; Paper Trading</span>
@@ -1619,7 +1761,7 @@ body::before {
 
   <!-- ══════════════ EQUITY CURVE ══════════════ -->
   <div class="cell equity-cell">
-    <div class="cell-label">Equity Curve</div>
+    <div class="cell-label">Equity Curve<div class="eq-toggle"><span class="eq-btn active" data-range="1h">1H</span><span class="eq-btn" data-range="4h">4H</span></div></div>
     <div class="equity-canvas-wrap">
       <canvas id="equityCanvas"></canvas>
     </div>
@@ -1680,6 +1822,7 @@ body::before {
         <div class="execeng-derived-val" id="eeWsRatio">—</div>
       </div>
     </div>
+    <div class="execeng-funnel" id="execEngFunnel"></div>
   </div>
 
   <!-- ══════════════ ROW 1: Core Metrics ══════════════ -->
@@ -1923,77 +2066,67 @@ body::before {
     </div>
   </div>
 
-  <!-- ══════════════ ROW 5: Simulated Performance ══════════════ -->
+  <!-- NIG Distribution -->
+  <div class="cell nig-cell">
+    <div class="cell-label">NIG Distribution<span class="tag" style="background:var(--green-bg);color:var(--green-0);border:1px solid var(--green-border)">LIVE</span></div>
+    <div id="elNIGDist">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for NIG data...</div>
+    </div>
+  </div>
+
+  <!-- Trade Frequency Heatmap -->
+  <div class="cell heatmap-cell">
+    <div class="cell-label">Trade Frequency by Hour (UTC)</div>
+    <div id="elTradeHeatmap">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for trade data...</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ROW 5: Trade Analytics ══════════════ -->
 
   <div class="section-divider">
-    <span class="divider-label">Simulated Performance</span>
+    <span class="divider-label">Trade Analytics</span>
     <div class="divider-line"></div>
   </div>
 
-  <!-- Sim Overview -->
-  <div class="cell sim-cell">
+  <!-- Trade Analytics Overview -->
+  <div class="cell ta-overview-cell">
     <div class="cell-label">
-      Sim P&L
-      <span class="tag" id="simCountTag" style="background:var(--violet-bg);color:var(--violet-0);border:1px solid var(--violet-border)">0 trades</span>
+      Total P&L
+      <span class="tag" id="taCountTag" style="background:var(--green-bg);color:var(--green-0);border:1px solid var(--green-border)">0 trades</span>
     </div>
-    <div class="sim-hero" id="elSimPnl">$0.00</div>
-    <div class="sim-sub" id="elSimWR">—</div>
-    <div class="sim-bar-track">
-      <div class="sim-bar-fill" id="elSimBarFill" style="width:0%"></div>
+    <div class="ta-hero" id="elTaPnl">$0.00</div>
+    <div class="ta-sub" id="elTaWR">—</div>
+    <div class="ta-bar-track">
+      <div class="ta-bar-fill" id="elTaBarFill" style="width:0%"></div>
     </div>
-    <div class="sim-meta">
-      <div class="meta-item"><span class="meta-label">Wins</span><span class="meta-val" id="elSimWins">—</span></div>
-      <div class="meta-item"><span class="meta-label">Losses</span><span class="meta-val" id="elSimLosses">—</span></div>
-      <div class="meta-item"><span class="meta-label">Pending</span><span class="meta-val" id="elSimPending">—</span></div>
-      <div class="meta-item"><span class="meta-label">Avg Edge</span><span class="meta-val" id="elSimEdge">—</span></div>
-      <div class="meta-item"><span class="meta-label">Avg Kelly f</span><span class="meta-val" id="elSimKelly">—</span></div>
-      <div class="meta-item"><span class="meta-label">Avg Size</span><span class="meta-val" id="elSimSize">—</span></div>
-      <div class="meta-item"><span class="meta-label">Avg EV</span><span class="meta-val" id="elSimEV">—</span></div>
+    <div class="ta-meta">
+      <div class="meta-item"><span class="meta-label">Wins</span><span class="meta-val" id="elTaWins">—</span></div>
+      <div class="meta-item"><span class="meta-label">Losses</span><span class="meta-val" id="elTaLosses">—</span></div>
+      <div class="meta-item"><span class="meta-label">Avg P&L</span><span class="meta-val" id="elTaAvg">—</span></div>
+      <div class="meta-item"><span class="meta-label">Daily P&L</span><span class="meta-val" id="elTaDaily">—</span></div>
     </div>
+    <div class="ta-notable" id="elTaNotable"></div>
   </div>
 
-  <!-- Sim Breakdowns -->
-  <div class="cell sim-breakdowns-cell">
-    <div class="cell-label">Breakdowns</div>
-    <div class="sim-bd-tabs" id="elSimBdTabs">
-      <div class="sim-bd-tab active" data-bd="strategy">Strategy</div>
-      <div class="sim-bd-tab" data-bd="regime">Vol Regime</div>
-      <div class="sim-bd-tab" data-bd="asset">Asset</div>
+  <!-- Trade Analytics Breakdowns -->
+  <div class="cell ta-breakdowns-cell">
+    <div class="cell-label">P&L Breakdowns</div>
+    <div class="ta-bd-tabs" id="elTaBdTabs">
+      <div class="ta-bd-tab active" data-bd="asset">Asset</div>
+      <div class="ta-bd-tab" data-bd="bucket">Price Bucket</div>
+      <div class="ta-bd-tab" data-bd="strategy">Strategy</div>
     </div>
-    <div class="sim-bd-grid" id="elSimBdGrid">
+    <div class="ta-bd-grid" id="elTaBdGrid">
       <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
     </div>
   </div>
 
-  <!-- Recent Sim Trades -->
-  <div class="cell simtrades-cell">
-    <div class="cell-label">
-      Recent Simulated Trades
-      <span class="tag" id="simTradesCountTag" style="background:var(--bg-2);color:var(--text-3)">0</span>
-    </div>
-    <div class="simtrades-scroll">
-      <table class="simtrades-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Asset</th>
-            <th>Ticker</th>
-            <th>Strategy</th>
-            <th>Regime</th>
-            <th>Edge</th>
-            <th>Kelly f</th>
-            <th>Size</th>
-            <th>Price</th>
-            <th>EV</th>
-            <th>Z-Score</th>
-            <th>Result</th>
-            <th>P&L</th>
-          </tr>
-        </thead>
-        <tbody id="elSimTradesBody">
-          <tr><td colspan="13" style="text-align:center;color:var(--text-3);padding:24px">Waiting for data...</td></tr>
-        </tbody>
-      </table>
+  <!-- Cumulative P&L Chart -->
+  <div class="cell ta-chart-cell">
+    <div class="cell-label">Cumulative P&L</div>
+    <div class="ta-chart-wrap">
+      <canvas id="cumPnlCanvas"></canvas>
     </div>
   </div>
 
@@ -2189,10 +2322,12 @@ body::before {
             <th>Strategy</th>
             <th>Edge</th>
             <th>TTC</th>
+            <th>Latency</th>
+            <th>Prob</th>
           </tr>
         </thead>
         <tbody id="elTradesBody">
-          <tr><td colspan="10" style="text-align:center;color:var(--text-3);padding:24px">No trades yet</td></tr>
+          <tr><td colspan="12" style="text-align:center;color:var(--text-3);padding:24px">No trades yet</td></tr>
         </tbody>
       </table>
     </div>
@@ -2328,7 +2463,8 @@ function updateSpotPrices(s) {
 function drawEquityCurve(s) {
   const canvas = $('equityCanvas');
   if (!canvas) return;
-  const hist = s.balance_history;
+  const hist = eqRange === '4h' && s.balance_history_4h && s.balance_history_4h.length >= 2
+    ? s.balance_history_4h : s.balance_history;
   if (!hist || !Array.isArray(hist) || hist.length < 2) return;
 
   const dpr = window.devicePixelRatio || 1;
@@ -3178,58 +3314,71 @@ function updateFeedHealth(s) {
 // UPDATERS — PIECE 5: SIMULATED PERFORMANCE
 // ═══════════════════════════════════════════════════════════════════════
 
-let simBdTab = 'strategy';
-let simBdData = {};
+let taBdTab = 'asset';
+let taBdData = {};
 
-function updateSimulatedPerformance(s) {
-  const sim = s.simulated_performance;
-  if (!sim || typeof sim !== 'object') return;
+function updateTradeAnalytics(s) {
+  const rta = s.real_trade_analytics;
+  if (!rta || typeof rta !== 'object') return;
 
-  const count = sim.simulated_trades_count ?? 0;
-  const wins = sim.simulated_wins ?? 0;
-  const losses = sim.simulated_losses ?? 0;
-  const pnlCents = sim.simulated_pnl_cents ?? 0;
-  const pnl = pnlCents / 100;
-  const wr = sim.simulated_win_rate ?? (count > 0 ? wins / count : 0);
-  const pending = sim.pending_settlement ?? 0;
-  const avgEdge = sim.avg_edge ?? 0;
-  const avgKelly = sim.avg_kelly_f ?? 0;
-  const avgSize = sim.avg_position_size ?? 0;
-  const avgEV = sim.avg_expected_value ?? 0;
+  const risk = s.risk_metrics || {};
+  const totalTrades = risk.total_trades ?? 0;
+  const wins = s.win_count ?? 0;
+  const losses = s.loss_count ?? 0;
+  const wr = s.win_rate ?? 0;
+  const totalPnlCents = risk.total_pnl_cents ?? 0;
+  const totalPnl = totalPnlCents / 100;
+  const avgPnl = risk.avg_pnl_per_trade ?? 0;
+  const dailyPnlCents = s.daily_pnl_cents ?? 0;
 
-  $('simCountTag').textContent = count + ' trade' + (count !== 1 ? 's' : '');
+  $('taCountTag').textContent = totalTrades + ' trade' + (totalTrades !== 1 ? 's' : '');
 
-  const hero = $('elSimPnl');
-  hero.textContent = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2);
-  hero.style.color = pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+  const hero = $('elTaPnl');
+  hero.textContent = (totalPnl >= 0 ? '+$' : '-$') + Math.abs(totalPnl).toFixed(2);
+  hero.style.color = totalPnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
 
-  $('elSimWR').textContent = (wr * 100).toFixed(1) + '% win rate · ' + wins + 'W ' + losses + 'L';
+  $('elTaWR').textContent = (wr * 100).toFixed(1) + '% win rate \u00b7 ' + wins + 'W ' + losses + 'L';
 
   const wrPct = Math.min(100, Math.max(0, wr * 100));
-  $('elSimBarFill').style.width = wrPct + '%';
+  $('elTaBarFill').style.width = wrPct + '%';
 
-  $('elSimWins').textContent = wins;
-  $('elSimLosses').textContent = losses;
-  $('elSimPending').textContent = pending;
-  $('elSimEdge').textContent = (avgEdge * 100).toFixed(2) + '%';
-  $('elSimKelly').textContent = avgKelly.toFixed(3);
-  $('elSimSize').textContent = avgSize + '¢';
-  const evEl = $('elSimEV');
-  evEl.textContent = (avgEV >= 0 ? '+' : '') + avgEV.toFixed(2) + '¢';
-  evEl.className = 'meta-val ' + (avgEV >= 0 ? 'up' : 'dn');
+  $('elTaWins').textContent = wins;
+  $('elTaLosses').textContent = losses;
+  const avgEl = $('elTaAvg');
+  avgEl.textContent = (avgPnl >= 0 ? '+' : '') + (avgPnl / 100).toFixed(2) + '\u00a2';
+  avgEl.className = 'meta-val ' + (avgPnl >= 0 ? 'up' : 'dn');
+  const dailyEl = $('elTaDaily');
+  const dailyPnl = dailyPnlCents / 100;
+  dailyEl.textContent = (dailyPnl >= 0 ? '+$' : '-$') + Math.abs(dailyPnl).toFixed(2);
+  dailyEl.className = 'meta-val ' + (dailyPnl >= 0 ? 'up' : 'dn');
+
+  // Best/worst trade
+  const notable = $('elTaNotable');
+  let notableHtml = '';
+  if (rta.best_trade) {
+    const b = rta.best_trade;
+    notableHtml += '<b>Best:</b> ' + escHtml(b.asset || '') + ' ' + (b.net / 100).toFixed(2) + '\u00a2 @ ' + b.entry_price_cents + '\u00a2';
+  }
+  if (rta.worst_trade) {
+    const w = rta.worst_trade;
+    if (notableHtml) notableHtml += ' &nbsp;\u00b7&nbsp; ';
+    notableHtml += '<b>Worst:</b> ' + escHtml(w.asset || '') + ' ' + (w.net / 100).toFixed(2) + '\u00a2 @ ' + w.entry_price_cents + '\u00a2';
+  }
+  notable.innerHTML = notableHtml;
+  notable.style.display = notableHtml ? 'block' : 'none';
 
   // Store breakdown data for tab rendering
-  simBdData = {
-    strategy: sim.pnl_by_strategy || {},
-    regime: sim.pnl_by_vol_regime || {},
-    asset: sim.pnl_by_asset || {}
+  taBdData = {
+    asset: rta.by_asset || {},
+    bucket: rta.by_bucket || {},
+    strategy: rta.by_strategy || {}
   };
-  renderSimBreakdowns();
+  renderTradeBreakdowns();
 }
 
-function renderSimBreakdowns() {
-  const grid = $('elSimBdGrid');
-  const data = simBdData[simBdTab] || {};
+function renderTradeBreakdowns() {
+  const grid = $('elTaBdGrid');
+  const data = taBdData[taBdTab] || {};
   const entries = Object.entries(data);
 
   if (entries.length === 0) {
@@ -3238,98 +3387,114 @@ function renderSimBreakdowns() {
   }
 
   grid.innerHTML = entries.map(([key, val]) => {
-    const pnl = (val ?? 0) / 100;
-    const pnlCls = pnl >= 0 ? 'up' : 'dn';
+    const cnt = val.count ?? 0;
+    const w = val.wins ?? 0;
+    const netCents = val.net_pnl ?? 0;
+    const pnl = netCents / 100;
     const pnlColor = pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+    const wrPct = cnt > 0 ? (w / cnt * 100).toFixed(0) : '0';
     const label = key.replace(/_/g, ' ');
-    return `<div class="sim-bd-card">
-      <div class="sim-bd-name">${escHtml(label)}</div>
-      <div class="sim-bd-pnl" style="color:${pnlColor}">${pnl >= 0 ? '+$' : '-$'}${Math.abs(pnl).toFixed(2)}</div>
+    return `<div class="ta-bd-card">
+      <div class="ta-bd-name">${escHtml(label)}</div>
+      <div class="ta-bd-pnl" style="color:${pnlColor}">${pnl >= 0 ? '+$' : '-$'}${Math.abs(pnl).toFixed(2)}</div>
+      <div class="ta-bd-detail">${cnt} trades \u00b7 ${w}W \u00b7 ${wrPct}% WR</div>
     </div>`;
   }).join('');
 }
 
-// Sim breakdown tab clicks
+// Trade analytics breakdown tab clicks
 document.addEventListener('click', e => {
-  const tab = e.target.closest('.sim-bd-tab');
+  const tab = e.target.closest('.ta-bd-tab');
   if (!tab) return;
   const val = tab.dataset.bd;
   if (!val) return;
-  simBdTab = val;
-  document.querySelectorAll('.sim-bd-tab').forEach(t => t.classList.remove('active'));
+  taBdTab = val;
+  document.querySelectorAll('.ta-bd-tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
-  renderSimBreakdowns();
+  renderTradeBreakdowns();
 });
 
-function updateRecentSimTrades(s) {
-  const trades = s.recent_simulated_trades;
-  const body = $('elSimTradesBody');
-  if (!trades || !Array.isArray(trades) || trades.length === 0) {
-    body.innerHTML = '<tr><td colspan="13" style="text-align:center;color:var(--text-3);padding:24px">No simulated trades yet</td></tr>';
-    $('simTradesCountTag').textContent = '0';
-    return;
+function drawCumulativePnl(s) {
+  const canvas = $('cumPnlCanvas');
+  if (!canvas) return;
+  const rta = s.real_trade_analytics;
+  if (!rta || !rta.cumulative_pnl || rta.cumulative_pnl.length < 2) return;
+
+  const data = rta.cumulative_pnl;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = rect.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const vals = data.map(d => d.cum_pnl / 100);
+  const minV = Math.min(0, ...vals) - 0.2;
+  const maxV = Math.max(0, ...vals) + 0.2;
+  const range = maxV - minV || 1;
+  const pad = { l: 40, r: 10, t: 8, b: 18 };
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+
+  const toX = i => pad.l + (i / (vals.length - 1)) * cw;
+  const toY = v => pad.t + (1 - (v - minV) / range) * ch;
+
+  // Zero line
+  ctx.setLineDash([4, 3]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.l, toY(0)); ctx.lineTo(W - pad.r, toY(0)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // P&L line
+  ctx.lineWidth = 1.5;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  for (let i = 0; i < vals.length; i++) {
+    const x = toX(i), y = toY(vals[i]);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  const lastVal = vals[vals.length - 1];
+  ctx.strokeStyle = lastVal >= 0 ? '#10b981' : '#f43f5e';
+  ctx.stroke();
+
+  // Fill
+  ctx.lineTo(toX(vals.length - 1), toY(0));
+  ctx.lineTo(toX(0), toY(0));
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + ch);
+  if (lastVal >= 0) {
+    grad.addColorStop(0, 'rgba(16,185,129,0.15)');
+    grad.addColorStop(1, 'rgba(16,185,129,0)');
+  } else {
+    grad.addColorStop(0, 'rgba(244,63,94,0.15)');
+    grad.addColorStop(1, 'rgba(244,63,94,0)');
+  }
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Y-axis
+  ctx.fillStyle = '#64748b';
+  ctx.font = '9px IBM Plex Mono';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const val = minV + (range * i / 4);
+    ctx.fillText('$' + val.toFixed(1), pad.l - 4, toY(val) + 3);
   }
 
-  $('simTradesCountTag').textContent = trades.length;
-
-  body.innerHTML = trades.map(t => {
-    const time = t.evaluation_time ? fmtTime(t.evaluation_time) : (t.settled_time ? fmtTime(t.settled_time) : '—');
-    const asset = t.asset ?? '—';
-    const ticker = t.ticker ? escHtml(t.ticker.length > 28 ? t.ticker.slice(0, 28) + '…' : t.ticker) : '—';
-    const strat = t.strategy ?? '—';
-    const stratCls = STRAT_CLASSES[strat] || '';
-    const regime = t.vol_regime ?? '—';
-    const edge = t.edge != null ? (t.edge * 100).toFixed(2) + '%' : '—';
-    const kelly = t.kelly_f != null ? t.kelly_f.toFixed(3) : '—';
-    const size = t.position_size != null ? t.position_size + '¢' : '—';
-    const price = t.market_price != null ? t.market_price + '¢' : '—';
-
-    const ev = t.expected_value;
-    let evStr = '—', evCls = '';
-    if (ev != null) {
-      evStr = (ev >= 0 ? '+' : '') + ev.toFixed(2) + '¢';
-      evCls = ev >= 0 ? 'sim-ev-pos' : 'sim-ev-neg';
-    }
-
-    const zScore = t.z_score != null ? t.z_score.toFixed(2) : '—';
-
-    let resultStr = '—', resultCls = '';
-    const status = t.status ?? '';
-    const result = t.market_result;
-    if (status === 'settled' && result != null) {
-      resultStr = result ? 'WIN' : 'LOSS';
-      resultCls = result ? 'sim-outcome-win' : 'sim-outcome-loss';
-    } else {
-      resultStr = 'PENDING';
-      resultCls = 'sim-outcome-pending';
-    }
-
-    const cpnl = t.counterfactual_pnl;
-    let pnlStr = '—', pnlCls = '';
-    if (cpnl != null) {
-      const pnlVal = cpnl / 100;
-      pnlStr = (pnlVal >= 0 ? '+$' : '-$') + Math.abs(pnlVal).toFixed(2);
-      pnlCls = pnlVal >= 0 ? 'sim-pnl-pos' : 'sim-pnl-neg';
-    }
-
-    const assetColor = ASSET_COLORS[asset] || 'var(--text-1)';
-
-    return `<tr>
-      <td>${time}</td>
-      <td><span style="color:${assetColor};font-weight:600">${escHtml(asset)}</span></td>
-      <td title="${escHtml(t.ticker || '')}">${ticker}</td>
-      <td><span class="strat-tag ${stratCls}">${escHtml(strat)}</span></td>
-      <td>${escHtml(regime)}</td>
-      <td>${edge}</td>
-      <td>${kelly}</td>
-      <td>${size}</td>
-      <td>${price}</td>
-      <td class="${evCls}">${evStr}</td>
-      <td>${zScore}</td>
-      <td class="${resultCls}">${resultStr}</td>
-      <td class="${pnlCls}">${pnlStr}</td>
-    </tr>`;
-  }).join('');
+  // X-axis
+  ctx.textAlign = 'center';
+  const xLabels = Math.min(5, data.length);
+  for (let i = 0; i < xLabels; i++) {
+    const idx = Math.floor(i * (data.length - 1) / (xLabels - 1));
+    const ts = data[idx].ts;
+    if (!ts) continue;
+    const d = new Date(ts);
+    const label = (d.getMonth()+1) + '/' + d.getDate();
+    ctx.fillText(label, toX(idx), H - 3);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -3521,7 +3686,7 @@ function updateRecentTrades(s) {
   const trades = s.recent_trades;
   const body = $('elTradesBody');
   if (!trades || !Array.isArray(trades) || trades.length === 0) {
-    body.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-3);padding:24px">No trades yet</td></tr>';
+    body.innerHTML = '<tr><td colspan="12" style="text-align:center;color:var(--text-3);padding:24px">No trades yet</td></tr>';
     $('tradesCountTag').textContent = '0';
     return;
   }
@@ -3557,6 +3722,8 @@ function updateRecentTrades(s) {
     const stratCls = STRAT_CLASSES[strat] || '';
     const edge = t.edge != null ? (t.edge * 100).toFixed(2) + '%' : '—';
     const ttc = t.ttc != null ? t.ttc.toFixed(0) + 's' : (t.seconds_to_close != null ? t.seconds_to_close.toFixed(0) + 's' : '—');
+    const latency = t.fill_latency_seconds != null ? t.fill_latency_seconds.toFixed(1) + 's' : '—';
+    const prob = t.calibrated_prob != null ? (t.calibrated_prob * 100).toFixed(1) + '%' : '—';
     const assetColor = ASSET_COLORS[asset] || 'var(--text-1)';
 
     return `<tr>
@@ -3570,6 +3737,8 @@ function updateRecentTrades(s) {
       <td><span class="strat-tag ${stratCls}">${escHtml(strat)}</span></td>
       <td>${edge}</td>
       <td>${ttc}</td>
+      <td>${latency}</td>
+      <td>${prob}</td>
     </tr>`;
   }).join('');
 }
@@ -3629,20 +3798,8 @@ function updateRecentOpportunities(s) {
 function updateObservationMode(s) {
   const obsBanner = $('obsBanner');
   const liveBanner = $('liveBanner');
-  const isObs = s.observation_mode;
-  if (isObs) {
-    obsBanner.classList.add('visible');
-    liveBanner.classList.remove('visible');
-    const sim = s.simulated_performance || {};
-    const cnt = sim.simulated_trades_count ?? 0;
-    const pnlCents = sim.simulated_pnl_cents ?? 0;
-    const pnl = pnlCents / 100;
-    const pnlStr = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2);
-    $('obsMetaText').textContent = cnt + ' sim trades · ' + pnlStr + ' paper P&L';
-  } else {
-    obsBanner.classList.remove('visible');
-    liveBanner.classList.add('visible');
-  }
+  obsBanner.classList.remove('visible');
+  liveBanner.classList.add('visible');
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -4128,6 +4285,39 @@ function updateExecutionEngine(s) {
     wsRatio.textContent = '—';
     wsRatio.style.color = 'var(--text-3)';
   }
+
+  // Escalation funnel
+  const funnel = ee.escalation_funnel;
+  const funnelEl = $('execEngFunnel');
+  if (funnel && funnelEl) {
+    const steps = [
+      { name: 'Rejects', val: funnel.rejections ?? 0, color: 'var(--red-0)' },
+      { name: 'Degraded', val: funnel.degraded_attempts ?? 0, color: 'var(--amber-0)' },
+      { name: 'Taker Esc', val: funnel.taker_escalations ?? 0, color: 'var(--blue-0)' },
+      { name: 'Filled', val: funnel.taker_fills ?? 0, color: 'var(--green-0)' },
+    ];
+    const maxVal = Math.max(1, ...steps.map(s => s.val));
+    let html = '<div class="execeng-funnel-label">Escalation Funnel</div><div class="funnel-steps">';
+    steps.forEach((step, i) => {
+      const pct = Math.max(5, step.val / maxVal * 100);
+      html += `<div class="funnel-step">
+        <div class="funnel-step-val" style="color:${step.color}">${step.val}</div>
+        <div class="funnel-step-bar"><div class="funnel-step-fill" style="width:${pct}%;background:${step.color}"></div></div>
+        <div class="funnel-step-name">${step.name}</div>
+      </div>`;
+      if (i < steps.length - 1) {
+        const prev = steps[i].val;
+        const next = steps[i+1].val;
+        const conv = prev > 0 ? (next / prev * 100).toFixed(0) + '%' : '—';
+        html += `<div class="funnel-arrow">\u2192<div class="funnel-conv">${conv}</div></div>`;
+      }
+    });
+    html += '</div>';
+    if (funnel.taker_fill_rate != null) {
+      html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text-3);margin-top:4px;text-align:right">Taker fill rate: <span style="color:var(--green-0)">${(funnel.taker_fill_rate * 100).toFixed(0)}%</span></div>`;
+    }
+    funnelEl.innerHTML = html;
+  }
 }
 
 // Also enrich active order display with execution engine fields
@@ -4164,6 +4354,142 @@ function updateActiveOrderExecFields(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// NIG DISTRIBUTION
+// ═══════════════════════════════════════════════════════════════════════
+function updateNIGDistribution(s) {
+  const nig = s.nig_distribution;
+  const box = $('elNIGDist');
+  if (!box) return;
+  if (!nig || typeof nig !== 'object') {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">No NIG data available</div>';
+    return;
+  }
+
+  // nig can be keyed by asset or have a top-level structure
+  const assets = Object.keys(nig).filter(k => typeof nig[k] === 'object' && nig[k] !== null);
+  if (assets.length === 0) {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">No NIG data available</div>';
+    return;
+  }
+
+  let html = '<div class="nig-grid">';
+  for (const asset of assets) {
+    const params = nig[asset];
+    const assetColor = ASSET_COLORS[asset.toUpperCase()] || 'var(--text-1)';
+    html += `<div class="nig-card">
+      <div class="nig-card-asset" style="color:${assetColor}">${escHtml(asset.toUpperCase())}</div>`;
+    const paramKeys = ['a', 'b', 'mu', 'delta'];
+    for (const pk of paramKeys) {
+      if (params[pk] != null) {
+        html += `<div class="nig-param"><span>${pk}</span><span class="nig-param-val">${Number(params[pk]).toFixed(6)}</span></div>`;
+      }
+    }
+    if (params.ks_pvalue != null) {
+      const pv = params.ks_pvalue;
+      const pvColor = pv >= 0.05 ? 'var(--green-0)' : 'var(--red-0)';
+      html += `<div class="nig-param"><span>KS p-value</span><span class="nig-param-val" style="color:${pvColor}">${pv.toFixed(4)}</span></div>`;
+    }
+    if (params.generated) {
+      html += `<div class="nig-param"><span>fitted</span><span class="nig-param-val" style="color:var(--text-3)">${escHtml(params.generated)}</span></div>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  box.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TRADE FREQUENCY HEATMAP
+// ═══════════════════════════════════════════════════════════════════════
+function updateTradeHeatmap(s) {
+  const rta = s.real_trade_analytics;
+  const box = $('elTradeHeatmap');
+  if (!box) return;
+  if (!rta || !rta.by_hour || Object.keys(rta.by_hour).length === 0) {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">No hourly data yet</div>';
+    return;
+  }
+
+  const byHour = rta.by_hour;
+  let maxCount = 1;
+  for (const h of Object.values(byHour)) {
+    if (h.count > maxCount) maxCount = h.count;
+  }
+
+  let html = '<div class="heatmap-grid">';
+  for (let h = 0; h < 24; h++) {
+    const data = byHour[String(h)];
+    const cnt = data ? data.count : 0;
+    const pnl = data ? data.net_pnl : 0;
+    const intensity = cnt / maxCount;
+    const isPositive = pnl >= 0;
+    let bgColor;
+    if (cnt === 0) {
+      bgColor = 'var(--bg-2)';
+    } else if (isPositive) {
+      bgColor = `rgba(16,185,129,${0.1 + intensity * 0.5})`;
+    } else {
+      bgColor = `rgba(244,63,94,${0.1 + intensity * 0.5})`;
+    }
+    const textColor = cnt > 0 ? 'var(--text-0)' : 'var(--text-3)';
+    const title = cnt > 0 ? `${h}:00 UTC \u2014 ${cnt} trades, ${(pnl/100).toFixed(2)}` : `${h}:00 UTC \u2014 no trades`;
+    html += `<div class="heatmap-hour" style="background:${bgColor};color:${textColor}" title="${title}">
+      ${cnt > 0 ? cnt : '\u00b7'}
+      <div class="heatmap-hour-label">${h}</div>
+    </div>`;
+  }
+  html += '</div>';
+  html += '<div class="heatmap-legend"><span style="color:var(--green-0)">\u25cf Profit</span><span style="color:var(--red-0)">\u25cf Loss</span><span>\u25cf = trade count intensity</span></div>';
+  box.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// EQUITY CURVE 4H TOGGLE
+// ═══════════════════════════════════════════════════════════════════════
+let eqRange = '1h';
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.eq-btn');
+  if (!btn) return;
+  const range = btn.dataset.range;
+  if (!range || range === eqRange) return;
+  eqRange = range;
+  document.querySelectorAll('.eq-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (lastSnapshot) try { drawEquityCurve(lastSnapshot); } catch(err) {}
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// TRADE ALERT BANNER
+// ═══════════════════════════════════════════════════════════════════════
+let lastTradeId = null;
+let alertTimer = null;
+function checkTradeAlert(s) {
+  const trades = s.recent_trades;
+  if (!trades || !Array.isArray(trades) || trades.length === 0) return;
+  const latest = trades[0];
+  const tradeId = latest.ticker + '|' + (latest.settled_at || '');
+  if (lastTradeId === null) { lastTradeId = tradeId; return; }
+  if (tradeId === lastTradeId) return;
+  lastTradeId = tradeId;
+
+  const mr = latest.market_result ?? '';
+  const side = latest.side ?? '';
+  const isWin = (mr === 'yes' || mr === 'all_yes') && side === 'yes' ||
+                (mr === 'no' || mr === 'all_no') && side === 'no';
+  const pnlCents = latest.pnl_cents != null && latest.fee_cents != null ? latest.pnl_cents - latest.fee_cents : 0;
+  const pnl = pnlCents / 100;
+  const pnlStr = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2);
+
+  const alert = $('tradeAlert');
+  alert.className = 'trade-alert ' + (isWin ? 'win' : 'loss');
+  alert.textContent = (isWin ? 'WIN' : 'LOSS') + ' \u2014 ' + (latest.asset || '') + ' ' + pnlStr;
+  alert.classList.add('visible');
+
+  if (alertTimer) clearTimeout(alertTimer);
+  alertTimer = setTimeout(() => { alert.classList.remove('visible'); }, 8000);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // MAIN UPDATE
 // ═══════════════════════════════════════════════════════════════════════
 function update(s) {
@@ -4193,8 +4519,11 @@ function update(s) {
   try { updateOrderFlow(s); } catch (e) { console.error('updateOrderFlow:', e); }
   try { updateFundingRates(s); } catch (e) { console.error('updateFundingRates:', e); }
   try { updateFeedHealth(s); } catch (e) { console.error('updateFeedHealth:', e); }
-  try { updateSimulatedPerformance(s); } catch (e) { console.error('updateSimulatedPerformance:', e); }
-  try { updateRecentSimTrades(s); } catch (e) { console.error('updateRecentSimTrades:', e); }
+  try { updateTradeAnalytics(s); } catch (e) { console.error('updateTradeAnalytics:', e); }
+  try { drawCumulativePnl(s); } catch (e) { console.error('drawCumulativePnl:', e); }
+  try { updateNIGDistribution(s); } catch (e) { console.error('updateNIGDistribution:', e); }
+  try { updateTradeHeatmap(s); } catch (e) { console.error('updateTradeHeatmap:', e); }
+  try { checkTradeAlert(s); } catch (e) { console.error('checkTradeAlert:', e); }
   try { updateSessionStats(s); } catch (e) { console.error('updateSessionStats:', e); }
   try { updateStrategyBreakdown(s); } catch (e) { console.error('updateStrategyBreakdown:', e); }
   try { updateAssetPerformance(s); } catch (e) { console.error('updateAssetPerformance:', e); }
@@ -4233,7 +4562,10 @@ let _resizeTimer;
 window.addEventListener('resize', () => {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(() => {
-    if (lastSnapshot) try { drawEquityCurve(lastSnapshot); } catch(e) {}
+    if (lastSnapshot) {
+      try { drawEquityCurve(lastSnapshot); } catch(e) {}
+      try { drawCumulativePnl(lastSnapshot); } catch(e) {}
+    }
   }, 200);
 });
 
