@@ -1346,10 +1346,49 @@ body::before {
 .vrp-tag.negative { background: var(--red-bg); color: var(--red-0); }
 .vrp-tag.flat { color: var(--text-3); }
 
-/* CTZ jump detail */
-.ctz-detail {
-  font-family: var(--mono); font-size: 9px; margin-top: 2px;
+/* ═══════════════════════════════════════════════════════════════════════
+   EQUITY CURVE
+   ═══════════════════════════════════════════════════════════════════════ */
+.equity-cell { grid-column: 1 / -1; }
+.equity-canvas-wrap {
+  position: relative; width: 100%; height: 120px;
+  background: var(--bg-1); border-radius: var(--radius-sm);
+  border: 1px solid var(--border-0);
 }
+.equity-canvas-wrap canvas { width: 100%; height: 100%; display: block; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RISK METRICS + EXECUTION QUALITY
+   ═══════════════════════════════════════════════════════════════════════ */
+.risk-cell { grid-column: span 4; }
+.exec-cell { grid-column: span 4; }
+.metric-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px; margin-top: 8px;
+}
+.metric-item {
+  background: var(--bg-1); border-radius: var(--radius-sm);
+  padding: 8px 10px; border: 1px solid var(--border-0);
+}
+.metric-item .metric-label {
+  font-family: var(--sans); font-size: 9px; font-weight: 500;
+  color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.metric-item .metric-val {
+  font-family: var(--mono); font-size: 16px; font-weight: 600;
+  color: var(--text-0); margin-top: 2px;
+}
+
+/* Convergence velocity indicators in spot strip */
+.spot-velocity {
+  font-family: var(--mono); font-size: 10px; margin-left: 4px;
+  font-weight: 500;
+}
+
+/* Trade result badges */
+.trade-result { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 3px; }
+.trade-result.win { background: var(--green-bg); color: var(--green-0); border: 1px solid var(--green-border); }
+.trade-result.loss { background: var(--red-bg); color: var(--red-0); border: 1px solid var(--red-border); }
 
 /* ═══════════════════════════════════════════════════════════════════════
    RESPONSIVE
@@ -1379,6 +1418,8 @@ body::before {
   .har-diag-cell { grid-column: span 6; }
   .egarch-diag-cell { grid-column: span 3; }
   .ark-diag-cell { grid-column: span 3; }
+  .equity-cell { grid-column: 1 / -1; }
+  .risk-cell, .exec-cell { grid-column: span 3; }
 }
 @media (max-width: 700px) {
   .grid { grid-template-columns: 1fr; }
@@ -1391,7 +1432,8 @@ body::before {
   .ratelimit-cell, .rejection-cell,
   .trades-cell, .opps-cell,
   .cal-cell, .cf-cell, .askdist-cell,
-  .har-diag-cell, .egarch-diag-cell, .ark-diag-cell { grid-column: 1 / -1; }
+  .har-diag-cell, .egarch-diag-cell, .ark-diag-cell,
+  .equity-cell, .risk-cell, .exec-cell { grid-column: 1 / -1; }
   .cf-summary { grid-template-columns: 1fr; }
   .cf-buckets { grid-template-columns: repeat(2, 1fr); }
   .bal-num { font-size: 34px; }
@@ -1446,21 +1488,25 @@ body::before {
     <div class="spot-dot" style="background:#f7931a"></div>
     <span class="spot-label">BTC</span>
     <span class="spot-price" id="spotBTC">$—</span>
+    <span class="spot-velocity" id="velBTC"></span>
   </div>
   <div class="spot-item">
     <div class="spot-dot" style="background:#849dff"></div>
     <span class="spot-label">ETH</span>
     <span class="spot-price" id="spotETH">$—</span>
+    <span class="spot-velocity" id="velETH"></span>
   </div>
   <div class="spot-item">
     <div class="spot-dot" style="background:#b86eff"></div>
     <span class="spot-label">SOL</span>
     <span class="spot-price" id="spotSOL">$—</span>
+    <span class="spot-velocity" id="velSOL"></span>
   </div>
   <div class="spot-item">
     <div class="spot-dot" style="background:#23c4d8"></div>
     <span class="spot-label">XRP</span>
     <span class="spot-price" id="spotXRP">$—</span>
+    <span class="spot-velocity" id="velXRP"></span>
   </div>
 </div>
 
@@ -1473,6 +1519,36 @@ body::before {
   <div class="obs-banner" id="obsBanner">
     <span class="obs-banner-label">OBSERVATION MODE &mdash; Paper Trading</span>
     <span class="obs-banner-meta" id="obsMetaText"></span>
+  </div>
+
+  <!-- ══════════════ EQUITY CURVE ══════════════ -->
+  <div class="cell equity-cell">
+    <div class="cell-label">Equity Curve</div>
+    <div class="equity-canvas-wrap">
+      <canvas id="equityCanvas"></canvas>
+    </div>
+  </div>
+
+  <!-- ══════════════ RISK METRICS + EXECUTION QUALITY ══════════════ -->
+  <div class="cell risk-cell">
+    <div class="cell-label">Risk Metrics</div>
+    <div class="metric-grid" id="riskMetricsGrid">
+      <div class="metric-item"><div class="metric-label">Max Drawdown</div><div class="metric-val" id="rmDrawdown">—</div></div>
+      <div class="metric-item"><div class="metric-label">Sharpe Ratio</div><div class="metric-val" id="rmSharpe">—</div></div>
+      <div class="metric-item"><div class="metric-label">Profit Factor</div><div class="metric-val" id="rmProfitFactor">—</div></div>
+      <div class="metric-item"><div class="metric-label">Avg P&amp;L/Trade</div><div class="metric-val" id="rmAvgPnl">—</div></div>
+      <div class="metric-item"><div class="metric-label">Total Trades</div><div class="metric-val" id="rmTotalTrades">—</div></div>
+    </div>
+  </div>
+
+  <div class="cell exec-cell">
+    <div class="cell-label">Execution Quality</div>
+    <div class="metric-grid" id="execQualityGrid">
+      <div class="metric-item"><div class="metric-label">Avg Latency</div><div class="metric-val" id="eqAvgLat">—</div></div>
+      <div class="metric-item"><div class="metric-label">Median Latency</div><div class="metric-val" id="eqMedLat">—</div></div>
+      <div class="metric-item"><div class="metric-label">Session Fills</div><div class="metric-val" id="eqFills">—</div></div>
+      <div class="metric-item"><div class="metric-label">Maker Fill Rate</div><div class="metric-val" id="eqMakerRate">—</div></div>
+    </div>
   </div>
 
   <!-- ══════════════ ROW 1: Core Metrics ══════════════ -->
@@ -1964,13 +2040,13 @@ body::before {
             <th>Time</th>
             <th>Asset</th>
             <th>Ticker</th>
-            <th>Side</th>
+            <th>Result</th>
             <th>Price</th>
             <th>Contracts</th>
-            <th>Cost</th>
+            <th>P&amp;L</th>
             <th>Strategy</th>
             <th>Edge</th>
-            <th>Kelly f</th>
+            <th>TTC</th>
           </tr>
         </thead>
         <tbody id="elTradesBody">
@@ -2069,6 +2145,7 @@ function escHtml(str) {
 // STATE
 // ═══════════════════════════════════════════════════════════════════════
 let lastUpdate = 0;
+let lastSnapshot = null;
 let uptimeSeconds = null;
 let nextCloseSeconds = null;
 
@@ -2085,6 +2162,165 @@ function updateSpotPrices(s) {
     const v = prices[asset];
     el.textContent = v != null ? fmtPrice(v) : '$—';
   }
+  // Convergence velocity indicators
+  const cv = s.convergence_velocity;
+  if (cv && typeof cv === 'object') {
+    for (const asset of ['BTC', 'ETH', 'SOL', 'XRP']) {
+      const vel = $('vel' + asset);
+      if (!vel) continue;
+      const v = cv[asset];
+      if (v != null && v !== 0) {
+        const arrow = v > 0 ? '\u2191' : '\u2193';
+        vel.textContent = arrow + Math.abs(v).toFixed(1);
+        vel.style.color = v > 0 ? 'var(--green-0)' : 'var(--red-0)';
+      } else {
+        vel.textContent = '';
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// EQUITY CURVE
+// ═══════════════════════════════════════════════════════════════════════
+function drawEquityCurve(s) {
+  const canvas = $('equityCanvas');
+  if (!canvas) return;
+  const hist = s.balance_history;
+  if (!hist || !Array.isArray(hist) || hist.length < 2) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = rect.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const bals = hist.map(h => h.bal);
+  const startBal = s.starting_balance ?? bals[0];
+  const minB = Math.min(...bals, startBal) - 0.5;
+  const maxB = Math.max(...bals, startBal) + 0.5;
+  const range = maxB - minB || 1;
+  const pad = { l: 40, r: 10, t: 8, b: 18 };
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+
+  const toX = i => pad.l + (i / (bals.length - 1)) * cw;
+  const toY = b => pad.t + (1 - (b - minB) / range) * ch;
+
+  // Starting balance dashed line
+  ctx.setLineDash([4, 3]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1;
+  const sy = toY(startBal);
+  ctx.beginPath(); ctx.moveTo(pad.l, sy); ctx.lineTo(W - pad.r, sy); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Equity line
+  ctx.lineWidth = 1.5;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  for (let i = 0; i < bals.length; i++) {
+    const x = toX(i), y = toY(bals[i]);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  // Color: green if last >= start, red otherwise
+  ctx.strokeStyle = bals[bals.length - 1] >= startBal ? '#10b981' : '#f43f5e';
+  ctx.stroke();
+
+  // Fill under curve (subtle)
+  ctx.lineTo(toX(bals.length - 1), pad.t + ch);
+  ctx.lineTo(toX(0), pad.t + ch);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + ch);
+  if (bals[bals.length - 1] >= startBal) {
+    grad.addColorStop(0, 'rgba(16,185,129,0.15)');
+    grad.addColorStop(1, 'rgba(16,185,129,0)');
+  } else {
+    grad.addColorStop(0, 'rgba(244,63,94,0.15)');
+    grad.addColorStop(1, 'rgba(244,63,94,0)');
+  }
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Y-axis labels
+  ctx.fillStyle = '#64748b';
+  ctx.font = '9px IBM Plex Mono';
+  ctx.textAlign = 'right';
+  const ySteps = 4;
+  for (let i = 0; i <= ySteps; i++) {
+    const val = minB + (range * i / ySteps);
+    const y = toY(val);
+    ctx.fillText('$' + val.toFixed(1), pad.l - 4, y + 3);
+  }
+
+  // X-axis time labels
+  ctx.textAlign = 'center';
+  const xLabels = 5;
+  for (let i = 0; i < xLabels; i++) {
+    const idx = Math.floor(i * (hist.length - 1) / (xLabels - 1));
+    const ts = hist[idx].ts;
+    if (!ts) continue;
+    const d = new Date(ts);
+    const label = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+    ctx.fillText(label, toX(idx), H - 3);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RISK METRICS + EXECUTION QUALITY
+// ═══════════════════════════════════════════════════════════════════════
+function updateRiskMetrics(s) {
+  const r = s.risk_metrics;
+  if (!r) return;
+
+  const dd = $('rmDrawdown');
+  if (dd) {
+    dd.textContent = r.max_drawdown_pct != null ? r.max_drawdown_pct.toFixed(1) + '%' : '—';
+    dd.style.color = r.max_drawdown_pct > 10 ? 'var(--red-0)' : r.max_drawdown_pct > 5 ? 'var(--amber-0)' : 'var(--text-0)';
+  }
+
+  const sh = $('rmSharpe');
+  if (sh) {
+    sh.textContent = r.sharpe_ratio != null ? r.sharpe_ratio.toFixed(2) : '—';
+    sh.style.color = r.sharpe_ratio > 1 ? 'var(--green-0)' : r.sharpe_ratio > 0 ? 'var(--text-0)' : 'var(--red-0)';
+  }
+
+  const pf = $('rmProfitFactor');
+  if (pf) {
+    const v = r.profit_factor;
+    pf.textContent = v != null ? (v >= 999 ? '\u221e' : v.toFixed(2)) : '—';
+    pf.style.color = v > 1.5 ? 'var(--green-0)' : v > 1 ? 'var(--text-0)' : 'var(--red-0)';
+  }
+
+  const ap = $('rmAvgPnl');
+  if (ap && r.avg_pnl_per_trade != null) {
+    const v = r.avg_pnl_per_trade;
+    ap.textContent = (v >= 0 ? '+' : '') + (v / 100).toFixed(2);
+    ap.style.color = v > 0 ? 'var(--green-0)' : v < 0 ? 'var(--red-0)' : 'var(--text-0)';
+  }
+
+  const tt = $('rmTotalTrades');
+  if (tt) tt.textContent = r.total_trades ?? '—';
+}
+
+function updateExecutionQuality(s) {
+  const eq = s.execution_quality;
+  if (!eq) return;
+
+  const al = $('eqAvgLat');
+  if (al) al.textContent = eq.avg_fill_latency_ms != null ? eq.avg_fill_latency_ms.toFixed(0) + 'ms' : '—';
+
+  const ml = $('eqMedLat');
+  if (ml) ml.textContent = eq.median_fill_latency_ms != null ? eq.median_fill_latency_ms.toFixed(0) + 'ms' : '—';
+
+  const sf = $('eqFills');
+  if (sf) sf.textContent = eq.session_fills ?? '—';
+
+  const mr = $('eqMakerRate');
+  if (mr) mr.textContent = eq.maker_fill_rate != null ? (eq.maker_fill_rate * 100).toFixed(1) + '%' : '—';
 }
 
 function updateBalance(s) {
@@ -2283,19 +2519,6 @@ function updateVolatility(s) {
     const arkHtml = v.ark_5min != null
       ? `<div class="vol-metric"><span class="vol-metric-label">ark 5m</span><span class="vol-metric-val">${fmtVol(v.ark_5min)}</span></div>` : '';
 
-    // CTZ jump detection detail (append to jumpHtml)
-    const ctzStat = v.ctz_stat;
-    const ctzJump = v.ctz_jump_detected;
-    let ctzHtml = '';
-    if (ctzStat != null) {
-      const ctzColor = ctzJump ? 'var(--red-0)' : 'var(--text-2)';
-      ctzHtml = `<div class="ctz-detail">
-        <span style="color:var(--text-3)">CTZ: </span>
-        <span style="color:${ctzColor};font-weight:${ctzJump ? '700' : '400'}">${Number(ctzStat).toFixed(2)}${ctzJump ? ' JUMP' : ''}</span>
-        ${v.jump_event_count ? `<span style="color:var(--text-3);margin-left:6px">(${v.jump_event_count} events)</span>` : ''}
-      </div>`;
-    }
-
     // Shadow mode comparison section
     let shadowHtml = '';
     const harModel = v.har_model;
@@ -2353,7 +2576,6 @@ function updateVolatility(s) {
       </div>
       ${ivSpreadHtml}
       ${jumpHtml}
-      ${ctzHtml}
       ${shadowHtml}
       <div class="vol-warmup">
         <span>${warmupLabel}</span>
@@ -3144,33 +3366,47 @@ function updateRecentTrades(s) {
   $('tradesCountTag').textContent = trades.length;
 
   body.innerHTML = trades.map(t => {
-    const time = t.timestamp ? fmtTime(t.timestamp) : (t.created_time ? fmtTime(t.created_time) : '—');
+    const time = t.settled_at ? fmtTime(t.settled_at) : (t.timestamp ? fmtTime(t.timestamp) : '—');
     const asset = t.asset ?? '—';
     const ticker = t.ticker ? escHtml(t.ticker.length > 28 ? t.ticker.slice(0, 28) + '…' : t.ticker) : '—';
-    const side = t.side ?? t.action ?? '—';
-    const sideCls = /yes|buy/i.test(side) ? 'trade-side-yes' : /no|sell/i.test(side) ? 'trade-side-no' : '';
-    const price = t.yes_price ?? t.price;
+    const price = t.entry_price_cents ?? t.yes_price ?? t.price;
     const priceStr = price != null ? price + '¢' : '—';
     const count = t.count ?? t.contracts ?? '—';
-    const costCents = t.cost_cents ?? t.cost;
-    const costStr = costCents != null ? '$' + (costCents / 100).toFixed(2) : '—';
+
+    // P&L (net of fees)
+    const pnlCents = t.pnl_cents != null && t.fee_cents != null ? t.pnl_cents - t.fee_cents : null;
+    let pnlStr = '—';
+    let pnlColor = 'var(--text-1)';
+    if (pnlCents != null) {
+      pnlStr = (pnlCents >= 0 ? '+' : '') + (pnlCents / 100).toFixed(2);
+      pnlColor = pnlCents > 0 ? 'var(--green-0)' : pnlCents < 0 ? 'var(--red-0)' : 'var(--text-1)';
+    }
+
+    // Result badge
+    const mr = t.market_result ?? '';
+    const side = t.side ?? '';
+    const isWin = (mr === 'yes' || mr === 'all_yes') && side === 'yes' ||
+                  (mr === 'no' || mr === 'all_no') && side === 'no';
+    const isLoss = mr && !isWin;
+    const resultHtml = mr ? `<span class="trade-result ${isWin ? 'win' : 'loss'}">${isWin ? 'WIN' : 'LOSS'}</span>` : '—';
+
     const strat = t.strategy ?? '—';
     const stratCls = STRAT_CLASSES[strat] || '';
     const edge = t.edge != null ? (t.edge * 100).toFixed(2) + '%' : '—';
-    const kelly = t.kelly_f != null ? t.kelly_f.toFixed(3) : '—';
+    const ttc = t.ttc != null ? t.ttc.toFixed(0) + 's' : (t.seconds_to_close != null ? t.seconds_to_close.toFixed(0) + 's' : '—');
     const assetColor = ASSET_COLORS[asset] || 'var(--text-1)';
 
     return `<tr>
       <td>${time}</td>
       <td><span style="color:${assetColor};font-weight:600">${escHtml(asset)}</span></td>
       <td title="${escHtml(t.ticker || '')}">${ticker}</td>
-      <td class="${sideCls}">${escHtml(String(side).toUpperCase())}</td>
+      <td>${resultHtml}</td>
       <td>${priceStr}</td>
       <td>${count}</td>
-      <td>${costStr}</td>
+      <td style="color:${pnlColor};font-weight:600">${pnlStr}</td>
       <td><span class="strat-tag ${stratCls}">${escHtml(strat)}</span></td>
       <td>${edge}</td>
-      <td>${kelly}</td>
+      <td>${ttc}</td>
     </tr>`;
   }).join('');
 }
@@ -3608,6 +3844,7 @@ function updateAdaptiveRK(s) {
 function update(s) {
   if (!s || typeof s !== 'object') return;
   lastUpdate = Date.now();
+  lastSnapshot = s;
 
   // Connection indicator
   $('pill').className = 'hdr-pill live';
@@ -3615,6 +3852,9 @@ function update(s) {
   $('elLastUpdate').textContent = 'updated ' + fmtTime(Date.now());
 
   try { updateSpotPrices(s); } catch (e) { console.error('updateSpotPrices:', e); }
+  try { drawEquityCurve(s); } catch (e) { console.error('drawEquityCurve:', e); }
+  try { updateRiskMetrics(s); } catch (e) { console.error('updateRiskMetrics:', e); }
+  try { updateExecutionQuality(s); } catch (e) { console.error('updateExecutionQuality:', e); }
   try { updateBalance(s); } catch (e) { console.error('updateBalance:', e); }
   try { updateBotStatus(s); } catch (e) { console.error('updateBotStatus:', e); }
   try { updateWinLoss(s); } catch (e) { console.error('updateWinLoss:', e); }
@@ -3658,6 +3898,15 @@ onValue(statusRef, snap => {
   console.error("Firebase read error:", err);
   $('pill').className = 'hdr-pill off';
   $('pillText').textContent = 'ERROR';
+});
+
+// Redraw equity curve on resize
+let _resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    if (lastSnapshot) try { drawEquityCurve(lastSnapshot); } catch(e) {}
+  }, 200);
 });
 
 // ═══════════════════════════════════════════════════════════════════════
