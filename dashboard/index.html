@@ -1347,6 +1347,64 @@ body::before {
 .vrp-tag.flat { color: var(--text-3); }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   EXECUTION ENGINE
+   ═══════════════════════════════════════════════════════════════════════ */
+.execeng-cell { grid-column: span 4; }
+.execeng-ws-status {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.execeng-ws-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+.execeng-ws-dot.connected { background: var(--green-0); color: var(--green-0); animation: pulse 2s ease-in-out infinite; }
+.execeng-ws-dot.disconnected { background: var(--red-0); color: var(--red-0); }
+.execeng-ws-label {
+  font-family: var(--mono); font-size: 16px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.execeng-ws-label.connected { color: var(--green-0); }
+.execeng-ws-label.disconnected { color: var(--red-0); }
+.execeng-ws-meta {
+  display: flex; gap: 14px;
+  font-family: var(--mono); font-size: 10px; color: var(--text-3);
+  margin-bottom: 14px;
+}
+.execeng-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+.execeng-stat {
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-0); background: var(--bg-2);
+}
+.execeng-stat-label {
+  font-family: var(--sans); font-size: 9px; font-weight: 500;
+  color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.execeng-stat-val {
+  font-family: var(--mono); font-size: 14px; font-weight: 600;
+  color: var(--text-0); margin-top: 2px;
+}
+.execeng-derived {
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid var(--border-0);
+  display: flex; gap: 14px;
+}
+.execeng-derived-item {
+  flex: 1; text-align: center;
+  padding: 8px 6px; border-radius: var(--radius-sm);
+  background: var(--bg-2); border: 1px solid var(--border-0);
+}
+.execeng-derived-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: 4px;
+}
+.execeng-derived-val {
+  font-family: var(--mono); font-size: 16px; font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    EQUITY CURVE
    ═══════════════════════════════════════════════════════════════════════ */
 .equity-cell { grid-column: 1 / -1; }
@@ -1420,6 +1478,7 @@ body::before {
   .ark-diag-cell { grid-column: span 3; }
   .equity-cell { grid-column: 1 / -1; }
   .risk-cell, .exec-cell { grid-column: span 3; }
+  .execeng-cell { grid-column: span 6; }
 }
 @media (max-width: 700px) {
   .grid { grid-template-columns: 1fr; }
@@ -1433,7 +1492,8 @@ body::before {
   .trades-cell, .opps-cell,
   .cal-cell, .cf-cell, .askdist-cell,
   .har-diag-cell, .egarch-diag-cell, .ark-diag-cell,
-  .equity-cell, .risk-cell, .exec-cell { grid-column: 1 / -1; }
+  .equity-cell, .risk-cell, .exec-cell,
+  .execeng-cell { grid-column: 1 / -1; }
   .cf-summary { grid-template-columns: 1fr; }
   .cf-buckets { grid-template-columns: repeat(2, 1fr); }
   .bal-num { font-size: 34px; }
@@ -1548,6 +1608,41 @@ body::before {
       <div class="metric-item"><div class="metric-label">Median Latency</div><div class="metric-val" id="eqMedLat">—</div></div>
       <div class="metric-item"><div class="metric-label">Session Fills</div><div class="metric-val" id="eqFills">—</div></div>
       <div class="metric-item"><div class="metric-label">Maker Fill Rate</div><div class="metric-val" id="eqMakerRate">—</div></div>
+    </div>
+  </div>
+
+  <!-- Execution Engine -->
+  <div class="cell execeng-cell">
+    <div class="cell-label">
+      Execution Engine
+      <span class="tag" id="execEngTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div class="execeng-ws-status">
+      <div class="execeng-ws-dot disconnected" id="execWsDot"></div>
+      <span class="execeng-ws-label disconnected" id="execWsLabel">DISCONNECTED</span>
+    </div>
+    <div class="execeng-ws-meta" id="execWsMeta">
+      <span>tickers: <strong id="execWsTickers">0</strong></span>
+      <span>orderbooks: <strong id="execWsOBs">0</strong></span>
+    </div>
+    <div class="execeng-stats" id="execEngStats">
+      <div class="execeng-stat"><div class="execeng-stat-label">Amend Attempts</div><div class="execeng-stat-val" id="eeAmendAtt">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">Amend Successes</div><div class="execeng-stat-val" id="eeAmendOk">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">IOC Fills</div><div class="execeng-stat-val" id="eeIocFills">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">IOC Unfilled</div><div class="execeng-stat-val" id="eeIocUnfilled">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">WS Fills</div><div class="execeng-stat-val" id="eeWsFills">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">REST Fills</div><div class="execeng-stat-val" id="eeRestFills">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">Post-Only Rejects</div><div class="execeng-stat-val" id="eePostOnly">0</div></div>
+    </div>
+    <div class="execeng-derived" id="execEngDerived">
+      <div class="execeng-derived-item">
+        <div class="execeng-derived-label">Amend Rate</div>
+        <div class="execeng-derived-val" id="eeAmendRate">—</div>
+      </div>
+      <div class="execeng-derived-item">
+        <div class="execeng-derived-label">WS Fill %</div>
+        <div class="execeng-derived-val" id="eeWsRatio">—</div>
+      </div>
     </div>
   </div>
 
@@ -3839,6 +3934,99 @@ function updateAdaptiveRK(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// EXECUTION ENGINE
+// ═══════════════════════════════════════════════════════════════════════
+function updateExecutionEngine(s) {
+  const ee = s.execution_engine;
+  if (!ee || typeof ee !== 'object') return;
+
+  // WS connection status
+  const connected = ee.kalshi_ws_connected === true;
+  const dot = $('execWsDot');
+  const label = $('execWsLabel');
+  dot.className = 'execeng-ws-dot ' + (connected ? 'connected' : 'disconnected');
+  label.className = 'execeng-ws-label ' + (connected ? 'connected' : 'disconnected');
+  label.textContent = connected ? 'CONNECTED' : 'DISCONNECTED';
+
+  // Tag
+  const tag = $('execEngTag');
+  if (connected) {
+    tag.style.background = 'var(--green-bg)';
+    tag.style.color = 'var(--green-0)';
+    tag.textContent = 'WS LIVE';
+  } else {
+    tag.style.background = 'var(--red-bg)';
+    tag.style.color = 'var(--red-0)';
+    tag.textContent = 'REST ONLY';
+  }
+
+  // WS meta
+  $('execWsTickers').textContent = ee.kalshi_ws_subscribed_tickers ?? 0;
+  $('execWsOBs').textContent = ee.kalshi_ws_orderbooks_cached ?? 0;
+
+  // Session stats
+  $('eeAmendAtt').textContent = ee.session_amend_attempts ?? 0;
+  $('eeAmendOk').textContent = ee.session_amend_successes ?? 0;
+  $('eeIocFills').textContent = ee.session_ioc_fills ?? 0;
+  $('eeIocUnfilled').textContent = ee.session_ioc_unfilled ?? 0;
+  $('eeWsFills').textContent = ee.session_ws_fills ?? 0;
+  $('eeRestFills').textContent = ee.session_rest_fills ?? 0;
+  $('eePostOnly').textContent = ee.session_post_only_rejections ?? 0;
+
+  // Derived rates
+  const amendRate = $('eeAmendRate');
+  if (ee.amend_success_rate != null) {
+    amendRate.textContent = (ee.amend_success_rate * 100).toFixed(0) + '%';
+    amendRate.style.color = ee.amend_success_rate >= 0.8 ? 'var(--green-0)' : ee.amend_success_rate >= 0.5 ? 'var(--amber-0)' : 'var(--red-0)';
+  } else {
+    amendRate.textContent = '—';
+    amendRate.style.color = 'var(--text-3)';
+  }
+
+  const wsRatio = $('eeWsRatio');
+  if (ee.ws_fill_ratio != null) {
+    wsRatio.textContent = (ee.ws_fill_ratio * 100).toFixed(0) + '%';
+    wsRatio.style.color = ee.ws_fill_ratio >= 0.5 ? 'var(--green-0)' : 'var(--text-1)';
+  } else {
+    wsRatio.textContent = '—';
+    wsRatio.style.color = 'var(--text-3)';
+  }
+}
+
+// Also enrich active order display with execution engine fields
+function updateActiveOrderExecFields(s) {
+  const order = s.active_order;
+  if (!order) return;
+  const box = $('elActiveOrder');
+  if (!box) return;
+  const card = box.querySelector('.order-card');
+  if (!card) return;
+  const metricsDiv = card.querySelector('.order-metrics');
+  if (!metricsDiv) return;
+
+  // Add execution method and queue position if present
+  const method = order.execution_method;
+  const queuePos = order.queue_position;
+  const escalated = order.escalated;
+
+  let extraHtml = '';
+  if (method && method !== 'legacy') {
+    extraHtml += `<span class="order-metric"><span class="dim">exec</span>${escHtml(method)}</span>`;
+  }
+  if (queuePos != null) {
+    extraHtml += `<span class="order-metric"><span class="dim">queue</span>#${queuePos}</span>`;
+  }
+  if (escalated) {
+    extraHtml += `<span class="order-metric"><span class="dim">esc</span>YES</span>`;
+  }
+
+  if (extraHtml) {
+    // Append to existing metrics
+    metricsDiv.insertAdjacentHTML('beforeend', extraHtml);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // MAIN UPDATE
 // ═══════════════════════════════════════════════════════════════════════
 function update(s) {
@@ -3884,6 +4072,8 @@ function update(s) {
   try { updateHARDiagnostics(s); } catch (e) { console.error('updateHARDiagnostics:', e); }
   try { updateEGARCHDiagnostics(s); } catch (e) { console.error('updateEGARCHDiagnostics:', e); }
   try { updateAdaptiveRK(s); } catch (e) { console.error('updateAdaptiveRK:', e); }
+  try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
+  try { updateActiveOrderExecFields(s); } catch (e) { console.error('updateActiveOrderExecFields:', e); }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
