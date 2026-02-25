@@ -960,6 +960,33 @@ body::before {
   text-align: center; margin-top: 1px;
 }
 
+/* Execution Health Alerts */
+.ee-health-ok {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  color: var(--green-0); padding: 4px 8px;
+  background: rgba(16,185,129,0.1); border-radius: var(--radius-sm);
+  border: 1px solid rgba(16,185,129,0.2);
+}
+.ee-health-alert {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  color: var(--red-0); padding: 4px 8px; margin-bottom: 4px;
+  background: rgba(244,63,94,0.1); border-radius: var(--radius-sm);
+  border: 1px solid rgba(244,63,94,0.2);
+}
+.ee-strat-bar {
+  display: flex; gap: 6px; align-items: center;
+  font-family: var(--mono); font-size: 9px; color: var(--text-2);
+}
+.ee-strat-bar-label { min-width: 100px; }
+.ee-strat-bar-val { font-weight: 700; color: var(--text-0); min-width: 28px; text-align: right; }
+.ee-strat-bar-track { flex: 1; height: 4px; background: var(--bg-3); border-radius: 2px; overflow: hidden; }
+.ee-strat-bar-fill { height: 100%; background: var(--blue-0); border-radius: 2px; transition: width 0.4s; }
+.ee-section-label {
+  font-family: var(--mono); font-size: 9px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-3); margin-bottom: 6px;
+}
+
 /* NIG Distribution */
 .nig-cell { grid-column: span 6; }
 .nig-grid {
@@ -1894,6 +1921,8 @@ body::before {
       </div>
     </div>
     <div class="execeng-funnel" id="execEngFunnel"></div>
+    <div id="eeHealthAlerts" style="margin-top:8px"></div>
+    <div id="eeStratDist" style="margin-top:8px"></div>
   </div>
 
   <!-- ══════════════ ROW 1: Core Metrics ══════════════ -->
@@ -4521,6 +4550,41 @@ function updateExecutionEngine(s) {
       html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text-3);margin-top:4px;text-align:right">Taker fill rate: <span style="color:var(--green-0)">${(funnel.taker_fill_rate * 100).toFixed(0)}%</span></div>`;
     }
     funnelEl.innerHTML = html;
+  }
+
+  // Health alerts
+  const alertBox = $('eeHealthAlerts');
+  if (alertBox) {
+    const alerts = ee.health_alerts;
+    if (alerts && alerts.length > 0) {
+      alertBox.innerHTML = alerts.map(a => `<div class="ee-health-alert">\u26a0 ${escHtml(a)}</div>`).join('');
+    } else if (ee.health_ok) {
+      alertBox.innerHTML = '<div class="ee-health-ok">All execution paths healthy</div>';
+    } else {
+      alertBox.innerHTML = '';
+    }
+  }
+
+  // Strategy distribution
+  const stratBox = $('eeStratDist');
+  if (stratBox && ee.strategy_distribution) {
+    const sd = ee.strategy_distribution;
+    const entries = Object.entries(sd).filter(([,v]) => v > 0).sort((a,b) => b[1] - a[1]);
+    const maxVal = Math.max(1, ...entries.map(([,v]) => v));
+    if (entries.length > 0) {
+      let html = '<div class="ee-section-label">Strategy Distribution</div>';
+      for (const [name, count] of entries) {
+        const pct = (count / maxVal * 100).toFixed(0);
+        html += `<div class="ee-strat-bar">
+          <span class="ee-strat-bar-label">${escHtml(name)}</span>
+          <span class="ee-strat-bar-val">${count}</span>
+          <div class="ee-strat-bar-track"><div class="ee-strat-bar-fill" style="width:${pct}%"></div></div>
+        </div>`;
+      }
+      stratBox.innerHTML = html;
+    } else {
+      stratBox.innerHTML = '';
+    }
   }
 }
 
