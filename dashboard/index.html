@@ -701,6 +701,50 @@ body::before {
 .oflow-adj.zero { color: var(--text-3); }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   KALSHI ORDERBOOK FLOW
+   ═══════════════════════════════════════════════════════════════════════ */
+.koft-cell { grid-column: span 3; }
+.koft-grid { display: flex; flex-direction: column; gap: 8px; }
+.koft-card {
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-0); background: var(--bg-2);
+  transition: border-color 0.2s;
+}
+.koft-card:hover { border-color: var(--border-1); }
+.koft-card-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px;
+}
+.koft-card-name {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; gap: 5px; color: var(--text-0);
+}
+.koft-card-name .dot { width: 6px; height: 6px; border-radius: 50%; }
+.koft-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;
+  font-family: var(--mono); font-size: 10px; color: var(--text-1);
+}
+.koft-stats .dim { color: var(--text-3); margin-right: 4px; }
+.koft-stats .val { font-weight: 600; }
+.koft-adj-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-0);
+}
+.koft-adj { font-family: var(--mono); font-size: 12px; font-weight: 700; }
+.koft-adj.pos { color: var(--green-0); }
+.koft-adj.neg { color: var(--red-0); }
+.koft-adj.zero { color: var(--text-3); }
+.koft-snaps {
+  font-family: var(--mono); font-size: 9px; color: var(--text-3);
+}
+.koft-imbalance-bar {
+  height: 4px; border-radius: 2px; background: var(--bg-3); margin-top: 4px; overflow: hidden;
+}
+.koft-imbalance-fill {
+  height: 100%; border-radius: 2px; transition: width 0.3s;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    FUNDING RATES & FEED HEALTH
    ═══════════════════════════════════════════════════════════════════════ */
 .funding-cell { grid-column: span 3; }
@@ -2003,6 +2047,14 @@ body::before {
     </div>
   </div>
 
+  <!-- Kalshi Orderbook Flow -->
+  <div class="cell koft-cell">
+    <div class="cell-label">Kalshi Orderbook Flow<span class="tag" style="background:var(--yellow-bg);color:var(--yellow-0)">SHADOW</span></div>
+    <div class="koft-grid" id="elKoftGrid">
+      <div class="empty">Waiting for orderbook flow data...</div>
+    </div>
+  </div>
+
   <!-- Funding Rates & Feed Health -->
   <div class="cell funding-cell">
     <div class="cell-label">Funding Rates</div>
@@ -3261,6 +3313,78 @@ function updateOrderFlow(s) {
   box.innerHTML = html || '<div class="empty">No order flow data</div>';
 }
 
+function updateKalshiOrderFlow(s) {
+  const raw = s.kalshi_order_flow;
+  const box = $('elKoftGrid');
+  if (!raw || typeof raw !== 'object') {
+    box.innerHTML = '<div class="empty">Waiting for orderbook flow data...</div>';
+    return;
+  }
+
+  const signals = raw.signals;
+  const tracked = raw.tracked_tickers ?? 0;
+
+  if (!signals || typeof signals !== 'object' || Object.keys(signals).length === 0) {
+    box.innerHTML = `<div class="empty">Tracking ${tracked} ticker${tracked !== 1 ? 's' : ''} — collecting snapshots...</div>`;
+    return;
+  }
+
+  // Extract asset from ticker (e.g. KXBTC15M-... → BTC)
+  function tickerAsset(t) {
+    const m = t.match(/KX([A-Z]+)15M/);
+    return m ? m[1] : t.slice(0, 6);
+  }
+
+  let html = '';
+  const tickers = Object.keys(signals).sort();
+  for (const ticker of tickers) {
+    const d = signals[ticker];
+    const asset = tickerAsset(ticker);
+    const color = ASSET_COLORS[asset] || 'var(--text-1)';
+    const conf = (d.confidence ?? 'low').toLowerCase();
+
+    const adj = d.prob_adjustment ?? 0;
+    const adjSign = adj > 0 ? '+' : '';
+    const adjCls = adj > 0 ? 'pos' : adj < 0 ? 'neg' : 'zero';
+
+    const imb = d.imbalance_ratio ?? 0.5;
+    const imbPct = (imb * 100).toFixed(1);
+    const imbLevel = d.imbalance_level ?? 'neutral';
+    const imbColor = imbLevel === 'strong_buy' ? 'var(--green-0)' :
+                     imbLevel === 'strong_sell' ? 'var(--red-0)' : 'var(--blue-0)';
+
+    const depthVel = d.depth_velocity ?? 0;
+    const depthDrain = d.depth_drain ? '<span style="color:var(--amber-0)"> DRAIN</span>' : '';
+    const spreadCur = d.spread_current ?? 0;
+    const spreadTrend = d.spread_trend ?? 0;
+    const askVel = d.ask_velocity ?? 0;
+    const nSnaps = d.n_snapshots ?? 0;
+
+    // Short ticker label: last segment (e.g. 26FEB242000-00 → 20:00)
+    const shortTicker = ticker.length > 20 ? ticker.slice(-15) : ticker;
+
+    html += `<div class="koft-card">
+      <div class="koft-card-hdr">
+        <div class="koft-card-name"><div class="dot" style="background:${color}"></div> ${asset} <span style="color:var(--text-3);font-weight:400">${escHtml(shortTicker)}</span></div>
+        <span class="oflow-confidence ${conf}">${conf}</span>
+      </div>
+      <div class="koft-stats">
+        <span><span class="dim">imbalance</span><span class="val" style="color:${imbColor}">${imbPct}% ${imbLevel.replace('_',' ')}</span></span>
+        <span><span class="dim">depth vel</span><span class="val">${depthVel > 0 ? '+' : ''}${depthVel.toFixed(1)}/s${depthDrain}</span></span>
+        <span><span class="dim">spread</span><span class="val">${spreadCur}¢ (${spreadTrend >= 0 ? '+' : ''}${spreadTrend.toFixed(3)}/s)</span></span>
+        <span><span class="dim">ask vel</span><span class="val">${askVel >= 0 ? '+' : ''}${askVel.toFixed(3)}¢/s</span></span>
+      </div>
+      <div class="koft-imbalance-bar"><div class="koft-imbalance-fill" style="width:${imbPct}%;background:${imbColor}"></div></div>
+      <div class="koft-adj-row">
+        <span class="koft-adj ${adjCls}">${adjSign}${(adj * 100).toFixed(2)}%</span>
+        <span class="koft-snaps">${nSnaps} snaps</span>
+      </div>
+    </div>`;
+  }
+
+  box.innerHTML = html;
+}
+
 function updateFundingRates(s) {
   const rates = s.funding_rates;
   const box = $('elFundingGrid');
@@ -4517,6 +4641,7 @@ function update(s) {
   try { updateRestingOrders(s); } catch (e) { console.error('updateRestingOrders:', e); }
   try { updateCrossExchange(s); } catch (e) { console.error('updateCrossExchange:', e); }
   try { updateOrderFlow(s); } catch (e) { console.error('updateOrderFlow:', e); }
+  try { updateKalshiOrderFlow(s); } catch (e) { console.error('updateKalshiOrderFlow:', e); }
   try { updateFundingRates(s); } catch (e) { console.error('updateFundingRates:', e); }
   try { updateFeedHealth(s); } catch (e) { console.error('updateFeedHealth:', e); }
   try { updateTradeAnalytics(s); } catch (e) { console.error('updateTradeAnalytics:', e); }
