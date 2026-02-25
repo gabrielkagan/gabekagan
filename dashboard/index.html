@@ -1183,32 +1183,6 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   REJECTION SUMMARY
-   ═══════════════════════════════════════════════════════════════════════ */
-.rejection-cell { grid-column: span 8; }
-.rejection-bars { display: flex; flex-direction: column; gap: 6px; }
-.rejection-row {
-  display: flex; align-items: center; gap: 10px;
-}
-.rejection-label {
-  font-family: var(--mono); font-size: 10px; color: var(--text-2);
-  min-width: 160px; flex-shrink: 0;
-}
-.rejection-bar-track {
-  flex: 1; height: 14px; border-radius: 3px; background: var(--bg-3);
-  overflow: hidden; position: relative;
-}
-.rejection-bar-fill {
-  height: 100%; border-radius: 3px;
-  background: linear-gradient(90deg, var(--red-1), var(--red-0));
-  opacity: 0.6; transition: width 0.6s ease;
-}
-.rejection-count {
-  font-family: var(--mono); font-size: 11px; font-weight: 600;
-  color: var(--text-1); min-width: 40px; text-align: right;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════
    RECENT TRADES TABLE
    ═══════════════════════════════════════════════════════════════════════ */
 .trades-cell { grid-column: span 12; }
@@ -1732,14 +1706,12 @@ body::before {
   .heatmap-cell { grid-column: span 6; }
   .session-cell, .stratbd-cell, .assetperf-cell { grid-column: span 6; }
   .ratelimit-cell { grid-column: span 3; }
-  .rejection-cell { grid-column: span 6; }
   .trades-cell, .opps-cell { grid-column: span 6; }
   .cal-cell { grid-column: span 6; }
   .cf-cell { grid-column: span 6; }
   .askdist-cell { grid-column: span 6; }
   .cf-buckets { grid-template-columns: repeat(2, 1fr); }
   .spot-item { min-width: 140px; }
-  .rejection-label { min-width: 120px; }
   .har-diag-cell { grid-column: span 6; }
   .egarch-diag-cell { grid-column: span 3; }
   .ark-diag-cell { grid-column: span 3; }
@@ -1756,7 +1728,7 @@ body::before {
   .ta-overview-cell, .ta-breakdowns-cell, .ta-chart-cell,
   .nig-cell, .heatmap-cell,
   .session-cell, .stratbd-cell, .assetperf-cell,
-  .ratelimit-cell, .rejection-cell,
+  .ratelimit-cell,
   .trades-cell, .opps-cell,
   .cal-cell, .cf-cell, .askdist-cell,
   .har-diag-cell, .egarch-diag-cell, .ark-diag-cell,
@@ -2396,17 +2368,6 @@ body::before {
     </div>
     <div class="ratelimit-list" id="elRateLimits">
       <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- Rejection Summary -->
-  <div class="cell rejection-cell">
-    <div class="cell-label">
-      Rejection Summary
-      <span class="tag" id="rejTotalTag" style="background:var(--red-bg);color:var(--red-0);border:1px solid var(--red-border)">0</span>
-    </div>
-    <div class="rejection-bars" id="elRejections">
-      <div class="empty" style="padding:12px;color:var(--text-3)">No rejections</div>
     </div>
   </div>
 
@@ -3925,35 +3886,6 @@ function updateRateLimits(s) {
   }).join('');
 }
 
-function updateRejectionSummary(s) {
-  const rej = s.rejection_summary;
-  const box = $('elRejections');
-  if (!rej || typeof rej !== 'object') return;
-
-  const entries = Object.entries(rej).sort((a, b) => b[1] - a[1]);
-  if (entries.length === 0) {
-    box.innerHTML = '<div style="padding:12px;color:var(--text-3);font-family:var(--mono);font-size:11px">No rejections</div>';
-    $('rejTotalTag').textContent = '0';
-    return;
-  }
-
-  const total = entries.reduce((sum, [, v]) => sum + v, 0);
-  const max = entries[0][1];
-  $('rejTotalTag').textContent = total.toLocaleString();
-
-  box.innerHTML = entries.map(([reason, count]) => {
-    const pct = max > 0 ? (count / max) * 100 : 0;
-    const label = reason.replace(/_/g, ' ');
-    return `<div class="rejection-row">
-      <span class="rejection-label">${escHtml(label)}</span>
-      <div class="rejection-bar-track">
-        <div class="rejection-bar-fill" style="width:${pct}%"></div>
-      </div>
-      <span class="rejection-count">${count.toLocaleString()}</span>
-    </div>`;
-  }).join('');
-}
-
 function updateRecentTrades(s) {
   const trades = s.recent_trades;
   const body = $('elTradesBody');
@@ -4802,7 +4734,6 @@ function update(s) {
   try { updateStrategyBreakdown(s); } catch (e) { console.error('updateStrategyBreakdown:', e); }
   try { updateAssetPerformance(s); } catch (e) { console.error('updateAssetPerformance:', e); }
   try { updateRateLimits(s); } catch (e) { console.error('updateRateLimits:', e); }
-  try { updateRejectionSummary(s); } catch (e) { console.error('updateRejectionSummary:', e); }
   try { updateRecentTrades(s); } catch (e) { console.error('updateRecentTrades:', e); }
   try { updateRecentOpportunities(s); } catch (e) { console.error('updateRecentOpportunities:', e); }
   try { updateObservationMode(s); } catch (e) { console.error('updateObservationMode:', e); }
