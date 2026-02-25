@@ -745,6 +745,61 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   KALSHI ORDERBOOK VISIBILITY
+   ═══════════════════════════════════════════════════════════════════════ */
+.ob-viz-cell { grid-column: span 6; }
+.ob-viz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+@media (max-width: 700px) { .ob-viz-grid { grid-template-columns: 1fr; } }
+
+.ob-viz-card {
+  padding: 12px 14px; border-radius: var(--radius-md);
+  border: 1px solid var(--border-0); background: var(--bg-2);
+}
+.ob-viz-card-hdr {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+}
+.ob-viz-card-name {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+}
+.ob-viz-card-name .dot { width: 7px; height: 7px; border-radius: 50%; }
+.ob-viz-card-meta { font-family: var(--mono); font-size: 9px; color: var(--text-3); }
+
+.ob-viz-ticker { margin-bottom: 8px; }
+.ob-viz-ticker-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 0; font-family: var(--mono); font-size: 9px; color: var(--text-2);
+  border-bottom: 1px solid var(--border-0); margin-bottom: 4px;
+}
+.ob-viz-ticker-hdr .stale { color: var(--amber-0); font-weight: 600; }
+
+.ob-viz-ladder-hdr {
+  display: grid; grid-template-columns: 1fr 55px 55px 1fr; gap: 2px;
+  font-family: var(--mono); font-size: 8px; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.5px; padding: 1px 4px;
+}
+.ob-viz-row {
+  display: grid; grid-template-columns: 1fr 55px 55px 1fr; gap: 2px;
+  font-family: var(--mono); font-size: 10px; padding: 1px 4px;
+}
+.ob-viz-bid-qty { text-align: right; color: var(--green-0); }
+.ob-viz-bid-price { text-align: right; color: var(--green-0); font-weight: 600; }
+.ob-viz-ask-price { text-align: left; color: var(--red-0); font-weight: 600; }
+.ob-viz-ask-qty { text-align: left; color: var(--red-0); }
+
+.ob-viz-summary {
+  display: flex; justify-content: space-between; gap: 8px;
+  font-family: var(--mono); font-size: 9px; color: var(--text-2);
+  padding-top: 4px; border-top: 1px solid var(--border-0); margin-top: 2px;
+}
+.ob-viz-depth-bar {
+  height: 3px; border-radius: 2px; background: var(--bg-3);
+  margin-top: 4px; overflow: hidden; display: flex;
+}
+.ob-viz-depth-bid { height: 100%; background: rgba(16,185,129,0.4); }
+.ob-viz-depth-ask { height: 100%; background: rgba(244,63,94,0.4); }
+
+/* ═══════════════════════════════════════════════════════════════════════
    FUNDING RATES & FEED HEALTH
    ═══════════════════════════════════════════════════════════════════════ */
 .funding-cell { grid-column: span 3; }
@@ -2052,6 +2107,14 @@ body::before {
     <div class="cell-label">Kalshi Orderbook Flow<span class="tag" style="background:var(--yellow-bg);color:var(--yellow-0)">SHADOW</span></div>
     <div class="koft-grid" id="elKoftGrid">
       <div class="empty">Waiting for orderbook flow data...</div>
+    </div>
+  </div>
+
+  <!-- Kalshi Orderbook Visibility -->
+  <div class="cell ob-viz-cell">
+    <div class="cell-label">Kalshi Orderbooks<span class="tag" style="background:var(--blue-bg);color:var(--blue-0)">LIVE</span></div>
+    <div class="ob-viz-grid" id="elObVizGrid">
+      <div class="empty">Waiting for orderbook data...</div>
     </div>
   </div>
 
@@ -3385,6 +3448,91 @@ function updateKalshiOrderFlow(s) {
   box.innerHTML = html;
 }
 
+function updateOrderbookViz(s) {
+  const obs = s.orderbooks;
+  const box = $('elObVizGrid');
+  if (!obs || typeof obs !== 'object' || Object.keys(obs).length === 0) {
+    box.innerHTML = '<div class="empty">No orderbook data — waiting for market discovery...</div>';
+    return;
+  }
+
+  let html = '';
+  for (const asset of ASSETS) {
+    const tickers = obs[asset];
+    const color = ASSET_COLORS[asset];
+    if (!tickers || Object.keys(tickers).length === 0) {
+      html += `<div class="ob-viz-card">
+        <div class="ob-viz-card-hdr">
+          <div class="ob-viz-card-name"><div class="dot" style="background:${color}"></div> ${asset}</div>
+        </div>
+        <div class="empty" style="font-size:10px">No active markets</div>
+      </div>`;
+      continue;
+    }
+
+    const tickerKeys = Object.keys(tickers).sort();
+    let tickerHtml = '';
+
+    for (const tk of tickerKeys) {
+      const d = tickers[tk];
+      const parts = tk.split('-');
+      const shortLabel = parts.length >= 3 ? parts.slice(1).join(' ') : tk;
+      const ageStr = d.age_s != null ? d.age_s.toFixed(0) + 's ago' : '?';
+      const staleTag = d.stale ? '<span class="stale">STALE</span>' : '';
+
+      const bids = d.bids || [];
+      const asks = d.asks || [];
+      const maxRows = Math.max(bids.length, asks.length, 1);
+
+      let ladderHtml = `<div class="ob-viz-ladder-hdr">
+        <span style="text-align:right">Qty</span><span style="text-align:right">Bid</span>
+        <span>Ask</span><span>Qty</span>
+      </div>`;
+
+      for (let i = 0; i < maxRows; i++) {
+        const bid = bids[i];
+        const ask = asks[i];
+        ladderHtml += `<div class="ob-viz-row">
+          <span class="ob-viz-bid-qty">${bid ? bid.q : ''}</span>
+          <span class="ob-viz-bid-price">${bid ? bid.p + '\u00a2' : ''}</span>
+          <span class="ob-viz-ask-price">${ask ? ask.p + '\u00a2' : ''}</span>
+          <span class="ob-viz-ask-qty">${ask ? ask.q : ''}</span>
+        </div>`;
+      }
+
+      const totalDepth = (d.bid_depth || 0) + (d.ask_depth || 0);
+      const bidPct = totalDepth > 0 ? ((d.bid_depth || 0) / totalDepth * 100).toFixed(0) : 50;
+
+      tickerHtml += `<div class="ob-viz-ticker">
+        <div class="ob-viz-ticker-hdr">
+          <span>${escHtml(shortLabel)}</span>
+          <span>${ageStr} ${staleTag}</span>
+        </div>
+        ${ladderHtml}
+        <div class="ob-viz-summary">
+          <span>bid depth: ${d.bid_depth || 0}</span>
+          <span>spread: ${d.spread != null ? d.spread + '\u00a2' : '\u2014'}</span>
+          <span>ask depth: ${d.ask_depth || 0}</span>
+        </div>
+        <div class="ob-viz-depth-bar">
+          <div class="ob-viz-depth-bid" style="width:${bidPct}%"></div>
+          <div class="ob-viz-depth-ask" style="width:${100 - bidPct}%"></div>
+        </div>
+      </div>`;
+    }
+
+    html += `<div class="ob-viz-card">
+      <div class="ob-viz-card-hdr">
+        <div class="ob-viz-card-name"><div class="dot" style="background:${color}"></div> ${asset}</div>
+        <div class="ob-viz-card-meta">${tickerKeys.length} market${tickerKeys.length !== 1 ? 's' : ''}</div>
+      </div>
+      ${tickerHtml}
+    </div>`;
+  }
+
+  box.innerHTML = html;
+}
+
 function updateFundingRates(s) {
   const rates = s.funding_rates;
   const box = $('elFundingGrid');
@@ -4642,6 +4790,7 @@ function update(s) {
   try { updateCrossExchange(s); } catch (e) { console.error('updateCrossExchange:', e); }
   try { updateOrderFlow(s); } catch (e) { console.error('updateOrderFlow:', e); }
   try { updateKalshiOrderFlow(s); } catch (e) { console.error('updateKalshiOrderFlow:', e); }
+  try { updateOrderbookViz(s); } catch (e) { console.error('updateOrderbookViz:', e); }
   try { updateFundingRates(s); } catch (e) { console.error('updateFundingRates:', e); }
   try { updateFeedHealth(s); } catch (e) { console.error('updateFeedHealth:', e); }
   try { updateTradeAnalytics(s); } catch (e) { console.error('updateTradeAnalytics:', e); }
