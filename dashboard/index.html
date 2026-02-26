@@ -180,15 +180,28 @@ body::before {
   grid-column: 1 / -1;
   background: var(--bg-0);
   padding: 18px 22px 6px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.divider-top {
   display: flex; align-items: center; gap: 12px;
 }
 .section-divider .divider-label {
   font-family: var(--mono); font-size: 11px; font-weight: 600;
-  letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-3);
+  letter-spacing: 1.5px; text-transform: uppercase;
   white-space: nowrap;
+  background: linear-gradient(90deg, var(--text-3), var(--text-2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
 .section-divider .divider-line {
   flex: 1; height: 1px; background: var(--border-0);
+}
+.divider-quote {
+  font-family: var(--sans); font-size: 11px; font-style: italic;
+  color: var(--text-3); opacity: 0.7;
+}
+.divider-quote-src {
+  font-style: normal; color: var(--violet-0); font-size: 10px;
+  opacity: 0.6; margin-left: 8px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -239,41 +252,15 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   BOT STATUS CARD
+   HEADER ERROR INDICATOR (replaces System Status panel)
    ═══════════════════════════════════════════════════════════════════════ */
-.status-cell { grid-column: span 4; }
-.status-indicator {
-  display: flex; align-items: center; gap: 12px;
-  margin-bottom: 16px;
-}
-.status-dot {
-  width: 12px; height: 12px; border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 0 8px currentColor;
-}
-.status-dot.scanning { background: var(--blue-0); color: var(--blue-0); animation: pulse 2s ease-in-out infinite; }
-.status-dot.trading { background: var(--green-0); color: var(--green-0); animation: pulse 1s ease-in-out infinite; }
-.status-dot.idle { background: var(--amber-0); color: var(--amber-0); }
-.status-dot.error { background: var(--red-0); color: var(--red-0); animation: pulse 0.5s ease-in-out infinite; }
-.status-dot.unknown { background: var(--text-3); color: var(--text-3); }
 @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
-.status-text {
-  font-family: var(--mono); font-size: 24px; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase;
-}
-.status-text.scanning { color: var(--blue-0); }
-.status-text.trading { color: var(--green-0); }
-.status-text.idle { color: var(--amber-0); }
-.status-text.error { color: var(--red-0); }
-.status-text.unknown { color: var(--text-3); }
-.status-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.error-banner {
-  margin-top: 12px; padding: 8px 12px; border-radius: var(--radius-sm);
-  background: var(--red-bg); border: 1px solid var(--red-border);
+.hdr-error {
   font-family: var(--mono); font-size: 10px; color: var(--red-0);
-  word-break: break-word; display: none;
+  max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  display: none;
 }
-.error-banner.visible { display: block; }
+.hdr-error.visible { display: inline; }
 
 /* ═══════════════════════════════════════════════════════════════════════
    WIN/LOSS CARD
@@ -1009,27 +996,7 @@ body::before {
   color: var(--text-0); font-weight: 500;
 }
 
-/* Trade heatmap */
-.heatmap-cell { grid-column: span 6; }
-.heatmap-grid {
-  display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px;
-}
-.heatmap-hour {
-  aspect-ratio: 1; border-radius: 3px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  font-family: var(--mono); font-size: 8px;
-  transition: transform 0.2s;
-  cursor: default;
-}
-.heatmap-hour:hover { transform: scale(1.2); z-index: 2; }
-.heatmap-hour-label {
-  font-size: 7px; color: var(--text-3); margin-top: 1px;
-}
-.heatmap-legend {
-  display: flex; gap: 12px; margin-top: 6px;
-  font-family: var(--mono); font-size: 9px; color: var(--text-3);
-}
+/* (Heatmap removed) */
 
 /* Equity curve toggle */
 .eq-toggle {
@@ -1534,9 +1501,7 @@ body::before {
 /* ═══════════════════════════════════════════════════════════════════════
    SHADOW MODE RESEARCH PANELS
    ═══════════════════════════════════════════════════════════════════════ */
-.har-diag-cell { grid-column: span 6; }
-.egarch-diag-cell { grid-column: span 3; }
-.ark-diag-cell { grid-column: span 3; }
+.egarch-diag-cell { grid-column: span 4; }
 
 .shadow-metrics {
   display: grid; grid-template-columns: 1fr 1fr; gap: 3px 10px;
@@ -1715,11 +1680,25 @@ body::before {
 .trade-result.loss { background: var(--red-bg); color: var(--red-0); border: 1px solid var(--red-border); }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   VISUAL POLISH
+   ═══════════════════════════════════════════════════════════════════════ */
+.hero.profitable {
+  border-left: 2px solid var(--green-0);
+  box-shadow: inset 4px 0 12px rgba(16,185,129,0.08);
+}
+.wl-cell.hot-streak {
+  border-top: 2px solid var(--amber-0);
+  box-shadow: inset 0 2px 12px rgba(251,191,36,0.06);
+}
+.trades-table tbody tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+.simtrades-table tbody tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+
+/* ═══════════════════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════════════════ */
 @media (max-width: 1100px) {
   .grid { grid-template-columns: repeat(6, 1fr); }
-  .hero, .status-cell, .wl-cell, .daily-pnl-cell { grid-column: span 6; }
+  .hero, .wl-cell, .daily-pnl-cell { grid-column: span 6; }
   .vol-cell { grid-column: span 6; }
   .timing-cell, .funnel-cell { grid-column: span 3; }
   .order-cell { grid-column: span 6; }
@@ -1730,37 +1709,36 @@ body::before {
   .ta-breakdowns-cell { grid-column: span 6; }
   .ta-chart-cell { grid-column: span 6; }
   .nig-cell { grid-column: span 6; }
-  .heatmap-cell { grid-column: span 6; }
   .session-cell, .stratbd-cell, .assetperf-cell { grid-column: span 6; }
-  .ratelimit-cell { grid-column: span 3; }
+  .ratelimit-cell { grid-column: span 6; }
   .trades-cell, .opps-cell { grid-column: span 6; }
   .cal-cell { grid-column: span 6; }
   .cf-cell { grid-column: span 6; }
   .askdist-cell { grid-column: span 6; }
   .cf-buckets { grid-template-columns: repeat(2, 1fr); }
   .spot-item { min-width: 140px; }
-  .har-diag-cell { grid-column: span 6; }
   .egarch-diag-cell { grid-column: span 3; }
-  .ark-diag-cell { grid-column: span 3; }
   .equity-cell { grid-column: 1 / -1; }
   .risk-cell, .exec-cell { grid-column: span 3; }
   .execeng-cell { grid-column: span 6; }
+  .ob-viz-cell { grid-column: span 6; }
+  .koft-cell { grid-column: span 3; }
 }
 @media (max-width: 700px) {
   .grid { grid-template-columns: 1fr; }
-  .hero, .status-cell, .wl-cell, .daily-pnl-cell,
+  .hero, .wl-cell, .daily-pnl-cell,
   .vol-cell, .timing-cell, .funnel-cell,
   .order-cell, .positions-cell, .resting-cell,
   .xchg-cell, .oflow-cell, .funding-cell,
   .ta-overview-cell, .ta-breakdowns-cell, .ta-chart-cell,
-  .nig-cell, .heatmap-cell,
+  .nig-cell,
   .session-cell, .stratbd-cell, .assetperf-cell,
   .ratelimit-cell,
   .trades-cell, .opps-cell,
   .cal-cell, .cf-cell, .askdist-cell,
-  .har-diag-cell, .egarch-diag-cell, .ark-diag-cell,
+  .egarch-diag-cell,
   .equity-cell, .risk-cell, .exec-cell,
-  .execeng-cell { grid-column: 1 / -1; }
+  .execeng-cell, .ob-viz-cell, .koft-cell { grid-column: 1 / -1; }
   .cf-summary { grid-template-columns: 1fr; }
   .cf-buckets { grid-template-columns: repeat(2, 1fr); }
   .bal-num { font-size: 34px; }
@@ -1794,6 +1772,7 @@ body::before {
     <span id="elWindows">windows: —</span>
     <span class="hdr-sep">&middot;</span>
     <span id="elLastUpdate">—</span>
+    <span class="hdr-error" id="hdrError"></span>
   </div>
 </div>
 
@@ -1857,75 +1836,7 @@ body::before {
     <span class="live-banner-label">LIVE TRADING &mdash; Real Money</span>
   </div>
 
-  <!-- ══════════════ EQUITY CURVE ══════════════ -->
-  <div class="cell equity-cell">
-    <div class="cell-label">Equity Curve<div class="eq-toggle"><span class="eq-btn active" data-range="1h">1H</span><span class="eq-btn" data-range="4h">4H</span></div></div>
-    <div class="equity-canvas-wrap">
-      <canvas id="equityCanvas"></canvas>
-    </div>
-  </div>
-
-  <!-- ══════════════ RISK METRICS + EXECUTION QUALITY ══════════════ -->
-  <div class="cell risk-cell">
-    <div class="cell-label">Risk Metrics</div>
-    <div class="metric-grid" id="riskMetricsGrid">
-      <div class="metric-item"><div class="metric-label">Max Drawdown</div><div class="metric-val" id="rmDrawdown">—</div></div>
-      <div class="metric-item"><div class="metric-label">Sharpe Ratio</div><div class="metric-val" id="rmSharpe">—</div></div>
-      <div class="metric-item"><div class="metric-label">Profit Factor</div><div class="metric-val" id="rmProfitFactor">—</div></div>
-      <div class="metric-item"><div class="metric-label">Avg P&amp;L/Trade</div><div class="metric-val" id="rmAvgPnl">—</div></div>
-      <div class="metric-item"><div class="metric-label">Total Trades</div><div class="metric-val" id="rmTotalTrades">—</div></div>
-    </div>
-  </div>
-
-  <div class="cell exec-cell">
-    <div class="cell-label">Execution Quality</div>
-    <div class="metric-grid" id="execQualityGrid">
-      <div class="metric-item"><div class="metric-label">Avg Latency</div><div class="metric-val" id="eqAvgLat">—</div></div>
-      <div class="metric-item"><div class="metric-label">Median Latency</div><div class="metric-val" id="eqMedLat">—</div></div>
-      <div class="metric-item"><div class="metric-label">Session Fills</div><div class="metric-val" id="eqFills">—</div></div>
-      <div class="metric-item"><div class="metric-label">Maker Fill Rate</div><div class="metric-val" id="eqMakerRate">—</div></div>
-    </div>
-  </div>
-
-  <!-- Execution Engine -->
-  <div class="cell execeng-cell">
-    <div class="cell-label">
-      Execution Engine
-      <span class="tag" id="execEngTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div class="execeng-ws-status">
-      <div class="execeng-ws-dot disconnected" id="execWsDot"></div>
-      <span class="execeng-ws-label disconnected" id="execWsLabel">DISCONNECTED</span>
-    </div>
-    <div class="execeng-ws-meta" id="execWsMeta">
-      <span>tickers: <strong id="execWsTickers">0</strong></span>
-      <span>orderbooks: <strong id="execWsOBs">0</strong></span>
-    </div>
-    <div class="execeng-stats" id="execEngStats">
-      <div class="execeng-stat"><div class="execeng-stat-label">Amend Attempts</div><div class="execeng-stat-val" id="eeAmendAtt">0</div></div>
-      <div class="execeng-stat"><div class="execeng-stat-label">Amend Successes</div><div class="execeng-stat-val" id="eeAmendOk">0</div></div>
-      <div class="execeng-stat"><div class="execeng-stat-label">IOC Fills</div><div class="execeng-stat-val" id="eeIocFills">0</div></div>
-      <div class="execeng-stat"><div class="execeng-stat-label">IOC Unfilled</div><div class="execeng-stat-val" id="eeIocUnfilled">0</div></div>
-      <div class="execeng-stat"><div class="execeng-stat-label">WS Fills</div><div class="execeng-stat-val" id="eeWsFills">0</div></div>
-      <div class="execeng-stat"><div class="execeng-stat-label">REST Fills</div><div class="execeng-stat-val" id="eeRestFills">0</div></div>
-      <div class="execeng-stat"><div class="execeng-stat-label">Post-Only Rejects</div><div class="execeng-stat-val" id="eePostOnly">0</div></div>
-    </div>
-    <div class="execeng-derived" id="execEngDerived">
-      <div class="execeng-derived-item">
-        <div class="execeng-derived-label">Amend Rate</div>
-        <div class="execeng-derived-val" id="eeAmendRate">—</div>
-      </div>
-      <div class="execeng-derived-item">
-        <div class="execeng-derived-label">WS Fill %</div>
-        <div class="execeng-derived-val" id="eeWsRatio">—</div>
-      </div>
-    </div>
-    <div class="execeng-funnel" id="execEngFunnel"></div>
-    <div id="eeHealthAlerts" style="margin-top:8px"></div>
-    <div id="eeStratDist" style="margin-top:8px"></div>
-  </div>
-
-  <!-- ══════════════ ROW 1: Core Metrics ══════════════ -->
+  <!-- ══════════════ TIER 1: PERFORMANCE ══════════════ -->
 
   <!-- Balance -->
   <div class="cell hero">
@@ -1950,22 +1861,6 @@ body::before {
     </div>
   </div>
 
-  <!-- Bot Status -->
-  <div class="cell status-cell">
-    <div class="cell-label">System Status</div>
-    <div class="status-indicator">
-      <div class="status-dot idle" id="statusDot"></div>
-      <div class="status-text idle" id="statusText">IDLE</div>
-    </div>
-    <div class="status-meta">
-      <div class="bm">Uptime <span id="elUptimeVal">—</span></div>
-      <div class="bm">Timestamp <span id="elTimestamp">—</span></div>
-    </div>
-    <div class="error-banner" id="errorBanner">
-      <strong>LAST ERROR:</strong> <span id="errorMsg">—</span>
-    </div>
-  </div>
-
   <!-- Win / Loss -->
   <div class="cell wl-cell">
     <div class="cell-label">Win / Loss</div>
@@ -1986,67 +1881,53 @@ body::before {
     </div>
   </div>
 
-  <!-- ══════════════ ROW 2: Market Data ══════════════ -->
+  <!-- Risk Metrics -->
+  <div class="cell risk-cell">
+    <div class="cell-label">Risk Metrics</div>
+    <div class="metric-grid" id="riskMetricsGrid">
+      <div class="metric-item"><div class="metric-label">Max Drawdown</div><div class="metric-val" id="rmDrawdown">—</div></div>
+      <div class="metric-item"><div class="metric-label">Sharpe Ratio</div><div class="metric-val" id="rmSharpe">—</div></div>
+      <div class="metric-item"><div class="metric-label">Profit Factor</div><div class="metric-val" id="rmProfitFactor">—</div></div>
+      <div class="metric-item"><div class="metric-label">Avg P&amp;L/Trade</div><div class="metric-val" id="rmAvgPnl">—</div></div>
+      <div class="metric-item"><div class="metric-label">Total Trades</div><div class="metric-val" id="rmTotalTrades">—</div></div>
+    </div>
+  </div>
+
+  <!-- Equity Curve -->
+  <div class="cell equity-cell">
+    <div class="cell-label">Equity Curve<div class="eq-toggle"><span class="eq-btn active" data-range="1h">1H</span><span class="eq-btn" data-range="4h">4H</span></div></div>
+    <div class="equity-canvas-wrap">
+      <canvas id="equityCanvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Cumulative P&L Chart -->
+  <div class="cell ta-chart-cell" style="grid-column:span 6">
+    <div class="cell-label">Cumulative P&L</div>
+    <div class="ta-chart-wrap">
+      <canvas id="cumPnlCanvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Execution Quality -->
+  <div class="cell exec-cell" style="grid-column:span 6">
+    <div class="cell-label">Execution Quality</div>
+    <div class="metric-grid" id="execQualityGrid">
+      <div class="metric-item"><div class="metric-label">Avg Latency</div><div class="metric-val" id="eqAvgLat">—</div></div>
+      <div class="metric-item"><div class="metric-label">Median Latency</div><div class="metric-val" id="eqMedLat">—</div></div>
+      <div class="metric-item"><div class="metric-label">Session Fills</div><div class="metric-val" id="eqFills">—</div></div>
+      <div class="metric-item"><div class="metric-label">Maker Fill Rate</div><div class="metric-val" id="eqMakerRate">—</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ TIER 2: ACTIVE TRADING ══════════════ -->
 
   <div class="section-divider">
-    <span class="divider-label">Market Data</span>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- Volatility Panel -->
-  <div class="cell vol-cell">
-    <div class="cell-label">
-      Volatility Engine
-      <span class="tag" id="elVolTag" style="background:var(--blue-bg);color:var(--blue-0)">LIVE</span>
+    <div class="divider-top">
+      <span class="divider-label">Active Trading</span>
+      <div class="divider-line"></div>
     </div>
-    <div class="vol-grid" id="elVolGrid">
-      <div class="empty">Waiting for volatility data...</div>
-    </div>
-  </div>
-
-  <!-- Market Timing -->
-  <div class="cell timing-cell">
-    <div class="cell-label">Market Timing</div>
-    <div class="close-num" id="elCloseNum">—</div>
-    <div class="close-label" id="elCloseLabel">until next close</div>
-    <div class="windows-grid" id="elWindowsGrid">
-      <div class="window-item">
-        <div class="dot" style="background:#f7931a"></div>
-        <span style="color:var(--text-2)">BTC</span>
-        <span class="window-count" id="winBTC">0</span>
-      </div>
-      <div class="window-item">
-        <div class="dot" style="background:#849dff"></div>
-        <span style="color:var(--text-2)">ETH</span>
-        <span class="window-count" id="winETH">0</span>
-      </div>
-      <div class="window-item">
-        <div class="dot" style="background:#b86eff"></div>
-        <span style="color:var(--text-2)">SOL</span>
-        <span class="window-count" id="winSOL">0</span>
-      </div>
-      <div class="window-item">
-        <div class="dot" style="background:#23c4d8"></div>
-        <span style="color:var(--text-2)">XRP</span>
-        <span class="window-count" id="winXRP">0</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Filter Funnel -->
-  <div class="cell funnel-cell">
-    <div class="cell-label">Filter Funnel</div>
-    <div class="funnel-tabs" id="funnelTabs"></div>
-    <div class="funnel-stages" id="funnelStages">
-      <div class="empty">Waiting for filter data...</div>
-    </div>
-  </div>
-
-  <!-- ══════════════ ROW 3: Trading Activity ══════════════ -->
-
-  <div class="section-divider">
-    <span class="divider-label">Trading Activity</span>
-    <div class="divider-line"></div>
+    <div class="divider-quote" id="divQuote0"></div>
   </div>
 
   <!-- Active Order -->
@@ -2080,133 +1961,56 @@ body::before {
     </div>
   </div>
 
-  <!-- ══════════════ ROW 4: Exchange Intelligence ══════════════ -->
-
-  <div class="section-divider">
-    <span class="divider-label">Exchange Intelligence</span>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- Cross-Exchange Data -->
-  <div class="cell xchg-cell">
-    <div class="cell-label">Cross-Exchange Prices</div>
-    <div class="xchg-grid" id="elXchgGrid">
-      <div class="empty">Waiting for cross-exchange data...</div>
-    </div>
-  </div>
-
-  <!-- Order Flow Signals -->
-  <div class="cell oflow-cell">
-    <div class="cell-label">Order Flow</div>
-    <div class="oflow-grid" id="elOflowGrid">
-      <div class="empty">Waiting for order flow data...</div>
-    </div>
-  </div>
-
-  <!-- Kalshi Orderbook Flow -->
-  <div class="cell koft-cell">
-    <div class="cell-label">Kalshi Orderbook Flow<span class="tag" style="background:var(--yellow-bg);color:var(--yellow-0)">SHADOW</span></div>
-    <div class="koft-grid" id="elKoftGrid">
-      <div class="empty">Waiting for orderbook flow data...</div>
-    </div>
-  </div>
-
-  <!-- Kalshi Orderbook Visibility -->
-  <div class="cell ob-viz-cell">
-    <div class="cell-label">Kalshi Orderbooks<span class="tag" style="background:var(--blue-bg);color:var(--blue-0)">LIVE</span></div>
-    <div class="ob-viz-grid" id="elObVizGrid">
-      <div class="empty">Waiting for orderbook data...</div>
-    </div>
-  </div>
-
-  <!-- Funding Rates & Feed Health -->
-  <div class="cell funding-cell">
-    <div class="cell-label">Funding Rates</div>
-    <div class="funding-grid" id="elFundingGrid"></div>
-    <div class="feed-health">
-      <div class="feed-health-label">Feed Health</div>
-      <div class="feed-dots" id="elFeedDots">
-        <div class="empty" style="padding:8px">Waiting...</div>
+  <!-- Market Timing -->
+  <div class="cell timing-cell" style="grid-column:span 4">
+    <div class="cell-label">Market Timing</div>
+    <div class="close-num" id="elCloseNum">—</div>
+    <div class="close-label" id="elCloseLabel">until next close</div>
+    <div class="windows-grid" id="elWindowsGrid">
+      <div class="window-item">
+        <div class="dot" style="background:#f7931a"></div>
+        <span style="color:var(--text-2)">BTC</span>
+        <span class="window-count" id="winBTC">0</span>
+      </div>
+      <div class="window-item">
+        <div class="dot" style="background:#849dff"></div>
+        <span style="color:var(--text-2)">ETH</span>
+        <span class="window-count" id="winETH">0</span>
+      </div>
+      <div class="window-item">
+        <div class="dot" style="background:#b86eff"></div>
+        <span style="color:var(--text-2)">SOL</span>
+        <span class="window-count" id="winSOL">0</span>
+      </div>
+      <div class="window-item">
+        <div class="dot" style="background:#23c4d8"></div>
+        <span style="color:var(--text-2)">XRP</span>
+        <span class="window-count" id="winXRP">0</span>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════ ROW 4b: Volatility Research (Shadow Mode) ══════════════ -->
+  <!-- Filter Funnel -->
+  <div class="cell funnel-cell" style="grid-column:span 4">
+    <div class="cell-label">Filter Funnel</div>
+    <div class="funnel-tabs" id="funnelTabs"></div>
+    <div class="funnel-stages" id="funnelStages">
+      <div class="empty">Waiting for filter data...</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ TIER 3: TRADE ANALYTICS ══════════════ -->
 
   <div class="section-divider">
-    <span class="divider-label">Volatility Research (Shadow)</span>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- HAR Model Diagnostics -->
-  <div class="cell har-diag-cell">
-    <div class="cell-label">
-      HAR Model Estimation
-      <span class="tag" id="harDiagTag" style="background:var(--violet-bg);color:var(--violet-0);border:1px solid var(--violet-border)">SHADOW</span>
+    <div class="divider-top">
+      <span class="divider-label">Trade Analytics</span>
+      <div class="divider-line"></div>
     </div>
-    <div id="elHARDiag">
-      <div class="empty">Waiting for HAR diagnostics...</div>
-    </div>
-  </div>
-
-  <!-- EGARCH Diagnostics -->
-  <div class="cell egarch-diag-cell">
-    <div class="cell-label">
-      EGARCH(1,1)
-      <span class="tag" style="background:var(--violet-bg);color:var(--violet-0);border:1px solid var(--violet-border)">SHADOW</span>
-    </div>
-    <div id="elEGARCHDiag">
-      <div class="empty">Waiting for EGARCH diagnostics...</div>
-    </div>
-  </div>
-
-  <!-- EGARCH Blend Diagnostics -->
-  <div class="cell egarch-blend-diag-cell">
-    <div class="cell-label">
-      EGARCH-RK Blend
-      <span class="tag" style="background:var(--violet-bg);color:var(--violet-0);border:1px solid var(--violet-border)">SHADOW</span>
-    </div>
-    <div id="elEGARCHBlendDiag">
-      <div class="empty">Waiting for EGARCH blend data...</div>
-    </div>
-  </div>
-
-  <!-- Adaptive RK Diagnostics -->
-  <div class="cell ark-diag-cell">
-    <div class="cell-label">
-      Adaptive RK Bandwidth
-      <span class="tag" style="background:var(--violet-bg);color:var(--violet-0);border:1px solid var(--violet-border)">SHADOW</span>
-    </div>
-    <div id="elARKDiag">
-      <div class="empty">Waiting for RK diagnostics...</div>
-    </div>
-  </div>
-
-  <!-- NIG Distribution -->
-  <div class="cell nig-cell">
-    <div class="cell-label">NIG Distribution<span class="tag" style="background:var(--green-bg);color:var(--green-0);border:1px solid var(--green-border)">LIVE</span></div>
-    <div id="elNIGDist">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for NIG data...</div>
-    </div>
-  </div>
-
-  <!-- Trade Frequency Heatmap -->
-  <div class="cell heatmap-cell">
-    <div class="cell-label">Trade Frequency by Hour (UTC)</div>
-    <div id="elTradeHeatmap">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for trade data...</div>
-    </div>
-  </div>
-
-  <!-- ══════════════ ROW 5: Trade Analytics ══════════════ -->
-
-  <div class="section-divider">
-    <span class="divider-label">Trade Analytics</span>
-    <div class="divider-line"></div>
+    <div class="divider-quote" id="divQuote1"></div>
   </div>
 
   <!-- Trade Analytics Overview -->
-  <div class="cell ta-overview-cell">
+  <div class="cell ta-overview-cell" style="grid-column:span 3">
     <div class="cell-label">
       Total P&L
       <span class="tag" id="taCountTag" style="background:var(--green-bg);color:var(--green-0);border:1px solid var(--green-border)">0 trades</span>
@@ -2226,7 +2030,7 @@ body::before {
   </div>
 
   <!-- Trade Analytics Breakdowns -->
-  <div class="cell ta-breakdowns-cell">
+  <div class="cell ta-breakdowns-cell" style="grid-column:span 6">
     <div class="cell-label">P&L Breakdowns</div>
     <div class="ta-bd-tabs" id="elTaBdTabs">
       <div class="ta-bd-tab active" data-bd="asset">Asset</div>
@@ -2238,19 +2042,152 @@ body::before {
     </div>
   </div>
 
-  <!-- Cumulative P&L Chart -->
-  <div class="cell ta-chart-cell">
-    <div class="cell-label">Cumulative P&L</div>
-    <div class="ta-chart-wrap">
-      <canvas id="cumPnlCanvas"></canvas>
+  <!-- Execution Engine -->
+  <div class="cell execeng-cell" style="grid-column:span 3">
+    <div class="cell-label">
+      Execution Engine
+      <span class="tag" id="execEngTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div class="execeng-ws-status">
+      <div class="execeng-ws-dot disconnected" id="execWsDot"></div>
+      <span class="execeng-ws-label disconnected" id="execWsLabel">DISCONNECTED</span>
+    </div>
+    <div class="execeng-ws-meta" id="execWsMeta">
+      <span>tickers: <strong id="execWsTickers">0</strong></span>
+      <span>orderbooks: <strong id="execWsOBs">0</strong></span>
+    </div>
+    <div class="execeng-stats" id="execEngStats">
+      <div class="execeng-stat"><div class="execeng-stat-label">WS Fills</div><div class="execeng-stat-val" id="eeWsFills">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">REST Fills</div><div class="execeng-stat-val" id="eeRestFills">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">IOC Fills</div><div class="execeng-stat-val" id="eeIocFills">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">IOC Unfilled</div><div class="execeng-stat-val" id="eeIocUnfilled">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">Post-Only Rejects</div><div class="execeng-stat-val" id="eePostOnly">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">Direct Taker</div><div class="execeng-stat-val" id="eeDTAttempts">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">DT Fills</div><div class="execeng-stat-val" id="eeDTFills">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">DT Unfilled</div><div class="execeng-stat-val" id="eeDTUnfilled">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">DT Skipped</div><div class="execeng-stat-val" id="eeDTSkipped">0</div></div>
+    </div>
+    <div class="execeng-derived" id="execEngDerived">
+      <div class="execeng-derived-item">
+        <div class="execeng-derived-label">DT Fill %</div>
+        <div class="execeng-derived-val" id="eeDTRate">—</div>
+      </div>
+      <div class="execeng-derived-item">
+        <div class="execeng-derived-label">WS Fill %</div>
+        <div class="execeng-derived-val" id="eeWsRatio">—</div>
+      </div>
+    </div>
+    <div class="execeng-funnel" id="execEngFunnel"></div>
+    <div id="eeEntryPaths" style="margin-top:8px"></div>
+    <div id="eeHealthAlerts" style="margin-top:8px"></div>
+    <div id="eeStratDist" style="margin-top:8px"></div>
+  </div>
+
+  <!-- Asset Performance -->
+  <div class="cell assetperf-cell">
+    <div class="cell-label">Asset Performance</div>
+    <div class="assetperf-list" id="elAssetPerf">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
     </div>
   </div>
 
-  <!-- ══════════════ ROW 5b: Calibration & Counterfactual ══════════════ -->
+  <!-- Strategy Breakdown -->
+  <div class="cell stratbd-cell">
+    <div class="cell-label">Strategy Breakdown</div>
+    <div class="stratbd-list" id="elStratBd">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Session Stats -->
+  <div class="cell session-cell">
+    <div class="cell-label">Session Stats</div>
+    <div class="session-uptime" id="elSessionUptime">—</div>
+    <div class="session-since" id="elSessionSince">started —</div>
+    <div class="session-grid">
+      <div class="meta-item"><span class="meta-label">Evaluations</span><span class="meta-val" id="elSessEvals">—</span></div>
+      <div class="meta-item"><span class="meta-label">Orders Placed</span><span class="meta-val" id="elSessOrders">—</span></div>
+      <div class="meta-item"><span class="meta-label">Fills</span><span class="meta-val" id="elSessFills">—</span></div>
+      <div class="meta-item"><span class="meta-label">Cancels</span><span class="meta-val" id="elSessCancels">—</span></div>
+      <div class="meta-item"><span class="meta-label">Active Tickers</span><span class="meta-val" id="elSessActive">—</span></div>
+      <div class="meta-item"><span class="meta-label">Events Eval'd</span><span class="meta-val" id="elSessEvents">—</span></div>
+      <div class="meta-item"><span class="meta-label">Markets Seen</span><span class="meta-val" id="elSessMarkets">—</span></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ TIER 4: MARKET INTELLIGENCE ══════════════ -->
 
   <div class="section-divider">
-    <span class="divider-label">Calibration &amp; Analysis</span>
-    <div class="divider-line"></div>
+    <div class="divider-top">
+      <span class="divider-label">Market Intelligence</span>
+      <div class="divider-line"></div>
+    </div>
+    <div class="divider-quote" id="divQuote2"></div>
+  </div>
+
+  <!-- Volatility Panel -->
+  <div class="cell vol-cell">
+    <div class="cell-label">
+      Volatility Engine
+      <span class="tag" id="elVolTag" style="background:var(--blue-bg);color:var(--blue-0)">LIVE</span>
+    </div>
+    <div class="vol-grid" id="elVolGrid">
+      <div class="empty">Waiting for volatility data...</div>
+    </div>
+  </div>
+
+  <!-- Cross-Exchange Data -->
+  <div class="cell xchg-cell">
+    <div class="cell-label">Cross-Exchange Prices</div>
+    <div class="xchg-grid" id="elXchgGrid">
+      <div class="empty">Waiting for cross-exchange data...</div>
+    </div>
+  </div>
+
+  <!-- Kalshi Orderbook Visibility -->
+  <div class="cell ob-viz-cell" style="grid-column:span 3">
+    <div class="cell-label">Kalshi Orderbooks<span class="tag" style="background:var(--blue-bg);color:var(--blue-0)">LIVE</span></div>
+    <div class="ob-viz-grid" id="elObVizGrid">
+      <div class="empty">Waiting for orderbook data...</div>
+    </div>
+  </div>
+
+  <!-- Order Flow Signals -->
+  <div class="cell oflow-cell">
+    <div class="cell-label">Order Flow</div>
+    <div class="oflow-grid" id="elOflowGrid">
+      <div class="empty">Waiting for order flow data...</div>
+    </div>
+  </div>
+
+  <!-- Kalshi Orderbook Flow -->
+  <div class="cell koft-cell">
+    <div class="cell-label">Kalshi Orderbook Flow<span class="tag" style="background:var(--violet-bg);color:var(--violet-0)">SHADOW</span></div>
+    <div class="koft-grid" id="elKoftGrid">
+      <div class="empty">Waiting for orderbook flow data...</div>
+    </div>
+  </div>
+
+  <!-- Funding Rates & Feed Health -->
+  <div class="cell funding-cell">
+    <div class="cell-label">Funding Rates</div>
+    <div class="funding-grid" id="elFundingGrid"></div>
+    <div class="feed-health">
+      <div class="feed-health-label">Feed Health</div>
+      <div class="feed-dots" id="elFeedDots">
+        <div class="empty" style="padding:8px">Waiting...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ TIER 5: RESEARCH & DIAGNOSTICS ══════════════ -->
+
+  <div class="section-divider">
+    <div class="divider-top">
+      <span class="divider-label">Research &amp; Diagnostics</span>
+      <div class="divider-line"></div>
+    </div>
+    <div class="divider-quote" id="divQuote3"></div>
   </div>
 
   <!-- Calibration Engine -->
@@ -2350,61 +2287,55 @@ body::before {
     </div>
   </div>
 
-  <!-- ══════════════ ROW 6: Analytics & Performance ══════════════ -->
+  <!-- EGARCH Diagnostics -->
+  <div class="cell egarch-diag-cell" style="grid-column:span 4">
+    <div class="cell-label">
+      EGARCH(1,1)
+      <span class="tag" style="background:var(--violet-bg);color:var(--violet-0);border:1px solid var(--violet-border)">SHADOW</span>
+    </div>
+    <div id="elEGARCHDiag">
+      <div class="empty">Waiting for EGARCH diagnostics...</div>
+    </div>
+  </div>
+
+  <!-- EGARCH Blend Diagnostics -->
+  <div class="cell egarch-blend-diag-cell" style="grid-column:span 4">
+    <div class="cell-label">
+      EGARCH-RK Blend
+      <span class="tag" style="background:var(--violet-bg);color:var(--violet-0);border:1px solid var(--violet-border)">SHADOW</span>
+    </div>
+    <div id="elEGARCHBlendDiag">
+      <div class="empty">Waiting for EGARCH blend data...</div>
+    </div>
+  </div>
+
+  <!-- NIG Distribution -->
+  <div class="cell nig-cell" style="grid-column:span 4">
+    <div class="cell-label">NIG Distribution<span class="tag" style="background:var(--green-bg);color:var(--green-0);border:1px solid var(--green-border)">LIVE</span></div>
+    <div id="elNIGDist">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for NIG data...</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ TIER 6: TRADE HISTORY ══════════════ -->
 
   <div class="section-divider">
-    <span class="divider-label">Analytics &amp; Performance</span>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- Session Stats -->
-  <div class="cell session-cell">
-    <div class="cell-label">Session Stats</div>
-    <div class="session-uptime" id="elSessionUptime">—</div>
-    <div class="session-since" id="elSessionSince">started —</div>
-    <div class="session-grid">
-      <div class="meta-item"><span class="meta-label">Evaluations</span><span class="meta-val" id="elSessEvals">—</span></div>
-      <div class="meta-item"><span class="meta-label">Orders Placed</span><span class="meta-val" id="elSessOrders">—</span></div>
-      <div class="meta-item"><span class="meta-label">Fills</span><span class="meta-val" id="elSessFills">—</span></div>
-      <div class="meta-item"><span class="meta-label">Cancels</span><span class="meta-val" id="elSessCancels">—</span></div>
-      <div class="meta-item"><span class="meta-label">Active Tickers</span><span class="meta-val" id="elSessActive">—</span></div>
-      <div class="meta-item"><span class="meta-label">Events Eval'd</span><span class="meta-val" id="elSessEvents">—</span></div>
-      <div class="meta-item"><span class="meta-label">Markets Seen</span><span class="meta-val" id="elSessMarkets">—</span></div>
+    <div class="divider-top">
+      <span class="divider-label">Trade History</span>
+      <div class="divider-line"></div>
     </div>
-  </div>
-
-  <!-- Strategy Breakdown -->
-  <div class="cell stratbd-cell">
-    <div class="cell-label">Strategy Breakdown</div>
-    <div class="stratbd-list" id="elStratBd">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- Asset Performance -->
-  <div class="cell assetperf-cell">
-    <div class="cell-label">Asset Performance</div>
-    <div class="assetperf-list" id="elAssetPerf">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
+    <div class="divider-quote" id="divQuote4"></div>
   </div>
 
   <!-- Rate Limits -->
-  <div class="cell ratelimit-cell">
+  <div class="cell ratelimit-cell" style="grid-column:span 12">
     <div class="cell-label">
       Rate Limits
       <span class="tag" id="rlResetTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
     </div>
-    <div class="ratelimit-list" id="elRateLimits">
+    <div class="ratelimit-list" id="elRateLimits" style="display:flex;gap:20px;flex-wrap:wrap">
       <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
     </div>
-  </div>
-
-  <!-- ══════════════ ROW 7: Trade History ══════════════ -->
-
-  <div class="section-divider">
-    <span class="divider-label">Trade History</span>
-    <div class="divider-line"></div>
   </div>
 
   <!-- Recent Trades -->
@@ -2738,45 +2669,34 @@ function updateBalance(s) {
   } else {
     $('elDrawdownFill').style.background = 'var(--red-0)';
   }
+
+  // Balance glow when profitable
+  const heroEl = document.querySelector('.hero');
+  if (heroEl) {
+    if (pnl > 0) heroEl.classList.add('profitable');
+    else heroEl.classList.remove('profitable');
+  }
 }
 
 function updateBotStatus(s) {
-  const status = (s.bot_status ?? 'UNKNOWN').toUpperCase();
-  const dot = $('statusDot');
-  const text = $('statusText');
-
-  let statusClass = 'unknown';
-  if (/SCAN/.test(status)) statusClass = 'scanning';
-  else if (/TRAD/.test(status)) statusClass = 'trading';
-  else if (/ERR/.test(status)) statusClass = 'error';
-  else if (/IDLE/.test(status)) statusClass = 'idle';
-
-  dot.className = 'status-dot ' + statusClass;
-  text.className = 'status-text ' + statusClass;
-  text.textContent = status;
-
   // Uptime
   const uSec = s.uptime_seconds;
   if (uSec != null) {
     uptimeSeconds = Number(uSec);
     const str = fmtSec(uptimeSeconds);
-    $('elUptimeVal').textContent = str;
     $('elUptime').textContent = 'uptime: ' + str;
   }
 
-  // Snapshot timestamp
-  if (s.timestamp) {
-    $('elTimestamp').textContent = fmtTime(s.timestamp);
-  }
-
-  // Error banner
+  // Error indicator in header (replaces System Status panel)
   const errMsg = s.last_error_message;
-  const banner = $('errorBanner');
-  if (errMsg && errMsg.length > 0) {
-    $('errorMsg').textContent = errMsg;
-    banner.classList.add('visible');
-  } else {
-    banner.classList.remove('visible');
+  const hdrErr = $('hdrError');
+  if (hdrErr) {
+    if (errMsg && errMsg.length > 0) {
+      hdrErr.textContent = '\u26a0 ' + errMsg;
+      hdrErr.classList.add('visible');
+    } else {
+      hdrErr.classList.remove('visible');
+    }
   }
 }
 
@@ -2808,6 +2728,14 @@ function updateWinLoss(s) {
 
   $('elStreak').textContent = s.consecutive_losses ?? 0;
   $('elPending').textContent = s.pending_settlements ?? 0;
+
+  // Hot streak styling when consecutive wins >= 5
+  const wlEl = document.querySelector('.wl-cell');
+  if (wlEl) {
+    const consLosses = s.consecutive_losses ?? 0;
+    if (consLosses === 0 && w >= 5) wlEl.classList.add('hot-streak');
+    else wlEl.classList.remove('hot-streak');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -2902,26 +2830,14 @@ function updateVolatility(s) {
     const arkHtml = v.ark_5min != null
       ? `<div class="vol-metric"><span class="vol-metric-label">ark 5m</span><span class="vol-metric-val">${fmtVol(v.ark_5min)}</span></div>` : '';
 
-    // Shadow mode comparison section
+    // Shadow mode comparison section (HAR removed)
     let shadowHtml = '';
-    const harModel = v.har_model;
-    const harBlendRv = v.har_blend_rv;
-    const harIvShadow = v.har_iv_shadow_rv;
     const vrpVal = v.vrp;
     const dvol_sq_hourly = v.dvol_sq_hourly;
-    const hasAnyShadow = (harModel && harModel !== 'fixed') || harIvShadow != null || vrpVal != null || dvol_sq_hourly != null;
+    const hasAnyShadow = vrpVal != null || dvol_sq_hourly != null;
 
     if (hasAnyShadow) {
       let sRows = '';
-      if (harModel && harModel !== 'fixed') {
-        sRows += `<div class="vol-shadow-row"><span class="vol-metric-label">HAR model</span><span class="model-chip" style="background:var(--violet-bg);color:var(--violet-0)">${escHtml(harModel)}</span></div>`;
-      }
-      if (harBlendRv != null) {
-        sRows += `<div class="vol-shadow-row"><span class="vol-metric-label">HAR σ</span><span class="vol-metric-val">${fmtVol(harBlendRv)}</span></div>`;
-      }
-      if (harIvShadow != null) {
-        sRows += `<div class="vol-shadow-row"><span class="vol-metric-label">HAR-IV σ</span><span class="vol-metric-val">${fmtVol(harIvShadow)}</span></div>`;
-      }
       if (dvol_sq_hourly != null) {
         sRows += `<div class="vol-shadow-row"><span class="vol-metric-label">DVOL² 1h</span><span class="vol-metric-val">${Number(dvol_sq_hourly).toExponential(2)}</span></div>`;
       }
@@ -4226,93 +4142,6 @@ function updateAskDistribution(s) {
 // UPDATERS — SHADOW MODE DIAGNOSTICS
 // ═══════════════════════════════════════════════════════════════════════
 
-function updateHARDiagnostics(s) {
-  const har = s.har_estimation;
-  const box = $('elHARDiag');
-  if (!har || typeof har !== 'object') {
-    box.innerHTML = '<div class="empty">Waiting for HAR diagnostics... (requires ~3h warmup)</div>';
-    return;
-  }
-
-  // Check if any asset has data
-  const hasData = ASSETS.some(a => har[a] && typeof har[a] === 'object');
-  if (!hasData) {
-    // Maybe it's a flat structure, just display raw
-    box.innerHTML = '<div class="empty">HAR collecting observations...</div>';
-    return;
-  }
-
-  // Header badges for new HAR features
-  const firstAssetData = ASSETS.map(a => har[a]).find(d => d && typeof d === 'object');
-  let headerBadges = '';
-  if (firstAssetData) {
-    headerBadges += `<div style="margin-bottom:6px;display:flex;gap:4px;flex-wrap:wrap">`;
-    headerBadges += `<span class="shadow-tag" style="background:var(--accent-dim);font-size:8px;padding:1px 5px">target=${firstAssetData.prediction_target ?? 'rv5'}</span>`;
-    headerBadges += `<span class="shadow-tag" style="background:var(--accent-dim);font-size:8px;padding:1px 5px">ridge=${firstAssetData.ridge_lambda ?? '—'}</span>`;
-    headerBadges += `<span class="shadow-tag" style="background:var(--accent-dim);font-size:8px;padding:1px 5px">WLS=${firstAssetData.wls_weight_scheme ?? '1/√t'}</span>`;
-    headerBadges += `</div>`;
-  }
-
-  let html = headerBadges + '<table class="diag-table"><thead><tr>';
-  html += '<th>Asset</th><th>Model</th><th>QLIKE</th><th>N</th><th>Hrs</th><th>DVOL %</th><th>VRP</th>';
-  html += '</tr></thead><tbody>';
-
-  for (const asset of ASSETS) {
-    const d = har[asset];
-    if (!d || typeof d !== 'object') {
-      html += `<tr><td><span style="color:${ASSET_COLORS[asset]};font-weight:600">${asset}</span></td><td colspan="6" style="color:var(--text-3)">warming up</td></tr>`;
-      continue;
-    }
-
-    const model = d.active_model ?? '—';
-    const qlScores = d.qlike_scores ?? {};
-    const bestQlike = qlScores[model];
-    const nObs = d.n_observations ?? '—';
-    const dvolFrac = d.dvol_obs_fraction;
-    const vrpLast = d.vrp_last;
-    const qlikeVsFixed = d.qlike_vs_fixed_pct;
-
-    const isIvModel = model.includes('iv') || model.includes('vrp');
-    const isHar = model !== 'fixed' && model !== '—';
-    const modelBg = isIvModel ? 'var(--green-bg)' : isHar ? 'var(--blue-bg)' : 'var(--bg-2)';
-    const modelColor = isIvModel ? 'var(--green-0)' : isHar ? 'var(--blue-0)' : 'var(--text-3)';
-
-    const bufHrs = d.buffer_hours;
-    html += `<tr>
-      <td><span style="color:${ASSET_COLORS[asset]};font-weight:600">${asset}</span></td>
-      <td><span class="model-chip" style="background:${modelBg};color:${modelColor}">${escHtml(model)}</span></td>
-      <td>${bestQlike != null ? Number(bestQlike).toFixed(4) : '—'}${qlikeVsFixed != null ? ` <span style="color:${qlikeVsFixed < 0 ? 'var(--green-0)' : 'var(--red-0)'};font-size:9px">(${qlikeVsFixed > 0 ? '+' : ''}${qlikeVsFixed}%)</span>` : ''}</td>
-      <td>${nObs}</td>
-      <td>${bufHrs != null ? Number(bufHrs).toFixed(1) : '—'}</td>
-      <td>${dvolFrac != null ? (Number(dvolFrac) * 100).toFixed(0) + '%' : '—'}</td>
-      <td>${vrpLast != null ? Number(vrpLast).toExponential(2) : '—'}</td>
-    </tr>`;
-  }
-
-  html += '</tbody></table>';
-
-  // Show model competition summary if available
-  let competitionHtml = '';
-  for (const asset of ASSETS) {
-    const d = har[asset];
-    if (!d || typeof d !== 'object') continue;
-    const allModels = d.qlike_scores;
-    if (allModels && typeof allModels === 'object') {
-      const entries = Object.entries(allModels).sort((a, b) => a[1] - b[1]);
-      if (entries.length > 1) {
-        competitionHtml += `<div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--text-3)">`;
-        competitionHtml += `<span style="color:${ASSET_COLORS[asset]};font-weight:600">${asset}</span> QLIKE: `;
-        competitionHtml += entries.map(([m, q]) => {
-          const isBest = m === d.active_model;
-          return `<span style="color:${isBest ? 'var(--green-0)' : 'var(--text-2)'};${isBest ? 'font-weight:700' : ''}">${m}=${Number(q).toFixed(4)}</span>`;
-        }).join(' · ');
-        competitionHtml += '</div>';
-      }
-    }
-  }
-
-  box.innerHTML = html + competitionHtml;
-}
 
 function updateEGARCHDiagnostics(s) {
   const eg = s.egarch_estimation;
@@ -4367,49 +4196,6 @@ function updateEGARCHDiagnostics(s) {
   box.innerHTML = html || '<div class="empty">No EGARCH data</div>';
 }
 
-function updateAdaptiveRK(s) {
-  const ark = s.rk_adaptive_diagnostics;
-  const box = $('elARKDiag');
-  if (!ark || typeof ark !== 'object') {
-    box.innerHTML = '<div class="empty">Waiting for adaptive RK data...</div>';
-    return;
-  }
-
-  let html = '';
-  for (const asset of ASSETS) {
-    const d = ark[asset];
-    if (!d || typeof d !== 'object') continue;
-    const color = ASSET_COLORS[asset];
-
-    const omegaSq = d.omega_sq_current;
-    const omegaMean = d.omega_sq_1h_mean;
-    const h5Adaptive = d.H_adaptive_5_current;
-    const h5Fixed = d.H_fixed_5;
-    const h15Adaptive = d.H_adaptive_15_current;
-    const h15Fixed = d.H_fixed_15;
-    const adaptPct = d.adaptive_pct_different_1h;
-    const delta5 = d.mean_delta_5_1h;
-    const delta15 = d.mean_delta_15_1h;
-
-    // Is adaptive actually diverging from fixed?
-    const isDiverging = adaptPct != null && adaptPct > 0.1;
-    const divergeColor = isDiverging ? 'var(--amber-0)' : 'var(--text-2)';
-
-    html += `<div class="diag-asset-block">
-      <div class="diag-asset-name" style="color:${color}">${asset}</div>
-      <div class="shadow-metrics">
-        <div class="shadow-metric"><span class="shadow-metric-label">ω²</span><span class="shadow-metric-val">${omegaSq != null ? Number(omegaSq).toExponential(2) : '—'}</span></div>
-        <div class="shadow-metric"><span class="shadow-metric-label">ω² 1h μ</span><span class="shadow-metric-val">${omegaMean != null ? Number(omegaMean).toExponential(2) : '—'}</span></div>
-        <div class="shadow-metric"><span class="shadow-metric-label">H₅</span><span class="shadow-metric-val">${h5Adaptive != null ? Number(h5Adaptive).toFixed(1) : '—'}${h5Fixed != null ? ' / ' + Number(h5Fixed).toFixed(1) : ''}</span></div>
-        <div class="shadow-metric"><span class="shadow-metric-label">H₁₅</span><span class="shadow-metric-val">${h15Adaptive != null ? Number(h15Adaptive).toFixed(1) : '—'}${h15Fixed != null ? ' / ' + Number(h15Fixed).toFixed(1) : ''}</span></div>
-        <div class="shadow-metric"><span class="shadow-metric-label">adapt %</span><span class="shadow-metric-val" style="color:${divergeColor}">${adaptPct != null ? (Number(adaptPct) * 100).toFixed(0) + '%' : '—'}</span></div>
-        ${delta5 != null ? `<div class="shadow-metric"><span class="shadow-metric-label">Δ₅ 1h</span><span class="shadow-metric-val">${Number(delta5).toExponential(2)}</span></div>` : ''}
-      </div>
-    </div>`;
-  }
-
-  box.innerHTML = html || '<div class="empty">No adaptive RK data</div>';
-}
 
 function updateEGARCHBlendDiag(s) {
   const blend = s.egarch_blend;
@@ -4492,8 +4278,10 @@ function updateExecutionEngine(s) {
   $('execWsOBs').textContent = ee.kalshi_ws_orderbooks_cached ?? 0;
 
   // Session stats
-  $('eeAmendAtt').textContent = ee.session_amend_attempts ?? 0;
-  $('eeAmendOk').textContent = ee.session_amend_successes ?? 0;
+  $('eeDTAttempts').textContent = ee.session_direct_taker_attempts ?? 0;
+  $('eeDTFills').textContent = ee.session_direct_taker_fills ?? 0;
+  $('eeDTUnfilled').textContent = ee.session_direct_taker_unfilled ?? 0;
+  $('eeDTSkipped').textContent = ee.session_direct_taker_skipped ?? 0;
   $('eeIocFills').textContent = ee.session_ioc_fills ?? 0;
   $('eeIocUnfilled').textContent = ee.session_ioc_unfilled ?? 0;
   $('eeWsFills').textContent = ee.session_ws_fills ?? 0;
@@ -4501,13 +4289,16 @@ function updateExecutionEngine(s) {
   $('eePostOnly').textContent = ee.session_post_only_rejections ?? 0;
 
   // Derived rates
-  const amendRate = $('eeAmendRate');
-  if (ee.amend_success_rate != null) {
-    amendRate.textContent = (ee.amend_success_rate * 100).toFixed(0) + '%';
-    amendRate.style.color = ee.amend_success_rate >= 0.8 ? 'var(--green-0)' : ee.amend_success_rate >= 0.5 ? 'var(--amber-0)' : 'var(--red-0)';
+  const dtRate = $('eeDTRate');
+  const dtAttempts = ee.session_direct_taker_attempts ?? 0;
+  const dtFills = ee.session_direct_taker_fills ?? 0;
+  if (dtAttempts > 0) {
+    const rate = dtFills / dtAttempts;
+    dtRate.textContent = (rate * 100).toFixed(0) + '%';
+    dtRate.style.color = rate >= 0.7 ? 'var(--green-0)' : 'var(--amber-0)';
   } else {
-    amendRate.textContent = '—';
-    amendRate.style.color = 'var(--text-3)';
+    dtRate.textContent = '—';
+    dtRate.style.color = 'var(--text-3)';
   }
 
   const wsRatio = $('eeWsRatio');
@@ -4517,6 +4308,30 @@ function updateExecutionEngine(s) {
   } else {
     wsRatio.textContent = '—';
     wsRatio.style.color = 'var(--text-3)';
+  }
+
+  // Entry path distribution
+  const epd = ee.entry_path_distribution;
+  const epdBox = $('eeEntryPaths');
+  if (epdBox && epd && typeof epd === 'object') {
+    const paths = [
+      { name: 'Maker', val: epd.maker ?? 0, color: 'var(--blue-0)' },
+      { name: 'Direct Taker', val: epd.direct_taker ?? 0, color: 'var(--green-0)' },
+      { name: 'Escalation IOC', val: epd.escalation_ioc ?? 0, color: 'var(--amber-0)' },
+      { name: 'PO Taker', val: epd.post_only_taker ?? 0, color: 'var(--red-0)' },
+    ];
+    const total = Math.max(1, paths.reduce((s, p) => s + p.val, 0));
+    let html = '<div class="ee-section-label">Entry Path Distribution</div>';
+    for (const p of paths) {
+      const pct = (p.val / total * 100).toFixed(0);
+      html += `<div class="ee-strat-bar">
+        <span class="ee-strat-bar-label">${p.name}</span>
+        <span class="ee-strat-bar-val">${p.val}</span>
+        <div class="ee-strat-bar-track"><div class="ee-strat-bar-fill" style="width:${pct}%;background:${p.color}"></div></div>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--text-3);min-width:28px;text-align:right">${pct}%</span>
+      </div>`;
+    }
+    epdBox.innerHTML = html;
   }
 
   // Escalation funnel
@@ -4669,47 +4484,7 @@ function updateNIGDistribution(s) {
 // ═══════════════════════════════════════════════════════════════════════
 // TRADE FREQUENCY HEATMAP
 // ═══════════════════════════════════════════════════════════════════════
-function updateTradeHeatmap(s) {
-  const rta = s.real_trade_analytics;
-  const box = $('elTradeHeatmap');
-  if (!box) return;
-  if (!rta || !rta.by_hour || Object.keys(rta.by_hour).length === 0) {
-    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">No hourly data yet</div>';
-    return;
-  }
-
-  const byHour = rta.by_hour;
-  let maxCount = 1;
-  for (const h of Object.values(byHour)) {
-    if (h.count > maxCount) maxCount = h.count;
-  }
-
-  let html = '<div class="heatmap-grid">';
-  for (let h = 0; h < 24; h++) {
-    const data = byHour[String(h)];
-    const cnt = data ? data.count : 0;
-    const pnl = data ? data.net_pnl : 0;
-    const intensity = cnt / maxCount;
-    const isPositive = pnl >= 0;
-    let bgColor;
-    if (cnt === 0) {
-      bgColor = 'var(--bg-2)';
-    } else if (isPositive) {
-      bgColor = `rgba(16,185,129,${0.1 + intensity * 0.5})`;
-    } else {
-      bgColor = `rgba(244,63,94,${0.1 + intensity * 0.5})`;
-    }
-    const textColor = cnt > 0 ? 'var(--text-0)' : 'var(--text-3)';
-    const title = cnt > 0 ? `${h}:00 UTC \u2014 ${cnt} trades, ${(pnl/100).toFixed(2)}` : `${h}:00 UTC \u2014 no trades`;
-    html += `<div class="heatmap-hour" style="background:${bgColor};color:${textColor}" title="${title}">
-      ${cnt > 0 ? cnt : '\u00b7'}
-      <div class="heatmap-hour-label">${h}</div>
-    </div>`;
-  }
-  html += '</div>';
-  html += '<div class="heatmap-legend"><span style="color:var(--green-0)">\u25cf Profit</span><span style="color:var(--red-0)">\u25cf Loss</span><span>\u25cf = trade count intensity</span></div>';
-  box.innerHTML = html;
-}
+/* updateTradeHeatmap removed — panel deleted */
 
 // ═══════════════════════════════════════════════════════════════════════
 // EQUITY CURVE 4H TOGGLE
@@ -4792,7 +4567,7 @@ function update(s) {
   try { updateTradeAnalytics(s); } catch (e) { console.error('updateTradeAnalytics:', e); }
   try { drawCumulativePnl(s); } catch (e) { console.error('drawCumulativePnl:', e); }
   try { updateNIGDistribution(s); } catch (e) { console.error('updateNIGDistribution:', e); }
-  try { updateTradeHeatmap(s); } catch (e) { console.error('updateTradeHeatmap:', e); }
+
   try { checkTradeAlert(s); } catch (e) { console.error('checkTradeAlert:', e); }
   try { updateSessionStats(s); } catch (e) { console.error('updateSessionStats:', e); }
   try { updateStrategyBreakdown(s); } catch (e) { console.error('updateStrategyBreakdown:', e); }
@@ -4804,10 +4579,10 @@ function update(s) {
   try { updateCalibration(s); } catch (e) { console.error('updateCalibration:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
-  try { updateHARDiagnostics(s); } catch (e) { console.error('updateHARDiagnostics:', e); }
+
   try { updateEGARCHDiagnostics(s); } catch (e) { console.error('updateEGARCHDiagnostics:', e); }
   try { updateEGARCHBlendDiag(s); } catch (e) { console.error('updateEGARCHBlendDiag:', e); }
-  try { updateAdaptiveRK(s); } catch (e) { console.error('updateAdaptiveRK:', e); }
+
   try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
   try { updateActiveOrderExecFields(s); } catch (e) { console.error('updateActiveOrderExecFields:', e); }
 }
@@ -4846,7 +4621,6 @@ setInterval(() => {
   if (uptimeSeconds != null) {
     uptimeSeconds++;
     const str = fmtSec(uptimeSeconds);
-    $('elUptimeVal').textContent = str;
     $('elUptime').textContent = 'uptime: ' + str;
   }
 
@@ -5082,6 +4856,23 @@ async function loadTorahQuote() {
 }
 
 loadTorahQuote();
+
+// ═══════════════════════════════════════════════════════════════════════
+// SECTION DIVIDER QUOTES
+// ═══════════════════════════════════════════════════════════════════════
+function loadSectionQuotes() {
+  const embeddedQuotes = TORAH_QUOTES.filter(q => q.embedded && q.en);
+  if (embeddedQuotes.length === 0) return;
+  const day = getDayOfYear();
+  for (let i = 0; i < 5; i++) {
+    const el = $('divQuote' + i);
+    if (!el) continue;
+    const idx = (day + 7 + i * 11) % embeddedQuotes.length;
+    const q = embeddedQuotes[idx];
+    el.innerHTML = `"${escHtml(q.en)}" <span class="divider-quote-src">\u2014 ${escHtml(q.src)}</span>`;
+  }
+}
+loadSectionQuotes();
 </script>
 </body>
 </html>
