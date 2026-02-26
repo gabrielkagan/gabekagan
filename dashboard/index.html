@@ -490,6 +490,7 @@ body::before {
 .order-strat-tag.maker-aggressive { background: var(--amber-bg); color: var(--amber-0); }
 .order-strat-tag.taker-now { background: var(--green-bg); color: var(--green-0); border: 1px solid var(--green-border); }
 .order-strat-tag.panic-capture { background: var(--red-bg); color: var(--red-0); border: 1px solid var(--red-border); }
+.order-strat-tag.confirmation-addon { background: rgba(168,85,247,0.12); color: #c084fc; border: 1px solid rgba(168,85,247,0.25); }
 .order-strat-tag.wait { background: rgba(100,116,139,0.15); color: var(--text-2); }
 .order-metrics {
   display: flex; flex-wrap: wrap; gap: 6px 18px;
@@ -2066,6 +2067,10 @@ body::before {
       <div class="execeng-stat"><div class="execeng-stat-label">DT Fills</div><div class="execeng-stat-val" id="eeDTFills">0</div></div>
       <div class="execeng-stat"><div class="execeng-stat-label">DT Unfilled</div><div class="execeng-stat-val" id="eeDTUnfilled">0</div></div>
       <div class="execeng-stat"><div class="execeng-stat-label">DT Skipped</div><div class="execeng-stat-val" id="eeDTSkipped">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">Addon Att</div><div class="execeng-stat-val" id="eeAddonAttempts">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">Addon Fills</div><div class="execeng-stat-val" id="eeAddonFills">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">Addon Unfilled</div><div class="execeng-stat-val" id="eeAddonUnfilled">0</div></div>
+      <div class="execeng-stat"><div class="execeng-stat-label">Addon Skipped</div><div class="execeng-stat-val" id="eeAddonSkipped">0</div></div>
     </div>
     <div class="execeng-derived" id="execEngDerived">
       <div class="execeng-derived-item">
@@ -3003,6 +3008,7 @@ const STRAT_CLASSES = {
   MAKER_AGGRESSIVE: 'maker-aggressive',
   TAKER_NOW: 'taker-now',
   PANIC_CAPTURE: 'panic-capture',
+  CONFIRMATION_ADDON: 'confirmation-addon',
 };
 
 function stratTagClass(name) {
@@ -4287,6 +4293,10 @@ function updateExecutionEngine(s) {
   $('eeWsFills').textContent = ee.session_ws_fills ?? 0;
   $('eeRestFills').textContent = ee.session_rest_fills ?? 0;
   $('eePostOnly').textContent = ee.session_post_only_rejections ?? 0;
+  $('eeAddonAttempts').textContent = ee.session_addon_attempts ?? 0;
+  $('eeAddonFills').textContent = ee.session_addon_fills ?? 0;
+  $('eeAddonUnfilled').textContent = ee.session_addon_unfilled ?? 0;
+  $('eeAddonSkipped').textContent = ee.session_addon_skipped ?? 0;
 
   // Derived rates
   const dtRate = $('eeDTRate');
@@ -4319,6 +4329,7 @@ function updateExecutionEngine(s) {
       { name: 'Direct Taker', val: epd.direct_taker ?? 0, color: 'var(--green-0)' },
       { name: 'Escalation IOC', val: epd.escalation_ioc ?? 0, color: 'var(--amber-0)' },
       { name: 'PO Taker', val: epd.post_only_taker ?? 0, color: 'var(--red-0)' },
+      { name: 'Addon', val: epd.confirmation_addon ?? 0, color: '#c084fc' },
     ];
     const total = Math.max(1, paths.reduce((s, p) => s + p.val, 0));
     let html = '<div class="ee-section-label">Entry Path Distribution</div>';
