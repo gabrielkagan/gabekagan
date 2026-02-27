@@ -1516,6 +1516,26 @@ body::before {
 .equity-canvas-wrap canvas { width: 100%; height: 100%; display: block; }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   LIFETIME P&L CHART
+   ═══════════════════════════════════════════════════════════════════════ */
+.pnl-cell { grid-column: 1 / -1; }
+.pnl-canvas-wrap {
+  position: relative; width: 100%; height: 160px;
+  background: var(--bg-1); border-radius: var(--radius-sm);
+  border: 1px solid var(--border-0);
+}
+.pnl-canvas-wrap canvas { width: 100%; height: 100%; display: block; }
+.pnl-summary {
+  display: flex; gap: 16px; margin-bottom: 6px; flex-wrap: wrap;
+}
+.pnl-summary .pnl-stat {
+  font-size: 11px; color: var(--text-1);
+}
+.pnl-summary .pnl-stat span {
+  font-weight: 600; font-size: 12px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    RISK METRICS + EXECUTION QUALITY
    ═══════════════════════════════════════════════════════════════════════ */
 .risk-cell { grid-column: span 4; }
@@ -1586,6 +1606,7 @@ body::before {
   .spot-item { min-width: 140px; }
   .egarch-diag-cell { grid-column: span 3; }
   .equity-cell { grid-column: 1 / -1; }
+  .pnl-cell { grid-column: 1 / -1; }
   .risk-cell, .exec-cell { grid-column: span 3; }
   .execeng-cell { grid-column: span 6; }
   .ob-viz-cell { grid-column: span 6; }
@@ -1603,7 +1624,7 @@ body::before {
   .trades-cell, .opps-cell,
   .cal-cell, .cf-cell, .askdist-cell,
   .egarch-diag-cell,
-  .equity-cell, .risk-cell, .exec-cell,
+  .equity-cell, .pnl-cell, .risk-cell, .exec-cell,
   .execeng-cell, .ob-viz-cell, .koft-cell { grid-column: 1 / -1; }
   .cf-summary { grid-template-columns: 1fr; }
   .cf-buckets { grid-template-columns: repeat(2, 1fr); }
@@ -1781,6 +1802,19 @@ body::before {
     <div class="cell-label">Equity Curve<div class="eq-toggle"><span class="eq-btn active" data-range="1h">1H</span><span class="eq-btn" data-range="4h">4H</span><span class="eq-btn" data-range="24h">24H</span><span class="eq-btn" data-range="all">ALL</span></div></div>
     <div class="equity-canvas-wrap">
       <canvas id="equityCanvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Lifetime P&L -->
+  <div class="cell pnl-cell">
+    <div class="cell-label">Lifetime P&L</div>
+    <div class="pnl-summary">
+      <div class="pnl-stat">Total: <span id="pnlTotal">--</span></div>
+      <div class="pnl-stat">Return: <span id="pnlReturn">--</span></div>
+      <div class="pnl-stat">Trades: <span id="pnlTrades">--</span></div>
+    </div>
+    <div class="pnl-canvas-wrap">
+      <canvas id="pnlCanvas"></canvas>
     </div>
   </div>
 
@@ -2510,6 +2544,158 @@ function drawEquityCurve(s) {
     const d = new Date(ts);
     const label = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
     ctx.fillText(label, toX(idx), H - 3);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// LIFETIME P&L CHART
+// ═══════════════════════════════════════════════════════════════════════
+function drawPnlChart(s) {
+  const canvas = $('pnlCanvas');
+  if (!canvas) return;
+
+  const rta = s.real_trade_analytics;
+  const data = rta && rta.cumulative_pnl;
+  if (!data || !Array.isArray(data) || data.length < 1) return;
+
+  const startBal = (s.starting_balance ?? 100) * 100; // cents
+
+  // Update summary stats
+  const lastPnl = data[data.length - 1].cum_pnl;
+  const pnlDollars = lastPnl / 100;
+  const pnlPct = startBal > 0 ? (lastPnl / startBal * 100) : 0;
+  const elTotal = $('pnlTotal');
+  const elReturn = $('pnlReturn');
+  const elTrades = $('pnlTrades');
+  if (elTotal) {
+    elTotal.textContent = (pnlDollars >= 0 ? '+$' : '-$') + Math.abs(pnlDollars).toFixed(2);
+    elTotal.style.color = pnlDollars >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+  }
+  if (elReturn) {
+    elReturn.textContent = (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%';
+    elReturn.style.color = pnlPct >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+  }
+  if (elTrades) elTrades.textContent = data.length;
+
+  // Prepend a zero point at first trade time minus a tiny offset
+  const pts = [{ts: data[0].ts, pnl: 0, pct: 0}];
+  for (const d of data) {
+    pts.push({ts: d.ts, pnl: d.cum_pnl / 100, pct: startBal > 0 ? d.cum_pnl / startBal * 100 : 0});
+  }
+
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = rect.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const pnls = pts.map(p => p.pnl);
+  const pcts = pts.map(p => p.pct);
+  const minP = Math.min(0, ...pnls) - 0.2;
+  const maxP = Math.max(0, ...pnls) + 0.2;
+  const rangeP = maxP - minP || 1;
+  const pad = {l: 48, r: 48, t: 10, b: 20};
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+
+  const toX = i => pad.l + (i / (pts.length - 1)) * cw;
+  const toY = v => pad.t + (1 - (v - minP) / rangeP) * ch;
+
+  // Zero line
+  const zeroY = toY(0);
+  ctx.setLineDash([4, 3]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.l, zeroY); ctx.lineTo(W - pad.r, zeroY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Gridlines
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 0.5;
+  const ySteps = 4;
+  for (let i = 0; i <= ySteps; i++) {
+    const val = minP + (rangeP * i / ySteps);
+    const y = toY(val);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+  }
+
+  // Step line (PnL changes discretely at each settlement)
+  const isPositive = pnls[pnls.length - 1] >= 0;
+  const lineColor = isPositive ? '#10b981' : '#f43f5e';
+
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = lineColor;
+  ctx.beginPath();
+  for (let i = 0; i < pts.length; i++) {
+    const x = toX(i), y = toY(pnls[i]);
+    if (i === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      // Step: horizontal then vertical
+      ctx.lineTo(x, toY(pnls[i - 1]));
+      ctx.lineTo(x, y);
+    }
+  }
+  ctx.stroke();
+
+  // Fill under/over zero
+  ctx.lineTo(toX(pts.length - 1), zeroY);
+  ctx.lineTo(toX(0), zeroY);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + ch);
+  if (isPositive) {
+    grad.addColorStop(0, 'rgba(16,185,129,0.18)');
+    grad.addColorStop(1, 'rgba(16,185,129,0)');
+  } else {
+    grad.addColorStop(0, 'rgba(244,63,94,0)');
+    grad.addColorStop(1, 'rgba(244,63,94,0.18)');
+  }
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Dots at each trade
+  ctx.fillStyle = lineColor;
+  for (let i = 1; i < pts.length; i++) {
+    const x = toX(i), y = toY(pnls[i]);
+    ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Left Y-axis: dollar labels
+  ctx.fillStyle = '#64748b';
+  ctx.font = '9px IBM Plex Mono';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= ySteps; i++) {
+    const val = minP + (rangeP * i / ySteps);
+    const y = toY(val);
+    ctx.fillText((val >= 0 ? '+$' : '-$') + Math.abs(val).toFixed(2), pad.l - 4, y + 3);
+  }
+
+  // Right Y-axis: percentage labels
+  const minPct = startBal > 0 ? minP / (startBal / 100) * 100 : 0;
+  const maxPct = startBal > 0 ? maxP / (startBal / 100) * 100 : 0;
+  const rangePct = maxPct - minPct || 1;
+  ctx.textAlign = 'left';
+  for (let i = 0; i <= ySteps; i++) {
+    const val = minPct + (rangePct * i / ySteps);
+    const y = pad.t + (1 - i / ySteps) * ch;
+    ctx.fillText((val >= 0 ? '+' : '') + val.toFixed(1) + '%', W - pad.r + 4, y + 3);
+  }
+
+  // X-axis date labels
+  ctx.textAlign = 'center';
+  const xLabels = Math.min(6, pts.length);
+  for (let i = 0; i < xLabels; i++) {
+    const idx = Math.floor(i * (pts.length - 1) / (xLabels - 1));
+    const ts = pts[idx].ts;
+    if (!ts) continue;
+    const d = new Date(ts);
+    const mo = (d.getMonth() + 1).toString();
+    const day = d.getDate().toString();
+    ctx.fillText(mo + '/' + day, toX(idx), H - 4);
   }
 }
 
@@ -4308,6 +4494,7 @@ function update(s) {
 
   try { updateSpotPrices(s); } catch (e) { console.error('updateSpotPrices:', e); }
   try { drawEquityCurve(s); } catch (e) { console.error('drawEquityCurve:', e); }
+  try { drawPnlChart(s); } catch (e) { console.error('drawPnlChart:', e); }
   try { updateRiskMetrics(s); } catch (e) { console.error('updateRiskMetrics:', e); }
   try { updateBalance(s); } catch (e) { console.error('updateBalance:', e); }
   try { updateBotStatus(s); } catch (e) { console.error('updateBotStatus:', e); }
@@ -4421,6 +4608,7 @@ window.addEventListener('resize', () => {
   _resizeTimer = setTimeout(() => {
     if (lastSnapshot) {
       try { drawEquityCurve(lastSnapshot); } catch(e) {}
+      try { drawPnlChart(lastSnapshot); } catch(e) {}
     }
     if (_analyticsLoaded) {
       try { redrawAnalyticsCharts(); } catch(e) {}
