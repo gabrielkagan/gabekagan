@@ -4473,8 +4473,8 @@ async function fetchAndRenderAnalytics() {
     _analyticsClient.rpc('get_analytics_calibration'),
     _analyticsClient.rpc('get_analytics_vol_history'),
     _analyticsClient.rpc('get_analytics_cal_history'),
-    _analyticsClient.rpc('get_analytics_edge_realized').catch(() => ({ data: null })),
-    _analyticsClient.rpc('get_analytics_time_of_day').catch(() => ({ data: null })),
+    _analyticsClient.rpc('get_analytics_edge_realized'),
+    _analyticsClient.rpc('get_analytics_time_of_day'),
   ];
   const [dailyPnl, byPrice, calAcc, volHist, calHist, edgeRealized, timeOfDay] = await Promise.all(rpcs);
   _analyticsData = { dailyPnl, byPrice, calAcc, volHist, calHist, edgeRealized, timeOfDay };
