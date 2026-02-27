@@ -1371,6 +1371,8 @@ body::before {
    SHADOW MODE RESEARCH PANELS
    ═══════════════════════════════════════════════════════════════════════ */
 .egarch-diag-cell { grid-column: span 4; }
+.hourly-obs-cell { grid-column: span 4; }
+.shadow-cal-cell { grid-column: span 4; }
 
 .shadow-metrics {
   display: grid; grid-template-columns: 1fr 1fr; gap: 3px 10px;
@@ -1605,6 +1607,8 @@ body::before {
   .cf-buckets { grid-template-columns: repeat(2, 1fr); }
   .spot-item { min-width: 140px; }
   .egarch-diag-cell { grid-column: span 3; }
+  .hourly-obs-cell { grid-column: span 3; }
+  .shadow-cal-cell { grid-column: span 3; }
   .equity-cell { grid-column: 1 / -1; }
   .pnl-cell { grid-column: 1 / -1; }
   .risk-cell, .exec-cell { grid-column: span 3; }
@@ -1625,7 +1629,8 @@ body::before {
   .cal-cell, .cf-cell, .askdist-cell,
   .egarch-diag-cell,
   .equity-cell, .pnl-cell, .risk-cell, .exec-cell,
-  .execeng-cell, .ob-viz-cell, .koft-cell { grid-column: 1 / -1; }
+  .execeng-cell, .ob-viz-cell, .koft-cell,
+  .hourly-obs-cell, .shadow-cal-cell { grid-column: 1 / -1; }
   .cf-summary { grid-template-columns: 1fr; }
   .cf-buckets { grid-template-columns: repeat(2, 1fr); }
   .bal-num { font-size: 34px; }
@@ -1909,6 +1914,17 @@ body::before {
     </div>
   </div>
 
+  <!-- Hourly Markets Observation -->
+  <div class="cell hourly-obs-cell" style="grid-column:span 4">
+    <div class="cell-label">
+      Hourly Markets
+      <span class="tag" id="hourlyObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div class="hourly-obs-grid" id="elHourlyObs">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- ══════════════ TIER 3: TRADE ANALYTICS ══════════════ -->
 
   <div class="section-divider">
@@ -1920,7 +1936,7 @@ body::before {
   </div>
 
   <!-- Trade Analytics Overview -->
-  <div class="cell ta-overview-cell" style="grid-column:span 3">
+  <div class="cell ta-overview-cell" style="grid-column:span 2">
     <div class="cell-label">
       Total P&L
       <span class="tag" id="taCountTag" style="background:var(--green-bg);color:var(--green-0);border:1px solid var(--green-border)">0 trades</span>
@@ -2256,6 +2272,17 @@ body::before {
     </div>
     <div id="elEGARCHBlendDiag">
       <div class="empty">Waiting for EGARCH blend data...</div>
+    </div>
+  </div>
+
+  <!-- Shadow Cal Pipeline -->
+  <div class="cell shadow-cal-cell" style="grid-column:span 4">
+    <div class="cell-label">
+      Shadow Cal Pipeline
+      <span class="tag" id="shadowCalTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elShadowCal">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
     </div>
   </div>
 
@@ -2937,10 +2964,6 @@ function updateVolatility(s) {
     }
 
     // Additional shadow estimator metrics for the metrics grid
-    const medrvHtml = v.medrv_5min != null
-      ? `<div class="vol-metric"><span class="vol-metric-label">medrv 5m</span><span class="vol-metric-val">${fmtVol(v.medrv_5min)}</span></div>` : '';
-    const tbpvHtml = v.tbpv_5min != null
-      ? `<div class="vol-metric"><span class="vol-metric-label">tbpv 5m</span><span class="vol-metric-val">${fmtVol(v.tbpv_5min)}</span></div>` : '';
     const egarchHtml = v.egarch_sigma != null
       ? `<div class="vol-metric"><span class="vol-metric-label">egarch σ</span><span class="vol-metric-val">${fmtVol(v.egarch_sigma)}</span></div>` : '';
     const arkHtml = v.ark_5min != null
@@ -2984,8 +3007,6 @@ function updateVolatility(s) {
         <div class="vol-metric"><span class="vol-metric-label">bv 5m</span><span class="vol-metric-val">${fmtVol(v.bv_5min)}</span></div>
         <div class="vol-metric"><span class="vol-metric-label">bv 15m</span><span class="vol-metric-val">${fmtVol(v.bv_15min)}</span></div>
         ${dvolHtml}
-        ${medrvHtml}
-        ${tbpvHtml}
         ${egarchHtml}
         ${arkHtml}
       </div>
@@ -3020,7 +3041,10 @@ function updateMarketTiming(s) {
   const aw = s.active_windows;
   if (aw) {
     if (aw.total != null) {
-      $('elWindows').textContent = 'windows: ' + aw.total;
+      const f = aw.fifteenm ?? 0;
+      const h = aw.hourly ?? 0;
+      const breakdown = (f || h) ? ` (${f}\u00d715m \u00b7 ${h}\u00d71h)` : '';
+      $('elWindows').textContent = 'windows: ' + aw.total + breakdown;
       $('elCloseLabel').textContent = aw.total + ' active window' + (aw.total !== 1 ? 's' : '');
     }
     const byAsset = aw.by_asset ?? {};
@@ -4185,6 +4209,29 @@ function updateEGARCHBlendDiag(s) {
     </div>`;
   }
 
+  // Sigmoid QLIKE shadow section
+  if (blend.sigmoid_shadow_mode) {
+    const bqlike = blend.baseline_qlike ?? {};
+    const sigW = blend.shadow_sigmoid_w ?? {};
+    let sigRows = '';
+    for (const asset of ASSETS) {
+      const color = ASSET_COLORS[asset];
+      const bql = bqlike[asset];
+      const sw = sigW[asset];
+      sigRows += `<div class="diag-asset-block" style="padding:3px 0">
+        <div class="diag-asset-name" style="color:${color};font-size:10px">${asset}</div>
+        <div class="shadow-metrics">
+          <div class="shadow-metric"><span class="shadow-metric-label">base QLIKE</span><span class="shadow-metric-val">${bql != null ? Number(bql).toFixed(4) : '—'}</span></div>
+          <div class="shadow-metric"><span class="shadow-metric-label">sigmoid w</span><span class="shadow-metric-val">${sw != null ? Number(sw).toFixed(4) : '—'}</span></div>
+        </div>
+      </div>`;
+    }
+    html += `<div style="margin-top:8px;border-top:1px solid var(--border-0);padding-top:8px">
+      <div class="vol-shadow-label" style="margin-bottom:4px">Sigmoid QLIKE <span class="shadow-tag">SHADOW</span></div>
+      ${sigRows}
+    </div>`;
+  }
+
   box.innerHTML = html || '<div class="empty">No blend data</div>';
 }
 
@@ -4480,6 +4527,103 @@ function checkTradeAlert(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// HOURLY OBSERVATION
+// ═══════════════════════════════════════════════════════════════════════
+function updateHourlyObservation(s) {
+  const h = s.hourly_observation;
+  const box = $('elHourlyObs');
+  const tag = $('hourlyObsTag');
+  if (!h || typeof h !== 'object') {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>';
+    return;
+  }
+
+  const obsOnly = h.observation_only !== false;
+  tag.textContent = obsOnly ? 'SHADOW' : 'LIVE';
+  tag.style.background = obsOnly ? 'var(--amber-bg)' : 'var(--green-bg)';
+  tag.style.color = obsOnly ? 'var(--amber-0)' : 'var(--green-0)';
+  tag.style.border = obsOnly ? '1px solid var(--amber-border)' : '1px solid var(--green-border)';
+
+  const settled = h.settled_count ?? 0;
+  const wins = h.settled_wins ?? 0;
+  const pending = h.pending_count ?? 0;
+  const avgEdge = h.avg_edge != null ? (h.avg_edge * 100).toFixed(2) + '%' : '—';
+  const blendW = h.blend_w != null ? (h.blend_w * 100).toFixed(0) + '%' : '—';
+  const maxStcMin = h.max_stc != null ? Math.round(h.max_stc / 60) + 'm' : '—';
+  const wr = settled > 0 ? (wins / settled * 100).toFixed(1) + '%' : '—';
+
+  box.innerHTML = `
+    <div class="shadow-metrics" style="margin-bottom:8px">
+      <div class="shadow-metric"><span class="shadow-metric-label">blend</span><span class="shadow-metric-val">${blendW}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">scan</span><span class="shadow-metric-val">${maxStcMin} pre-close</span></div>
+    </div>
+    <div class="shadow-metrics" style="margin-bottom:8px">
+      <div class="shadow-metric"><span class="shadow-metric-label">settled</span><span class="shadow-metric-val">${settled}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">wins</span><span class="shadow-metric-val">${wins}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">win rate</span><span class="shadow-metric-val">${wr}</span></div>
+    </div>
+    <div class="shadow-metrics">
+      <div class="shadow-metric"><span class="shadow-metric-label">pending</span><span class="shadow-metric-val">${pending}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">avg edge</span><span class="shadow-metric-val">${avgEdge}</span></div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SHADOW CALIBRATION PIPELINE
+// ═══════════════════════════════════════════════════════════════════════
+function updateShadowCalPipeline(s) {
+  const sc = s.shadow_cal_pipeline;
+  const box = $('elShadowCal');
+  const tag = $('shadowCalTag');
+  if (!sc || typeof sc !== 'object') {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>';
+    return;
+  }
+
+  const isShadow = sc.shadow_mode !== false;
+  tag.textContent = isShadow ? 'SHADOW' : 'LIVE';
+  tag.style.background = isShadow ? 'var(--amber-bg)' : 'var(--green-bg)';
+  tag.style.color = isShadow ? 'var(--amber-0)' : 'var(--green-0)';
+  tag.style.border = isShadow ? '1px solid var(--amber-border)' : '1px solid var(--green-border)';
+
+  const prodBrier = sc.production_brier != null ? Number(sc.production_brier).toFixed(4) : '—';
+  const shadowBrier = sc.temperature_brier != null ? Number(sc.temperature_brier).toFixed(4) : '—';
+  const prodMethod = sc.production_method ?? '—';
+  const temp = sc.temperature != null ? Number(sc.temperature).toFixed(3) : '—';
+  const blendProd = sc.blend_w_production != null ? (sc.blend_w_production * 100).toFixed(0) + '%' : '—';
+  const blendShadow = sc.blend_w_shadow != null ? (sc.blend_w_shadow * 100).toFixed(0) + '%' : '—';
+
+  // Color the brier scores — lower is better
+  const prodVal = sc.production_brier;
+  const shadVal = sc.temperature_brier;
+  let prodColor = 'var(--text-1)', shadColor = 'var(--text-1)';
+  if (prodVal != null && shadVal != null) {
+    prodColor = prodVal <= shadVal ? 'var(--green-0)' : 'var(--red-0)';
+    shadColor = shadVal <= prodVal ? 'var(--green-0)' : 'var(--red-0)';
+  }
+
+  box.innerHTML = `
+    <div style="display:flex;gap:12px;margin-bottom:10px">
+      <div style="flex:1;text-align:center;padding:8px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Production</div>
+        <div style="font-family:var(--mono);font-size:18px;font-weight:600;color:${prodColor}">${prodBrier}</div>
+        <div style="font-size:10px;color:var(--text-2);margin-top:2px">${escHtml(prodMethod)}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:8px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Shadow (no-blend)</div>
+        <div style="font-family:var(--mono);font-size:18px;font-weight:600;color:${shadColor}">${shadowBrier}</div>
+        <div style="font-size:10px;color:var(--text-2);margin-top:2px">temp=${temp}</div>
+      </div>
+    </div>
+    <div class="shadow-metrics">
+      <div class="shadow-metric"><span class="shadow-metric-label">prod blend</span><span class="shadow-metric-val">${blendProd} mkt</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">shadow blend</span><span class="shadow-metric-val">${blendShadow} mkt</span></div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // MAIN UPDATE
 // ═══════════════════════════════════════════════════════════════════════
 function update(s) {
@@ -4526,6 +4670,9 @@ function update(s) {
 
   try { updateEGARCHDiagnostics(s); } catch (e) { console.error('updateEGARCHDiagnostics:', e); }
   try { updateEGARCHBlendDiag(s); } catch (e) { console.error('updateEGARCHBlendDiag:', e); }
+  try { updateShadowCalPipeline(s); } catch (e) { console.error('updateShadowCalPipeline:', e); }
+
+  try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
 
   try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
   try { updateActiveOrderExecFields(s); } catch (e) { console.error('updateActiveOrderExecFields:', e); }
