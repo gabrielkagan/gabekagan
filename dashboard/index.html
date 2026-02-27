@@ -4437,6 +4437,7 @@ const _SA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
 let _analyticsLoaded = false;
 let _analyticsClient = null;
 let _analyticsData = {};
+let _saDailyRange = '7d';
 
 // Auto-load analytics on page init
 (async () => {
@@ -4950,7 +4951,6 @@ function renderTimeOfDay(data) {
 }
 
 // ── Daily P&L time range selector ───────────────────────────────────
-let _saDailyRange = '7d';
 document.addEventListener('click', e => {
   const btn = e.target.closest('.sa-range-btn');
   if (!btn) return;
