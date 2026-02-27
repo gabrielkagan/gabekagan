@@ -1749,6 +1749,115 @@ body::before {
   .spot-item { min-width: 50%; flex: none; }
   .vol-grid { grid-template-columns: 1fr; }
   .order-card { grid-template-columns: 1fr; }
+  .sa-grid { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   HISTORICAL ANALYTICS (Supabase)
+   ═══════════════════════════════════════════════════════════════════════ */
+.sa-toggle {
+  font-family: var(--mono); font-size: 9px; font-weight: 600;
+  padding: 3px 8px; border-radius: 4px;
+  background: var(--bg-2); color: var(--text-3);
+  border: 1px solid var(--border-0);
+  cursor: pointer; transition: all 0.2s;
+  margin-left: 8px;
+}
+.sa-toggle:hover { border-color: var(--border-1); color: var(--text-1); }
+.sa-toggle.active { background: var(--violet-bg); color: var(--violet-0); border-color: var(--violet-border); }
+
+.sa-section {
+  margin-top: 1px;
+}
+.sa-header {
+  background: var(--bg-0);
+  padding: 18px 22px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sa-header-title {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 1.2px; text-transform: uppercase; color: var(--violet-0);
+}
+.sa-header-right {
+  display: flex; align-items: center; gap: 8px;
+}
+.sa-status {
+  font-family: var(--mono); font-size: 9px; color: var(--text-3);
+}
+.sa-refresh {
+  font-family: var(--mono); font-size: 9px; font-weight: 600;
+  padding: 2px 8px; border-radius: 3px;
+  background: var(--bg-2); color: var(--text-3);
+  border: 1px solid var(--border-0);
+  cursor: pointer; transition: all 0.2s;
+}
+.sa-refresh:hover { border-color: var(--border-1); color: var(--text-1); }
+
+.sa-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1px;
+  background: var(--border-0);
+}
+.sa-cell {
+  background: var(--bg-1);
+  padding: 20px 22px;
+  overflow: hidden;
+  min-width: 0;
+}
+.sa-cell-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: 14px;
+}
+.sa-6 { grid-column: span 6; }
+.sa-12 { grid-column: span 12; }
+
+.sa-chart-wrap {
+  width: 100%; height: 220px; position: relative;
+}
+.sa-chart-wrap canvas { width: 100%; height: 100%; }
+
+/* Asset performance cards */
+.sa-asset-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+}
+.sa-asset-card {
+  background: var(--bg-2); border-radius: var(--radius-sm);
+  padding: 14px; border: 1px solid var(--border-0);
+}
+.sa-asset-symbol {
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  color: var(--text-0); margin-bottom: 8px;
+}
+.sa-asset-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--mono); font-size: 11px; color: var(--text-2);
+  margin-top: 4px;
+}
+.sa-asset-row .val { color: var(--text-0); font-weight: 600; }
+.sa-asset-row .val.up { color: var(--green-0); }
+.sa-asset-row .val.dn { color: var(--red-0); }
+
+/* Counterfactual table */
+.sa-cf-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--mono); font-size: 11px;
+}
+.sa-cf-table th {
+  text-align: left; padding: 6px 10px; color: var(--text-3);
+  font-size: 9px; text-transform: uppercase; letter-spacing: 0.8px;
+  border-bottom: 1px solid var(--border-0);
+}
+.sa-cf-table td {
+  padding: 6px 10px; color: var(--text-1);
+  border-bottom: 1px solid var(--border-0);
+}
+.sa-cf-table td.up { color: var(--green-0); }
+.sa-cf-table td.dn { color: var(--red-0); }
+
+.sa-empty {
+  font-family: var(--mono); font-size: 11px; color: var(--text-3);
+  text-align: center; padding: 40px 0;
 }
 </style>
 </head>
@@ -1774,6 +1883,8 @@ body::before {
     <span class="hdr-sep">&middot;</span>
     <span id="elLastUpdate">—</span>
     <span class="hdr-error" id="hdrError"></span>
+    <span class="hdr-sep">&middot;</span>
+    <button class="sa-toggle" id="analyticsToggle">ANALYTICS</button>
   </div>
 </div>
 
@@ -2405,6 +2516,68 @@ body::before {
     </div>
   </div>
 
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     HISTORICAL ANALYTICS (Supabase, lazy-loaded)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div id="analyticsSection" class="sa-section" style="display:none">
+  <div class="sa-header">
+    <div class="sa-header-title">Historical Analytics</div>
+    <div class="sa-header-right">
+      <span class="sa-status" id="analyticsStatus"></span>
+      <button class="sa-refresh" id="analyticsRefresh">Refresh</button>
+    </div>
+  </div>
+  <div class="sa-grid">
+
+    <!-- Daily P&L -->
+    <div class="sa-cell sa-6">
+      <div class="sa-cell-label">Daily P&L</div>
+      <div class="sa-chart-wrap"><canvas id="saDailyCanvas"></canvas></div>
+    </div>
+
+    <!-- Performance by Asset -->
+    <div class="sa-cell sa-6">
+      <div class="sa-cell-label">Performance by Asset</div>
+      <div id="saAssetPerf" class="sa-asset-grid">
+        <div class="sa-empty">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Win Rate by Price -->
+    <div class="sa-cell sa-6">
+      <div class="sa-cell-label">Win Rate by Price Bucket</div>
+      <div class="sa-chart-wrap"><canvas id="saPriceCanvas"></canvas></div>
+    </div>
+
+    <!-- Calibration Accuracy -->
+    <div class="sa-cell sa-6">
+      <div class="sa-cell-label">Calibration Accuracy</div>
+      <div class="sa-chart-wrap"><canvas id="saCalAccCanvas"></canvas></div>
+    </div>
+
+    <!-- Counterfactual Analysis -->
+    <div class="sa-cell sa-12">
+      <div class="sa-cell-label">Counterfactual Analysis</div>
+      <div id="saCounterfactual">
+        <div class="sa-empty">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Volatility History (24h) -->
+    <div class="sa-cell sa-6">
+      <div class="sa-cell-label">Volatility History (24h)</div>
+      <div class="sa-chart-wrap"><canvas id="saVolCanvas"></canvas></div>
+    </div>
+
+    <!-- Calibration Tournament (7d) -->
+    <div class="sa-cell sa-6">
+      <div class="sa-cell-label">Calibration Tournament (7d)</div>
+      <div class="sa-chart-wrap"><canvas id="saCalTournCanvas"></canvas></div>
+    </div>
+
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
@@ -4612,6 +4785,7 @@ if (_dataSource === 'supabase') {
         'https://srbdajecmkjxinmcozxl.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyYmRhamVjbWtqeGlubWNvenhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNDMxOTQsImV4cCI6MjA4NzcxOTE5NH0.8x_ipm0KI9cBoTL7flHqGtDZLseGMIlZp1X2020XpJw'
       );
+      window._sbClient = _sb;  // Expose for analytics reuse
 
       // Initial fetch — get current state before subscription fires
       const { data: row, error } = await _sb
@@ -4676,8 +4850,482 @@ window.addEventListener('resize', () => {
       try { drawEquityCurve(lastSnapshot); } catch(e) {}
       try { drawCumulativePnl(lastSnapshot); } catch(e) {}
     }
+    if (_analyticsLoaded) {
+      try { redrawAnalyticsCharts(); } catch(e) {}
+    }
   }, 200);
 });
+
+// ═══════════════════════════════════════════════════════════════════════
+// HISTORICAL ANALYTICS (Supabase, lazy-loaded on button click)
+// ═══════════════════════════════════════════════════════════════════════
+const _SA_URL = 'https://srbdajecmkjxinmcozxl.supabase.co';
+const _SA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyYmRhamVjbWtqeGlubWNvenhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNDMxOTQsImV4cCI6MjA4NzcxOTE5NH0.8x_ipm0KI9cBoTL7flHqGtDZLseGMIlZp1X2020XpJw';
+
+let _analyticsLoaded = false;
+let _analyticsClient = null;
+let _analyticsData = {};
+
+$('analyticsToggle').addEventListener('click', async () => {
+  const section = $('analyticsSection');
+  const btn = $('analyticsToggle');
+  if (_analyticsLoaded) {
+    const visible = section.style.display !== 'none';
+    section.style.display = visible ? 'none' : '';
+    btn.classList.toggle('active', !visible);
+    return;
+  }
+  section.style.display = '';
+  btn.classList.add('active');
+  $('analyticsStatus').textContent = 'Loading...';
+  try {
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    _analyticsClient = window._sbClient || createClient(_SA_URL, _SA_KEY);
+    await fetchAndRenderAnalytics();
+    _analyticsLoaded = true;
+    $('analyticsStatus').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch (err) {
+    $('analyticsStatus').textContent = 'Failed to load analytics';
+    console.error('Analytics init failed:', err);
+  }
+});
+
+$('analyticsRefresh').addEventListener('click', async () => {
+  if (!_analyticsClient) return;
+  $('analyticsStatus').textContent = 'Refreshing...';
+  try {
+    await fetchAndRenderAnalytics();
+    $('analyticsStatus').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch (err) {
+    $('analyticsStatus').textContent = 'Refresh failed';
+    console.error('Analytics refresh failed:', err);
+  }
+});
+
+async function fetchAndRenderAnalytics() {
+  const [byAsset, dailyPnl, byPrice, calAcc, cf, volHist, calHist] = await Promise.all([
+    _analyticsClient.rpc('get_analytics_by_asset'),
+    _analyticsClient.rpc('get_analytics_daily_pnl'),
+    _analyticsClient.rpc('get_analytics_by_price'),
+    _analyticsClient.rpc('get_analytics_calibration'),
+    _analyticsClient.rpc('get_analytics_counterfactual'),
+    _analyticsClient.rpc('get_analytics_vol_history'),
+    _analyticsClient.rpc('get_analytics_cal_history'),
+  ]);
+  _analyticsData = { byAsset, dailyPnl, byPrice, calAcc, cf, volHist, calHist };
+  if (dailyPnl.data) drawSaDailyPnl(dailyPnl.data);
+  if (byAsset.data) renderSaAssetPerf(byAsset.data);
+  if (byPrice.data) drawSaPriceWr(byPrice.data);
+  if (calAcc.data) drawSaCalAcc(calAcc.data);
+  if (cf.data) renderSaCounterfactual(cf.data);
+  if (volHist.data) drawSaVolHistory(volHist.data);
+  if (calHist.data) drawSaCalTournament(calHist.data);
+}
+
+function redrawAnalyticsCharts() {
+  const d = _analyticsData;
+  if (d.dailyPnl?.data) drawSaDailyPnl(d.dailyPnl.data);
+  if (d.byPrice?.data) drawSaPriceWr(d.byPrice.data);
+  if (d.calAcc?.data) drawSaCalAcc(d.calAcc.data);
+  if (d.volHist?.data) drawSaVolHistory(d.volHist.data);
+  if (d.calHist?.data) drawSaCalTournament(d.calHist.data);
+}
+
+// ── Canvas helpers ──────────────────────────────────────────────────────
+function saSetup(canvasId) {
+  const canvas = $(canvasId);
+  if (!canvas) return null;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = rect.height;
+  ctx.clearRect(0, 0, W, H);
+  return { ctx, W, H, pad: { l: 50, r: 14, t: 12, b: 24 } };
+}
+
+function saDrawAxes(ctx, pad, W, H, yLabels, xLabels) {
+  ctx.fillStyle = '#64748b';
+  ctx.font = '9px IBM Plex Mono';
+  // Y axis
+  ctx.textAlign = 'right';
+  for (const { val, label, y } of yLabels) {
+    ctx.fillText(label, pad.l - 4, y + 3);
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+  }
+  // X axis
+  ctx.textAlign = 'center';
+  for (const { label, x } of xLabels) {
+    ctx.fillText(label, x, H - 4);
+  }
+}
+
+// ── Daily P&L bar chart ─────────────────────────────────────────────────
+function drawSaDailyPnl(data) {
+  const s = saSetup('saDailyCanvas');
+  if (!s || !data.length) return;
+  const { ctx, W, H, pad } = s;
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+
+  const vals = data.map(d => (d.net_pnl_cents || 0) / 100);
+  const maxAbs = Math.max(0.5, ...vals.map(Math.abs));
+  const maxV = maxAbs * 1.1;
+  const minV = -maxV;
+  const range = maxV - minV;
+
+  const toY = v => pad.t + (1 - (v - minV) / range) * ch;
+  const barW = Math.max(4, (cw / data.length) - 2);
+
+  // Zero line
+  ctx.setLineDash([4, 3]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.l, toY(0)); ctx.lineTo(W - pad.r, toY(0)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Bars
+  for (let i = 0; i < data.length; i++) {
+    const x = pad.l + (i + 0.5) * (cw / data.length) - barW / 2;
+    const v = vals[i];
+    const y0 = toY(0);
+    const y1 = toY(v);
+    ctx.fillStyle = v >= 0 ? '#10b981' : '#f43f5e';
+    ctx.fillRect(x, Math.min(y0, y1), barW, Math.abs(y1 - y0) || 1);
+  }
+
+  // Y labels
+  const yLabels = [];
+  for (let i = 0; i <= 4; i++) {
+    const val = minV + (range * i / 4);
+    yLabels.push({ val, label: '$' + val.toFixed(1), y: toY(val) });
+  }
+  // X labels
+  const xLabels = [];
+  const step = Math.max(1, Math.floor(data.length / 6));
+  for (let i = 0; i < data.length; i += step) {
+    const d = new Date(data[i].trade_date);
+    xLabels.push({ label: (d.getMonth()+1) + '/' + d.getDate(), x: pad.l + (i + 0.5) * (cw / data.length) });
+  }
+  saDrawAxes(ctx, pad, W, H, yLabels, xLabels);
+}
+
+// ── Asset Performance cards ─────────────────────────────────────────────
+function renderSaAssetPerf(data) {
+  const el = $('saAssetPerf');
+  if (!el || !data.length) { if (el) el.innerHTML = '<div class="sa-empty">No data</div>'; return; }
+  el.innerHTML = data.map(a => {
+    const pnl = (a.net_pnl_cents || 0) / 100;
+    const pnlCls = pnl > 0 ? 'up' : pnl < 0 ? 'dn' : '';
+    const wr = a.win_rate != null ? (a.win_rate * 100).toFixed(1) + '%' : '—';
+    return `<div class="sa-asset-card">
+      <div class="sa-asset-symbol">${a.asset}</div>
+      <div class="sa-asset-row"><span>W/L</span><span class="val">${a.wins || 0}/${a.losses || 0}</span></div>
+      <div class="sa-asset-row"><span>Win Rate</span><span class="val">${wr}</span></div>
+      <div class="sa-asset-row"><span>Net P&L</span><span class="val ${pnlCls}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ── Win Rate by Price horizontal bars ───────────────────────────────────
+function drawSaPriceWr(data) {
+  const s = saSetup('saPriceCanvas');
+  if (!s || !data.length) return;
+  const { ctx, W, H, pad } = s;
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+  const barH = Math.min(28, (ch / data.length) - 6);
+  const gap = (ch - barH * data.length) / (data.length + 1);
+
+  for (let i = 0; i < data.length; i++) {
+    const d = data[i];
+    const wr = d.win_rate != null ? +d.win_rate : 0;
+    const y = pad.t + gap * (i + 1) + barH * i;
+    const bw = cw * wr;
+
+    // Background bar
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    ctx.fillRect(pad.l, y, cw, barH);
+
+    // Win rate bar
+    ctx.fillStyle = wr >= 0.9 ? '#10b981' : wr >= 0.7 ? '#fbbf24' : '#f43f5e';
+    ctx.fillRect(pad.l, y, bw, barH);
+
+    // Label
+    ctx.fillStyle = '#e8ecf4';
+    ctx.font = '10px IBM Plex Mono';
+    ctx.textAlign = 'left';
+    ctx.fillText(d.price_bucket, pad.l + 6, y + barH / 2 + 4);
+
+    // Win rate text
+    ctx.textAlign = 'right';
+    ctx.fillText((wr * 100).toFixed(1) + '% (' + (d.wins || 0) + '/' + (d.total || 0) + ')', W - pad.r - 4, y + barH / 2 + 4);
+  }
+}
+
+// ── Calibration Accuracy grouped bars ───────────────────────────────────
+function drawSaCalAcc(data) {
+  const s = saSetup('saCalAccCanvas');
+  if (!s || !data.length) return;
+  const { ctx, W, H, pad } = s;
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+
+  const groupW = cw / data.length;
+  const barW = Math.max(6, groupW * 0.3);
+
+  const toY = v => pad.t + (1 - v) * ch;
+
+  // Gridlines
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  for (let v = 0; v <= 1; v += 0.25) {
+    ctx.beginPath(); ctx.moveTo(pad.l, toY(v)); ctx.lineTo(W - pad.r, toY(v)); ctx.stroke();
+  }
+
+  // Diagonal perfect calibration line
+  ctx.setLineDash([4, 3]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.beginPath();
+  for (let i = 0; i < data.length; i++) {
+    const x = pad.l + (i + 0.5) * groupW;
+    const predicted = data[i].avg_predicted != null ? +data[i].avg_predicted : 0;
+    const y = toY(predicted);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  for (let i = 0; i < data.length; i++) {
+    const d = data[i];
+    const x = pad.l + (i + 0.5) * groupW;
+    const predicted = d.avg_predicted != null ? +d.avg_predicted : 0;
+    const actual = d.avg_actual != null ? +d.avg_actual : 0;
+
+    // Predicted bar (blue)
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(x - barW - 1, toY(predicted), barW, predicted * ch);
+
+    // Actual bar (green)
+    ctx.fillStyle = '#10b981';
+    ctx.fillRect(x + 1, toY(actual), barW, actual * ch);
+
+    // X label
+    ctx.fillStyle = '#64748b';
+    ctx.font = '9px IBM Plex Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText(d.prob_bucket, x, H - 4);
+  }
+
+  // Legend
+  ctx.font = '9px IBM Plex Mono';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(pad.l, pad.t - 2, 8, 8);
+  ctx.fillText('Predicted', pad.l + 12, pad.t + 6);
+  ctx.fillStyle = '#10b981';
+  ctx.fillRect(pad.l + 75, pad.t - 2, 8, 8);
+  ctx.fillText('Actual', pad.l + 87, pad.t + 6);
+
+  // Y labels
+  ctx.fillStyle = '#64748b';
+  ctx.textAlign = 'right';
+  for (let v = 0; v <= 1; v += 0.25) {
+    ctx.fillText((v * 100).toFixed(0) + '%', pad.l - 4, toY(v) + 3);
+  }
+}
+
+// ── Counterfactual table ────────────────────────────────────────────────
+function renderSaCounterfactual(data) {
+  const el = $('saCounterfactual');
+  if (!el || !data.length) { if (el) el.innerHTML = '<div class="sa-empty">No data</div>'; return; }
+  let html = `<table class="sa-cf-table">
+    <thead><tr>
+      <th>Filter Stage</th><th>Total</th><th>Settled</th>
+      <th>Would Have Won</th><th>Would Have Lost</th>
+      <th>Money Left</th><th>Bullets Dodged</th>
+    </tr></thead><tbody>`;
+  for (const d of data) {
+    const ml = (d.money_left_cents || 0) / 100;
+    const bd = (d.bullets_dodged_cents || 0) / 100;
+    html += `<tr>
+      <td>${d.filter_stage}</td>
+      <td>${d.total || 0}</td>
+      <td>${d.settled || 0}</td>
+      <td class="up">${d.would_have_won || 0}</td>
+      <td class="dn">${d.would_have_lost || 0}</td>
+      <td class="up">+$${ml.toFixed(2)}</td>
+      <td class="dn">-$${bd.toFixed(2)}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+// ── Volatility History multi-line ───────────────────────────────────────
+function drawSaVolHistory(data) {
+  const s = saSetup('saVolCanvas');
+  if (!s || !data.length) return;
+  const { ctx, W, H, pad } = s;
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+
+  const assets = [...new Set(data.map(d => d.asset))];
+  const colors = { BTC: '#fbbf24', ETH: '#38bdf8', SOL: '#a78bfa', XRP: '#10b981' };
+
+  const allVals = data.map(d => d.egarch_blend_sigma).filter(v => v != null);
+  if (!allVals.length) return;
+  const minV = Math.min(...allVals) * 0.9;
+  const maxV = Math.max(...allVals) * 1.1;
+  const range = maxV - minV || 1;
+
+  const times = data.map(d => new Date(d.snapshot_time).getTime());
+  const minT = Math.min(...times);
+  const maxT = Math.max(...times);
+  const tRange = maxT - minT || 1;
+
+  const toX = t => pad.l + ((t - minT) / tRange) * cw;
+  const toY = v => pad.t + (1 - (v - minV) / range) * ch;
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + (ch * i / 4);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+  }
+
+  // Lines per asset
+  for (const asset of assets) {
+    const pts = data.filter(d => d.asset === asset && d.egarch_blend_sigma != null);
+    if (pts.length < 2) continue;
+    ctx.strokeStyle = colors[asset] || '#e8ecf4';
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    for (let i = 0; i < pts.length; i++) {
+      const x = toX(new Date(pts[i].snapshot_time).getTime());
+      const y = toY(pts[i].egarch_blend_sigma);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  // Legend
+  ctx.font = '9px IBM Plex Mono';
+  ctx.textAlign = 'left';
+  let lx = pad.l;
+  for (const asset of assets) {
+    ctx.fillStyle = colors[asset] || '#e8ecf4';
+    ctx.fillRect(lx, pad.t - 2, 8, 8);
+    ctx.fillText(asset, lx + 11, pad.t + 6);
+    lx += 45;
+  }
+
+  // Y labels
+  ctx.fillStyle = '#64748b';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const val = minV + (range * i / 4);
+    ctx.fillText(val.toFixed(4), pad.l - 4, toY(val) + 3);
+  }
+
+  // X labels
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    const t = minT + (tRange * i / 4);
+    const d = new Date(t);
+    ctx.fillText(d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'), pad.l + (cw * i / 4), H - 4);
+  }
+}
+
+// ── Calibration Tournament dual-line ────────────────────────────────────
+function drawSaCalTournament(data) {
+  const s = saSetup('saCalTournCanvas');
+  if (!s || !data.length) return;
+  const { ctx, W, H, pad } = s;
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+
+  const briers = data.flatMap(d => [d.beta_cal_brier, d.temperature_brier]).filter(v => v != null);
+  if (!briers.length) return;
+  const minV = Math.min(...briers) * 0.95;
+  const maxV = Math.max(...briers) * 1.05;
+  const range = maxV - minV || 0.001;
+
+  const toX = i => pad.l + (i / Math.max(1, data.length - 1)) * cw;
+  const toY = v => pad.t + (1 - (v - minV) / range) * ch;
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + (ch * i / 4);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+  }
+
+  // Active method background shading
+  for (let i = 0; i < data.length - 1; i++) {
+    const method = data[i].active_method;
+    ctx.fillStyle = method === 'temperature' ? 'rgba(251,191,36,0.05)' : 'rgba(56,189,248,0.05)';
+    ctx.fillRect(toX(i), pad.t, toX(i + 1) - toX(i), ch);
+  }
+
+  // Beta cal line (blue)
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1.5;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  let first = true;
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].beta_cal_brier == null) continue;
+    const x = toX(i), y = toY(data[i].beta_cal_brier);
+    first ? (ctx.moveTo(x, y), first = false) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Temperature line (amber)
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  first = true;
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].temperature_brier == null) continue;
+    const x = toX(i), y = toY(data[i].temperature_brier);
+    first ? (ctx.moveTo(x, y), first = false) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Legend
+  ctx.font = '9px IBM Plex Mono';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(pad.l, pad.t - 2, 8, 8);
+  ctx.fillText('Beta Cal', pad.l + 12, pad.t + 6);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(pad.l + 75, pad.t - 2, 8, 8);
+  ctx.fillText('Temperature', pad.l + 87, pad.t + 6);
+
+  // Y labels (lower = better)
+  ctx.fillStyle = '#64748b';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const val = minV + (range * i / 4);
+    ctx.fillText(val.toFixed(4), pad.l - 4, toY(val) + 3);
+  }
+
+  // X labels
+  ctx.textAlign = 'center';
+  const step = Math.max(1, Math.floor(data.length / 6));
+  for (let i = 0; i < data.length; i += step) {
+    const d = new Date(data[i].snapshot_time);
+    ctx.fillText((d.getMonth()+1) + '/' + d.getDate(), toX(i), H - 4);
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════════
 // TICKING TIMERS
