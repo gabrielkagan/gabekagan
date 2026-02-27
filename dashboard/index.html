@@ -4599,18 +4599,73 @@ function update(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// FIREBASE LISTENER
+// DATA SOURCE (toggle with ?source=supabase)
 // ═══════════════════════════════════════════════════════════════════════
-const statusRef = ref(db, 'bot_status');
-onValue(statusRef, snap => {
-  const data = snap.val();
-  if (!data) return;
-  update(data);
-}, err => {
-  console.error("Firebase read error:", err);
-  $('pill').className = 'hdr-pill off';
-  $('pillText').textContent = 'ERROR';
-});
+const _dataSource = new URLSearchParams(window.location.search).get('source') || 'firebase';
+console.log('Dashboard data source:', _dataSource);
+
+if (_dataSource === 'supabase') {
+  (async () => {
+    try {
+      const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+      const _sb = createClient(
+        'https://srbdajecmkjxinmcozxl.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyYmRhamVjbWtqeGlubWNvenhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNDMxOTQsImV4cCI6MjA4NzcxOTE5NH0.8x_ipm0KI9cBoTL7flHqGtDZLseGMIlZp1X2020XpJw'
+      );
+
+      // Initial fetch — get current state before subscription fires
+      const { data: row, error } = await _sb
+        .from('dashboard_state')
+        .select('data')
+        .eq('id', 1)
+        .single();
+      if (!error && row && row.data) {
+        let d = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+        if (d && typeof d === 'object') update(d);
+      }
+
+      // Subscribe to changes
+      _sb.channel('dashboard-live')
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'dashboard_state',
+          filter: 'id=eq.1',
+        }, (payload) => {
+          let d = payload.new?.data;
+          if (!d) return;
+          if (typeof d === 'string') {
+            try { d = JSON.parse(d); } catch (e) { console.error('JSONB parse failed:', e); return; }
+          }
+          if (d && typeof d === 'object') update(d);
+        })
+        .subscribe((status) => {
+          console.log('Supabase Realtime status:', status);
+          if (status === 'SUBSCRIBED') {
+            $('pill').className = 'hdr-pill live';
+            $('pillText').textContent = 'LIVE (SUPABASE)';
+          }
+        });
+
+    } catch (err) {
+      console.error('Supabase init failed:', err);
+      $('pill').className = 'hdr-pill off';
+      $('pillText').textContent = 'ERROR (SUPABASE)';
+    }
+  })();
+} else {
+  // Original Firebase listener (unchanged)
+  const statusRef = ref(db, 'bot_status');
+  onValue(statusRef, snap => {
+    const data = snap.val();
+    if (!data) return;
+    update(data);
+  }, err => {
+    console.error("Firebase read error:", err);
+    $('pill').className = 'hdr-pill off';
+    $('pillText').textContent = 'ERROR';
+  });
+}
 
 // Redraw equity curve on resize
 let _resizeTimer;
