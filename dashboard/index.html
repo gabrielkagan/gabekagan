@@ -1925,6 +1925,14 @@ body::before {
     </div>
   </div>
 
+  <!-- Trading Config -->
+  <div class="cell" style="grid-column:span 4">
+    <div class="cell-label">Trading Config</div>
+    <div id="elTradingConfig" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px 12px;font-size:12px;padding:4px 0">
+      <div class="empty" style="padding:12px;color:var(--text-3);grid-column:1/-1">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- ══════════════ TIER 3: TRADE ANALYTICS ══════════════ -->
 
   <div class="section-divider">
@@ -3913,8 +3921,75 @@ function updateRecentOpportunities(s) {
 function updateObservationMode(s) {
   const obsBanner = $('obsBanner');
   const liveBanner = $('liveBanner');
-  obsBanner.classList.remove('visible');
-  liveBanner.classList.add('visible');
+  if (s.observation_mode) {
+    obsBanner.classList.add('visible');
+    liveBanner.classList.remove('visible');
+  } else {
+    obsBanner.classList.remove('visible');
+    liveBanner.classList.add('visible');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TRADING CONFIG
+// ═══════════════════════════════════════════════════════════════════════
+function updateTradingConfig(s) {
+  const cfg = s.trading_config;
+  if (!cfg || typeof cfg !== 'object') return;
+  const el = $('elTradingConfig');
+  if (!el) return;
+
+  function kv(label, value, color) {
+    return `<div style="display:flex;justify-content:space-between;padding:3px 6px;border-radius:4px;background:var(--bg-2)">` +
+      `<span style="color:var(--text-3)">${label}</span>` +
+      `<span style="color:${color || 'var(--text-1)'};font-weight:600">${value}</span></div>`;
+  }
+
+  const blend = cfg.market_blend_w;
+  const modelPct = blend != null ? ((1 - blend) * 100).toFixed(0) : '—';
+  const mktPct = blend != null ? (blend * 100).toFixed(0) : '—';
+
+  // Price-dependent edges
+  let edgeStr = '—';
+  if (cfg.min_edge_by_price && cfg.min_edge_by_price.length) {
+    const edges = cfg.min_edge_by_price;
+    const low = edges[edges.length - 1];
+    const high = edges[0];
+    edgeStr = (low[1] * 100).toFixed(1) + '%–' + (high[1] * 100).toFixed(1) + '%';
+  }
+
+  // Drawdown bar context
+  const ddHalf = cfg.drawdown_half != null ? ((1 - cfg.drawdown_half) * 100).toFixed(0) + '%' : '—';
+  const ddQtr = cfg.drawdown_quarter != null ? ((1 - cfg.drawdown_quarter) * 100).toFixed(0) + '%' : '—';
+  const ddHalt = cfg.drawdown_halt != null ? ((1 - cfg.drawdown_halt) * 100).toFixed(0) + '%' : '—';
+
+  let html = '';
+  html += kv('Model Blend', modelPct + '% model / ' + mktPct + '% mkt', 'var(--blue-0)');
+  html += kv('Min Edge', edgeStr, 'var(--yellow-0)');
+  html += kv('Entry Price', (cfg.min_entry_price ?? '—') + '–' + (cfg.max_entry_price ?? '—') + 'c');
+  html += kv('Max Risk/Trade', cfg.max_risk_per_trade != null ? (cfg.max_risk_per_trade * 100).toFixed(0) + '%' : '—');
+  html += kv('Max STC', cfg.max_seconds_before_close != null ? cfg.max_seconds_before_close + 's' : '—');
+  html += kv('Maker-Only', cfg.maker_only_threshold != null ? '<' + cfg.maker_only_threshold + 's' : '—');
+  html += kv('DD Half/Qtr/Halt', ddHalf + ' / ' + ddQtr + ' / ' + ddHalt, 'var(--red-0)');
+  html += kv('Hourly', cfg.hourly_observation_only ? 'Observation' : 'LIVE', cfg.hourly_observation_only ? 'var(--text-3)' : 'var(--green-0)');
+
+  // Sizing tiers
+  if (cfg.sizing_tiers && cfg.sizing_tiers.length) {
+    const tiersStr = cfg.sizing_tiers.map(t => (t[0] * 100).toFixed(1) + '%→' + (t[1] * 100).toFixed(0) + '%').join(', ');
+    html += `<div style="grid-column:1/-1;padding:3px 6px;border-radius:4px;background:var(--bg-2);display:flex;justify-content:space-between">` +
+      `<span style="color:var(--text-3)">Sizing Tiers</span>` +
+      `<span style="color:var(--text-2);font-size:11px">${tiersStr}</span></div>`;
+  }
+
+  // Edge schedule detail
+  if (cfg.min_edge_by_price && cfg.min_edge_by_price.length) {
+    const schedStr = cfg.min_edge_by_price.map(e => (e[0] || '87') + 'c→' + (e[1] * 100).toFixed(1) + '%').join(', ');
+    html += `<div style="grid-column:1/-1;padding:3px 6px;border-radius:4px;background:var(--bg-2);display:flex;justify-content:space-between">` +
+      `<span style="color:var(--text-3)">Edge Schedule</span>` +
+      `<span style="color:var(--text-2);font-size:11px">${schedStr}</span></div>`;
+  }
+
+  el.innerHTML = html;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -4664,6 +4739,7 @@ function update(s) {
   try { updateRecentTrades(s); } catch (e) { console.error('updateRecentTrades:', e); }
   try { updateRecentOpportunities(s); } catch (e) { console.error('updateRecentOpportunities:', e); }
   try { updateObservationMode(s); } catch (e) { console.error('updateObservationMode:', e); }
+  try { updateTradingConfig(s); } catch (e) { console.error('updateTradingConfig:', e); }
   try { updateCalibration(s); } catch (e) { console.error('updateCalibration:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
@@ -4675,6 +4751,7 @@ function update(s) {
   try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
 
   try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
+  try { updateExecutionQuality(s); } catch (e) { console.error('updateExecutionQuality:', e); }
   try { updateActiveOrderExecFields(s); } catch (e) { console.error('updateActiveOrderExecFields:', e); }
 }
 
