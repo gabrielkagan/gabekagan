@@ -2298,6 +2298,39 @@ body::before {
     </div>
   </div>
 
+  <!-- Edge Decay by STC (Supabase, Change 11) -->
+  <div class="cell" style="grid-column:span 6">
+    <div class="cell-label">
+      Edge Decay by STC
+      <span class="sa-ts" id="saEdgeDecayTs" style="font-size:9px;color:var(--text-3);font-weight:400;letter-spacing:0;text-transform:none;margin-left:auto"></span>
+    </div>
+    <div id="saEdgeDecayTable" style="font-family:var(--mono);font-size:11px">
+      <div style="padding:12px;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Hourly Calibration Drift (Supabase, Change 12) -->
+  <div class="cell" style="grid-column:span 6">
+    <div class="cell-label">
+      Hourly Cal Drift
+      <span class="sa-ts" id="saCalDriftTs" style="font-size:9px;color:var(--text-3);font-weight:400;letter-spacing:0;text-transform:none;margin-left:auto"></span>
+    </div>
+    <div id="saCalDriftTable" style="font-family:var(--mono);font-size:11px">
+      <div style="padding:12px;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Window Correlation (Supabase, Change 13) -->
+  <div class="cell" style="grid-column:span 6">
+    <div class="cell-label">
+      Window Correlation
+      <span class="sa-ts" id="saWinCorrTs" style="font-size:9px;color:var(--text-3);font-weight:400;letter-spacing:0;text-transform:none;margin-left:auto"></span>
+    </div>
+    <div id="saWinCorrTable" style="font-family:var(--mono);font-size:11px">
+      <div style="padding:12px;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
   <!-- Refresh button for Supabase analytics -->
   <div style="grid-column:1/-1;background:var(--bg-0);padding:4px 22px;display:flex;justify-content:flex-end;align-items:center;gap:8px">
     <span class="sa-status" id="analyticsStatus" style="font-family:var(--mono);font-size:9px;color:var(--text-3)"></span>
@@ -5329,9 +5362,12 @@ async function fetchAndRenderAnalytics() {
     _analyticsClient.rpc('get_analytics_cal_history'),
     _analyticsClient.rpc('get_analytics_edge_realized'),
     _analyticsClient.rpc('get_analytics_time_of_day'),
+    _analyticsClient.rpc('get_analytics_edge_decay'),
+    _analyticsClient.rpc('get_analytics_hourly_cal_drift'),
+    _analyticsClient.rpc('get_analytics_window_correlation'),
   ];
-  const [dailyPnl, byPrice, calAcc, volHist, calHist, edgeRealized, timeOfDay] = await Promise.all(rpcs);
-  _analyticsData = { dailyPnl, byPrice, calAcc, volHist, calHist, edgeRealized, timeOfDay };
+  const [dailyPnl, byPrice, calAcc, volHist, calHist, edgeRealized, timeOfDay, edgeDecay, calDrift, winCorr] = await Promise.all(rpcs);
+  _analyticsData = { dailyPnl, byPrice, calAcc, volHist, calHist, edgeRealized, timeOfDay, edgeDecay, calDrift, winCorr };
   if (dailyPnl.data) drawSaDailyPnl(dailyPnl.data);
   if (byPrice.data) drawSaPriceWr(byPrice.data);
   if (calAcc.data) drawSaCalAcc(calAcc.data);
@@ -5339,6 +5375,9 @@ async function fetchAndRenderAnalytics() {
   if (calHist.data) drawSaCalTournament(calHist.data);
   if (edgeRealized.data) drawEdgeAccuracy(edgeRealized.data);
   if (timeOfDay.data) renderTimeOfDay(timeOfDay.data);
+  if (edgeDecay.data) renderEdgeDecay(edgeDecay.data);
+  if (calDrift.data) renderHourlyCalDrift(calDrift.data);
+  if (winCorr.data) renderWindowCorrelation(winCorr.data);
 }
 
 function redrawAnalyticsCharts() {
@@ -5801,6 +5840,122 @@ function renderTimeOfDay(data) {
       <div style="font-family:var(--mono);font-size:8px;color:var(--text-3)">${total}t</div>
     </div>`;
   }
+  el.innerHTML = html;
+}
+
+// ── Edge Decay by STC (Change 11) ───────────────────────────────────
+function renderEdgeDecay(data) {
+  const el = $('saEdgeDecayTable');
+  if (!el) return;
+  if (!data || !data.length) { el.innerHTML = '<div style="padding:12px;color:var(--text-3)">No edge decay data</div>'; return; }
+
+  const wrColor = wr => wr >= 0.9 ? 'var(--green-0)' : wr >= 0.8 ? 'var(--amber-0)' : 'var(--red-0)';
+  const pnlColor = v => v > 0 ? 'var(--green-0)' : v < 0 ? 'var(--red-0)' : 'var(--text-2)';
+
+  let html = '<table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px">';
+  html += '<thead><tr style="color:var(--text-3);font-size:9px;text-transform:uppercase;letter-spacing:0.5px">';
+  html += '<th style="text-align:left;padding:4px 6px">STC Bucket</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Trades</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Win Rate</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Avg Edge</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Net P&L</th>';
+  html += '</tr></thead><tbody>';
+  for (const row of data) {
+    const wr = row.win_rate != null ? +row.win_rate : 0;
+    const pnl = row.net_pnl_cents != null ? +row.net_pnl_cents / 100 : 0;
+    const edge = row.avg_edge != null ? (+row.avg_edge * 100).toFixed(2) + '%' : '—';
+    html += `<tr style="border-top:1px solid var(--border-0)">
+      <td style="padding:4px 6px;color:var(--text-1)">${escHtml(row.stc_bucket || '—')}</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--text-2)">${row.trades ?? 0}</td>
+      <td style="padding:4px 6px;text-align:right;color:${wrColor(wr)}">${(wr * 100).toFixed(1)}%</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--text-2)">${edge}</td>
+      <td style="padding:4px 6px;text-align:right;color:${pnlColor(pnl)}">$${pnl.toFixed(2)}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+// ── Hourly Calibration Drift (Change 12) ────────────────────────────
+function renderHourlyCalDrift(data) {
+  const el = $('saCalDriftTable');
+  if (!el) return;
+  if (!data || !data.length) { el.innerHTML = '<div style="padding:12px;color:var(--text-3)">No hourly cal drift data</div>'; return; }
+
+  let html = '<table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px">';
+  html += '<thead><tr style="color:var(--text-3);font-size:9px;text-transform:uppercase;letter-spacing:0.5px">';
+  html += '<th style="text-align:left;padding:4px 6px">Date</th>';
+  html += '<th style="text-align:left;padding:4px 6px">Bucket</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Predicted</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Actual</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Drift</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Brier</th>';
+  html += '</tr></thead><tbody>';
+  for (const row of data) {
+    const predicted = row.avg_predicted != null ? +row.avg_predicted : 0;
+    const actual = row.avg_actual != null ? +row.avg_actual : 0;
+    const drift = predicted - actual;
+    const driftColor = Math.abs(drift) > 0.1 ? 'var(--red-0)' : Math.abs(drift) > 0.05 ? 'var(--amber-0)' : 'var(--text-2)';
+    const brier = row.brier_score != null ? (+row.brier_score).toFixed(4) : '—';
+    const dt = row.trade_date || row.date || '—';
+    html += `<tr style="border-top:1px solid var(--border-0)">
+      <td style="padding:4px 6px;color:var(--text-2)">${escHtml(String(dt).slice(5))}</td>
+      <td style="padding:4px 6px;color:var(--text-1)">${escHtml(row.prob_bucket || '—')}</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--blue-0)">${(predicted * 100).toFixed(1)}%</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--green-0)">${(actual * 100).toFixed(1)}%</td>
+      <td style="padding:4px 6px;text-align:right;color:${driftColor}">${drift > 0 ? '+' : ''}${(drift * 100).toFixed(1)}pp</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--text-2)">${brier}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+// ── Window Correlation (Change 13) ──────────────────────────────────
+function renderWindowCorrelation(data) {
+  const el = $('saWinCorrTable');
+  if (!el) return;
+  if (!data || !data.length) { el.innerHTML = '<div style="padding:12px;color:var(--text-3)">No window correlation data</div>'; return; }
+
+  // Summary stats
+  const totalWindows = data.length;
+  const allLost = data.filter(d => d.outcome === 'all_lost').length;
+  const allWon = data.filter(d => d.outcome === 'all_won').length;
+  const mixed = data.filter(d => d.outcome === 'mixed').length;
+  const corrRisk = totalWindows > 0 ? (allLost / totalWindows * 100).toFixed(1) : '0';
+
+  let html = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
+    <div style="text-align:center"><div style="font-size:9px;color:var(--text-3);text-transform:uppercase">Windows</div><div style="font-size:14px;font-weight:600;color:var(--text-0)">${totalWindows}</div></div>
+    <div style="text-align:center"><div style="font-size:9px;color:var(--text-3);text-transform:uppercase">All Won</div><div style="font-size:14px;font-weight:600;color:var(--green-0)">${allWon}</div></div>
+    <div style="text-align:center"><div style="font-size:9px;color:var(--text-3);text-transform:uppercase">Mixed</div><div style="font-size:14px;font-weight:600;color:var(--amber-0)">${mixed}</div></div>
+    <div style="text-align:center"><div style="font-size:9px;color:var(--text-3);text-transform:uppercase">All Lost</div><div style="font-size:14px;font-weight:600;color:var(--red-0)">${allLost}</div></div>
+  </div>
+  <div style="font-size:10px;color:${+corrRisk > 20 ? 'var(--red-0)' : +corrRisk > 10 ? 'var(--amber-0)' : 'var(--green-0)'};text-align:center;margin-bottom:6px">
+    Correlation Risk: ${corrRisk}% all-lost windows
+  </div>`;
+
+  html += '<table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px">';
+  html += '<thead><tr style="color:var(--text-3);font-size:9px;text-transform:uppercase;letter-spacing:0.5px">';
+  html += '<th style="text-align:left;padding:4px 6px">Window</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Positions</th>';
+  html += '<th style="text-align:left;padding:4px 6px">Outcome</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Net P&L</th>';
+  html += '</tr></thead><tbody>';
+  const recent = data.slice(-15); // show last 15 windows
+  for (const row of recent) {
+    const outcome = row.outcome || '—';
+    const oc = outcome === 'all_won' ? 'var(--green-0)' : outcome === 'all_lost' ? 'var(--red-0)' : 'var(--amber-0)';
+    const pnl = row.net_pnl_cents != null ? +row.net_pnl_cents / 100 : 0;
+    const pnlC = pnl > 0 ? 'var(--green-0)' : pnl < 0 ? 'var(--red-0)' : 'var(--text-2)';
+    const winLabel = row.window_id || row.event_ticker || '—';
+    html += `<tr style="border-top:1px solid var(--border-0)">
+      <td style="padding:4px 6px;color:var(--text-2);max-width:120px;overflow:hidden;text-overflow:ellipsis">${escHtml(String(winLabel).slice(-20))}</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--text-1)">${row.position_count ?? row.positions ?? '—'}</td>
+      <td style="padding:4px 6px;color:${oc}">${outcome.replace('_', ' ')}</td>
+      <td style="padding:4px 6px;text-align:right;color:${pnlC}">$${pnl.toFixed(2)}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
   el.innerHTML = html;
 }
 
