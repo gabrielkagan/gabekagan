@@ -4626,20 +4626,50 @@ function updateHourlyObservation(s) {
   const blendW = h.blend_w != null ? (h.blend_w * 100).toFixed(0) + '%' : '—';
   const maxStcMin = h.max_stc != null ? Math.round(h.max_stc / 60) + 'm' : '—';
   const wr = settled > 0 ? (wins / settled * 100).toFixed(1) + '%' : '—';
+  const tempT = h.temperature_t != null ? h.temperature_t.toFixed(2) : '—';
+  const kellyF = h.kelly_fraction != null ? (h.kelly_fraction * 100).toFixed(0) + '%' : '—';
+  const stcWindow = (h.min_stc_entry != null && h.max_stc_entry != null)
+    ? Math.round(h.min_stc_entry / 60) + '–' + Math.round(h.max_stc_entry / 60) + 'm'
+    : '—';
+  const excluded = h.excluded_assets && h.excluded_assets.length ? h.excluded_assets.join(', ') : 'none';
+  const maxPos = h.max_positions_per_window ?? '—';
+  const maxWRisk = h.max_window_risk != null ? (h.max_window_risk * 100).toFixed(0) + '%' : '—';
+
+  // Filter stage breakdown
+  const fs = h.filter_stages || {};
+  const fsEntries = Object.entries(fs).sort((a, b) => b[1] - a[1]);
+  const fsHtml = fsEntries.length
+    ? fsEntries.map(([stage, cnt]) => {
+        const label = stage.replace('hourly_', '').replace(/_/g, ' ');
+        return `<div class="shadow-metric"><span class="shadow-metric-label">${label}</span><span class="shadow-metric-val">${cnt}</span></div>`;
+      }).join('')
+    : '<div class="shadow-metric"><span class="shadow-metric-label">no data yet</span><span class="shadow-metric-val">—</span></div>';
 
   box.innerHTML = `
     <div class="shadow-metrics" style="margin-bottom:8px">
       <div class="shadow-metric"><span class="shadow-metric-label">blend</span><span class="shadow-metric-val">${blendW}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">temp T</span><span class="shadow-metric-val">${tempT}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">Kelly</span><span class="shadow-metric-val">${kellyF}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">STC window</span><span class="shadow-metric-val">${stcWindow}</span></div>
+    </div>
+    <div class="shadow-metrics" style="margin-bottom:8px">
+      <div class="shadow-metric"><span class="shadow-metric-label">excluded</span><span class="shadow-metric-val">${excluded}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">max pos/window</span><span class="shadow-metric-val">${maxPos}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">max window risk</span><span class="shadow-metric-val">${maxWRisk}</span></div>
       <div class="shadow-metric"><span class="shadow-metric-label">scan</span><span class="shadow-metric-val">${maxStcMin} pre-close</span></div>
     </div>
     <div class="shadow-metrics" style="margin-bottom:8px">
       <div class="shadow-metric"><span class="shadow-metric-label">settled</span><span class="shadow-metric-val">${settled}</span></div>
       <div class="shadow-metric"><span class="shadow-metric-label">wins</span><span class="shadow-metric-val">${wins}</span></div>
       <div class="shadow-metric"><span class="shadow-metric-label">win rate</span><span class="shadow-metric-val">${wr}</span></div>
-    </div>
-    <div class="shadow-metrics">
       <div class="shadow-metric"><span class="shadow-metric-label">pending</span><span class="shadow-metric-val">${pending}</span></div>
+    </div>
+    <div class="shadow-metrics" style="margin-bottom:4px">
       <div class="shadow-metric"><span class="shadow-metric-label">avg edge</span><span class="shadow-metric-val">${avgEdge}</span></div>
+    </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--bg-3)">
+      <div style="font-size:9px;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Filter Stages</div>
+      <div class="shadow-metrics">${fsHtml}</div>
     </div>
   `;
 }
