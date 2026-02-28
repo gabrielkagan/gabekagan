@@ -1616,7 +1616,7 @@ body::before {
   .ob-viz-cell { grid-column: span 6; }
   .koft-cell { grid-column: span 3; }
 }
-@media (max-width: 700px) {
+@media (max-width: 768px) {
   .grid { grid-template-columns: 1fr; }
   .hero, .wl-cell,
   .vol-cell, .timing-cell, .funnel-cell,
@@ -1643,6 +1643,15 @@ body::before {
   .cell[style*="span 6"],
   .cell[style*="span 4"] { grid-column: 1 / -1 !important; }
   #saTodGrid { grid-template-columns: repeat(6, 1fr) !important; }
+  /* Change 8: Mobile enhancements */
+  .cell { padding: 16px 14px; }
+  #status-strip { gap: 10px; flex-wrap: wrap; padding: 5px 12px; font-size: 10px; }
+  #status-strip .ss-label { font-size: 8px; }
+  .execeng-quality { grid-template-columns: repeat(2, 1fr) !important; }
+  .ee-status-row { flex-wrap: wrap; }
+  .ee-status-indicator { min-width: calc(50% - 4px); }
+  .ta-bd-grid { overflow-x: auto; }
+  .trades-scroll, .opps-scroll { font-size: 11px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1652,6 +1661,164 @@ body::before {
   width: 100%; height: 220px; position: relative;
 }
 .sa-chart-wrap canvas { width: 100%; height: 100%; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SHADOW PANEL DISTINCTION (Change 2)
+   ═══════════════════════════════════════════════════════════════════════ */
+.shadow-panel {
+  border-left: 3px solid #6366f1;
+  opacity: 0.92;
+  position: relative;
+}
+.shadow-badge {
+  position: absolute; top: 8px; right: 10px;
+  font-family: var(--mono); font-size: 8px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 3px;
+  background: rgba(99,102,241,0.15); color: #6366f1;
+  border: 1px solid rgba(99,102,241,0.25);
+  z-index: 2;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   STALE/OFFLINE OVERLAY (Change 3)
+   ═══════════════════════════════════════════════════════════════════════ */
+#stale-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9998;
+  background: rgba(6,8,13,0.7);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+  justify-content: center; align-items: center;
+  flex-direction: column; gap: 8px;
+}
+#stale-overlay.visible { display: flex; }
+#stale-overlay.offline { background: rgba(244,63,94,0.15); }
+#stale-overlay .stale-text {
+  font-family: var(--mono); font-size: 28px; font-weight: 700;
+  letter-spacing: 2px; color: var(--amber-0);
+  animation: stalePulse 2s ease-in-out infinite;
+}
+#stale-overlay.offline .stale-text { color: var(--red-0); }
+#stale-overlay .stale-sub {
+  font-family: var(--mono); font-size: 13px; color: var(--text-2);
+}
+@keyframes stalePulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COLLAPSIBLE TIER SECTIONS (Change 4)
+   ═══════════════════════════════════════════════════════════════════════ */
+.section-divider { cursor: pointer; user-select: none; transition: background 0.2s; }
+.section-divider:hover { background: var(--bg-1); }
+.section-divider .chevron {
+  display: inline-block; transition: transform 0.3s ease;
+  font-size: 10px; color: var(--text-3); margin-right: 2px;
+}
+.section-divider.collapsed .chevron { transform: rotate(-90deg); }
+.tier-content { display: contents; }
+.tier-content.collapsed { display: none; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PERSISTENT STATUS STRIP (Change 5)
+   ═══════════════════════════════════════════════════════════════════════ */
+#status-strip {
+  position: sticky; top: 46px; z-index: 99;
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  padding: 5px 24px;
+  background: rgba(12,16,24,0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-0);
+  font-family: var(--mono); font-size: 11px;
+}
+#status-strip .ss-item { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+#status-strip .ss-label { color: var(--text-3); font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+#status-strip .ss-val { color: var(--text-0); font-weight: 600; }
+#status-strip .ss-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  display: inline-block;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LAST TRADE CARD (Change 6)
+   ═══════════════════════════════════════════════════════════════════════ */
+.last-trade-card {
+  margin-top: 10px; padding: 10px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-0); background: var(--bg-2);
+}
+.last-trade-card .ltc-header {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: 6px;
+}
+.last-trade-card .ltc-row {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  font-family: var(--mono); font-size: 10px; color: var(--text-1);
+}
+.last-trade-card .ltc-row .dim { color: var(--text-3); margin-right: 3px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   EXECUTION ENGINE REDESIGN (Change 7)
+   ═══════════════════════════════════════════════════════════════════════ */
+.ee-status-row {
+  display: flex; gap: 8px; margin-bottom: 10px;
+}
+.ee-status-indicator {
+  flex: 1; padding: 8px; border-radius: var(--radius-sm);
+  text-align: center; border: 1px solid var(--border-0);
+}
+.ee-status-indicator .ee-si-label {
+  font-size: 8px; font-weight: 600; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: 4px;
+}
+.ee-status-indicator .ee-si-val {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+}
+.ee-status-indicator.healthy { background: rgba(16,185,129,0.07); border-color: rgba(16,185,129,0.15); }
+.ee-status-indicator.healthy .ee-si-val { color: var(--green-0); }
+.ee-status-indicator.degraded { background: rgba(251,191,36,0.07); border-color: rgba(251,191,36,0.15); }
+.ee-status-indicator.degraded .ee-si-val { color: var(--amber-0); }
+.ee-status-indicator.broken { background: rgba(244,63,94,0.07); border-color: rgba(244,63,94,0.15); }
+.ee-status-indicator.broken .ee-si-val { color: var(--red-0); }
+.ee-metrics-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;
+}
+.ee-metric-card {
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  background: var(--bg-2); border: 1px solid var(--border-0);
+}
+.ee-metric-card .ee-mc-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.5px;
+  text-transform: uppercase; color: var(--text-3);
+}
+.ee-metric-card .ee-mc-val {
+  font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--text-0);
+  margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CONFIG STATUS BADGES (Change 9)
+   ═══════════════════════════════════════════════════════════════════════ */
+.cfg-badge {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  padding: 1px 6px; border-radius: 4px;
+  display: inline-block;
+}
+.cfg-badge.live { background: var(--green-bg); color: var(--green-0); border: 1px solid var(--green-border); }
+.cfg-badge.obs { background: var(--amber-bg); color: var(--amber-0); border: 1px solid var(--amber-border); }
+.cfg-badge.warn { background: var(--red-bg); color: var(--red-0); border: 1px solid var(--red-border); }
+.cfg-badge.ok { background: var(--green-bg); color: var(--green-0); border: 1px solid var(--green-border); }
+.cfg-badge.changed { background: var(--amber-bg); color: var(--amber-0); border: 1px solid var(--amber-border); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   HOURLY READINESS BADGE (Change 10)
+   ═══════════════════════════════════════════════════════════════════════ */
+.readiness-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  padding: 3px 8px; border-radius: 4px;
+  margin-top: 8px;
+}
+.readiness-badge.ready { background: var(--green-bg); color: var(--green-0); border: 1px solid var(--green-border); }
+.readiness-badge.collecting { background: var(--amber-bg); color: var(--amber-0); border: 1px solid var(--amber-border); }
+.readiness-badge.not-ready { background: var(--red-bg); color: var(--red-0); border: 1px solid var(--red-border); }
 </style>
 </head>
 <body>
@@ -1725,6 +1892,15 @@ body::before {
   </div>
 </div>
 
+<!-- Status Strip (Change 5) -->
+<div id="status-strip">
+  <div class="ss-item"><span class="ss-label">Bal</span><span class="ss-val" id="ssBalance">$—</span></div>
+  <div class="ss-item"><span class="ss-label">PnL</span><span class="ss-val" id="ssPnl">$0.00</span></div>
+  <div class="ss-item"><span class="ss-label">WR</span><span class="ss-val" id="ssWinRate">—</span></div>
+  <div class="ss-item"><span class="ss-label">Last</span><span class="ss-val" id="ssLastTrade">—</span></div>
+  <div class="ss-item"><span class="ss-dot" id="ssBotDot" style="background:var(--text-3)"></span><span class="ss-val" id="ssBotStatus" style="font-size:9px">—</span></div>
+</div>
+
 <!-- ═══════════════════════════════════════════════════════════════════════
      MAIN GRID
      ═══════════════════════════════════════════════════════════════════════ -->
@@ -1788,6 +1964,10 @@ body::before {
       <div class="bm">Streak <span id="elStreak">0</span></div>
       <div class="bm">Pending <span id="elPending">0</span></div>
     </div>
+    <div class="last-trade-card" id="lastTradeCard" style="display:none">
+      <div class="ltc-header">Last Trade</div>
+      <div class="ltc-row" id="lastTradeRow"></div>
+    </div>
   </div>
 
   <!-- Risk Metrics -->
@@ -1826,13 +2006,15 @@ body::before {
 
   <!-- ══════════════ TIER 2: ACTIVE TRADING ══════════════ -->
 
-  <div class="section-divider">
+  <div class="section-divider" data-tier="2" onclick="toggleTier(this)">
     <div class="divider-top">
+      <span class="chevron">&#9660;</span>
       <span class="divider-label">Active Trading</span>
       <div class="divider-line"></div>
     </div>
     <div class="divider-quote" id="divQuote0"></div>
   </div>
+  <div class="tier-content" data-tier="2">
 
   <!-- Active Order -->
   <div class="cell order-cell" id="orderCell" style="display:none">
@@ -1933,14 +2115,60 @@ body::before {
     </div>
   </div>
 
+  </div><!-- /tier-content 2 -->
+
   <!-- ══════════════ TIER 3: TRADE ANALYTICS ══════════════ -->
 
-  <div class="section-divider">
+  <div class="section-divider" data-tier="3" onclick="toggleTier(this)">
     <div class="divider-top">
+      <span class="chevron">&#9660;</span>
       <span class="divider-label">Performance Analytics</span>
       <div class="divider-line"></div>
     </div>
     <div class="divider-quote" id="divQuote1"></div>
+  </div>
+  <div class="tier-content" data-tier="3">
+
+  <!-- Counterfactual Analysis (moved from Tier 5 — Change 1) -->
+  <div class="cell cf-cell" id="cfCell">
+    <div class="cell-label">Counterfactual Analysis</div>
+    <div class="cf-summary" id="cfSummary">
+      <div class="cf-summary-box green">
+        <div class="cf-summary-label">Money Left on Table</div>
+        <div class="cf-summary-val up" id="cfMoneyLeft">—</div>
+      </div>
+      <div class="cf-summary-box blue">
+        <div class="cf-summary-label">Bullets Dodged</div>
+        <div class="cf-summary-val" id="cfBulletsDodged" style="color:var(--blue-0)">—</div>
+      </div>
+      <div class="cf-summary-box net">
+        <div class="cf-summary-label">Net Filter Value</div>
+        <div class="cf-summary-val" id="cfNetFilter">—</div>
+      </div>
+    </div>
+    <div class="cf-table-scroll">
+      <table class="cf-table">
+        <thead>
+          <tr>
+            <th>Filter Stage</th>
+            <th>Total</th>
+            <th>Wins</th>
+            <th>Losses</th>
+            <th>WR%</th>
+            <th>Net P&L</th>
+          </tr>
+        </thead>
+        <tbody id="cfStageBody">
+          <tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:24px">Waiting for data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cf-buckets" id="cfBuckets">
+      <div class="cf-bucket"><div class="cf-bucket-label">80-84&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: 82%</div></div>
+      <div class="cf-bucket"><div class="cf-bucket-label">85-89&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: 87%</div></div>
+      <div class="cf-bucket"><div class="cf-bucket-label">90-94&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: 92%</div></div>
+      <div class="cf-bucket"><div class="cf-bucket-label">95-99&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: 97%</div></div>
+    </div>
   </div>
 
   <!-- Trade Analytics Overview -->
@@ -2076,15 +2304,19 @@ body::before {
     <button class="sa-refresh" id="analyticsRefresh" style="font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 8px;border-radius:3px;background:var(--bg-2);color:var(--text-3);border:1px solid var(--border-0);cursor:pointer">Refresh Analytics</button>
   </div>
 
+  </div><!-- /tier-content 3 -->
+
   <!-- ══════════════ TIER 4: MARKET INTELLIGENCE ══════════════ -->
 
-  <div class="section-divider">
+  <div class="section-divider collapsed" data-tier="4" onclick="toggleTier(this)">
     <div class="divider-top">
+      <span class="chevron">&#9660;</span>
       <span class="divider-label">Market Intelligence</span>
       <div class="divider-line"></div>
     </div>
     <div class="divider-quote" id="divQuote2"></div>
   </div>
+  <div class="tier-content collapsed" data-tier="4">
 
   <!-- Volatility Panel -->
   <div class="cell vol-cell">
@@ -2122,7 +2354,8 @@ body::before {
   </div>
 
   <!-- Kalshi Orderbook Flow -->
-  <div class="cell koft-cell">
+  <div class="cell koft-cell shadow-panel">
+    <div class="shadow-badge">SHADOW</div>
     <div class="cell-label">Kalshi Orderbook Flow<span class="tag" style="background:var(--violet-bg);color:var(--violet-0)">SHADOW</span></div>
     <div class="koft-grid" id="elKoftGrid">
       <div class="empty">Waiting for orderbook flow data...</div>
@@ -2141,15 +2374,19 @@ body::before {
     </div>
   </div>
 
+  </div><!-- /tier-content 4 -->
+
   <!-- ══════════════ TIER 5: RESEARCH & DIAGNOSTICS ══════════════ -->
 
-  <div class="section-divider">
+  <div class="section-divider collapsed" data-tier="5" onclick="toggleTier(this)">
     <div class="divider-top">
+      <span class="chevron">&#9660;</span>
       <span class="divider-label">Models &amp; Calibration</span>
       <div class="divider-line"></div>
     </div>
     <div class="divider-quote" id="divQuote3"></div>
   </div>
+  <div class="tier-content collapsed" data-tier="5">
 
   <!-- Calibration Engine (+accuracy chart) -->
   <div class="cell cal-cell" id="calCell" style="grid-column:span 4">
@@ -2219,48 +2456,6 @@ body::before {
     </div>
   </div>
 
-  <!-- Counterfactual Analysis -->
-  <div class="cell cf-cell" id="cfCell">
-    <div class="cell-label">Counterfactual Analysis</div>
-    <div class="cf-summary" id="cfSummary">
-      <div class="cf-summary-box green">
-        <div class="cf-summary-label">Money Left on Table</div>
-        <div class="cf-summary-val up" id="cfMoneyLeft">—</div>
-      </div>
-      <div class="cf-summary-box blue">
-        <div class="cf-summary-label">Bullets Dodged</div>
-        <div class="cf-summary-val" id="cfBulletsDodged" style="color:var(--blue-0)">—</div>
-      </div>
-      <div class="cf-summary-box net">
-        <div class="cf-summary-label">Net Filter Value</div>
-        <div class="cf-summary-val" id="cfNetFilter">—</div>
-      </div>
-    </div>
-    <div class="cf-table-scroll">
-      <table class="cf-table">
-        <thead>
-          <tr>
-            <th>Filter Stage</th>
-            <th>Total</th>
-            <th>Wins</th>
-            <th>Losses</th>
-            <th>WR%</th>
-            <th>Net P&L</th>
-          </tr>
-        </thead>
-        <tbody id="cfStageBody">
-          <tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:24px">Waiting for data...</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="cf-buckets" id="cfBuckets">
-      <div class="cf-bucket"><div class="cf-bucket-label">80-84&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: 82%</div></div>
-      <div class="cf-bucket"><div class="cf-bucket-label">85-89&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: 87%</div></div>
-      <div class="cf-bucket"><div class="cf-bucket-label">90-94&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: 92%</div></div>
-      <div class="cf-bucket"><div class="cf-bucket-label">95-99&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: 97%</div></div>
-    </div>
-  </div>
-
   <!-- EGARCH Diagnostics -->
   <div class="cell egarch-diag-cell" style="grid-column:span 4">
     <div class="cell-label">
@@ -2284,7 +2479,8 @@ body::before {
   </div>
 
   <!-- Shadow Cal Pipeline -->
-  <div class="cell shadow-cal-cell" style="grid-column:span 4">
+  <div class="cell shadow-cal-cell shadow-panel" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
     <div class="cell-label">
       Shadow Cal Pipeline
       <span class="tag" id="shadowCalTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
@@ -2311,15 +2507,19 @@ body::before {
     <div class="sa-chart-wrap"><canvas id="saVolCanvas"></canvas></div>
   </div>
 
+  </div><!-- /tier-content 5 -->
+
   <!-- ══════════════ TIER 6: TRADE HISTORY ══════════════ -->
 
-  <div class="section-divider">
+  <div class="section-divider collapsed" data-tier="6" onclick="toggleTier(this)">
     <div class="divider-top">
+      <span class="chevron">&#9660;</span>
       <span class="divider-label">Trade History</span>
       <div class="divider-line"></div>
     </div>
     <div class="divider-quote" id="divQuote4"></div>
   </div>
+  <div class="tier-content collapsed" data-tier="6">
 
   <!-- Recent Trades -->
   <div class="cell trades-cell">
@@ -2383,8 +2583,15 @@ body::before {
     </div>
   </div>
 
+  </div><!-- /tier-content 6 -->
+
 </div>
 
+<!-- Stale/Offline Overlay (Change 3) -->
+<div id="stale-overlay">
+  <div class="stale-text" id="staleText">DATA STALE</div>
+  <div class="stale-sub" id="staleSub">Last update —s ago</div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
      JAVASCRIPT
@@ -2445,6 +2652,113 @@ let lastUpdate = 0;
 let lastSnapshot = null;
 let uptimeSeconds = null;
 let nextCloseSeconds = null;
+
+// ═══════════════════════════════════════════════════════════════════════
+// COLLAPSIBLE TIERS (Change 4)
+// ═══════════════════════════════════════════════════════════════════════
+function initCollapsibleTiers() {
+  const saved = JSON.parse(localStorage.getItem('tierCollapseState') || '{}');
+  document.querySelectorAll('.section-divider[data-tier]').forEach(div => {
+    const tier = div.dataset.tier;
+    const content = div.nextElementSibling;
+    if (!content || !content.classList.contains('tier-content')) return;
+    // Restore from localStorage or use default (4-6 collapsed)
+    const shouldCollapse = saved[tier] != null ? saved[tier] : parseInt(tier) >= 4;
+    if (shouldCollapse) {
+      div.classList.add('collapsed');
+      content.classList.add('collapsed');
+    } else {
+      div.classList.remove('collapsed');
+      content.classList.remove('collapsed');
+    }
+  });
+}
+// Expose toggleTier globally for onclick
+window.toggleTier = function(divider) {
+  const tier = divider.dataset.tier;
+  const content = divider.nextElementSibling;
+  if (!content || !content.classList.contains('tier-content')) return;
+  const isCollapsed = divider.classList.toggle('collapsed');
+  content.classList.toggle('collapsed');
+  // Save to localStorage
+  const saved = JSON.parse(localStorage.getItem('tierCollapseState') || '{}');
+  saved[tier] = isCollapsed;
+  localStorage.setItem('tierCollapseState', JSON.stringify(saved));
+};
+initCollapsibleTiers();
+
+// ═══════════════════════════════════════════════════════════════════════
+// STATUS STRIP (Change 5)
+// ═══════════════════════════════════════════════════════════════════════
+function updateStatusStrip(s) {
+  // Balance
+  const bal = s.current_balance;
+  const ssBalEl = $('ssBalance');
+  if (ssBalEl) ssBalEl.textContent = bal != null ? '$' + bal.toFixed(2) : '$—';
+
+  // Session PnL
+  const start = s.session_start_balance ?? s.start_balance;
+  const pnl = (bal != null && start != null) ? bal - start : null;
+  const ssPnlEl = $('ssPnl');
+  if (ssPnlEl && pnl != null) {
+    ssPnlEl.textContent = fmtMoney(pnl);
+    ssPnlEl.style.color = pnl > 0 ? 'var(--green-0)' : pnl < 0 ? 'var(--red-0)' : 'var(--text-3)';
+  }
+
+  // Win rate
+  const ta = s.trade_analytics;
+  if (ta) {
+    const wr = ta.win_rate;
+    const ssWrEl = $('ssWinRate');
+    if (ssWrEl) ssWrEl.textContent = wr != null ? (wr * 100).toFixed(1) + '%' : '—';
+  }
+
+  // Last trade
+  const rt = s.trade_analytics?.recent_trades;
+  const ssLastEl = $('ssLastTrade');
+  if (ssLastEl && rt && rt.length > 0) {
+    const t = rt[0];
+    const ago = t.settled_at ? Math.floor((Date.now() - new Date(t.settled_at).getTime()) / 60000) : null;
+    const result = t.market_result === 'yes' ? 'W' : 'L';
+    const color = t.market_result === 'yes' ? 'var(--green-0)' : 'var(--red-0)';
+    ssLastEl.innerHTML = `<span style="color:${color}">${result}</span> ${t.asset || '—'} ${ago != null ? ago + 'm ago' : ''}`;
+  }
+
+  // Bot status dot
+  const ssDot = $('ssBotDot');
+  const ssStat = $('ssBotStatus');
+  const isLive = s.observation_mode === false;
+  if (ssDot && ssStat) {
+    ssDot.style.background = isLive ? 'var(--green-0)' : 'var(--amber-0)';
+    ssStat.textContent = isLive ? 'LIVE' : 'OBS';
+    ssStat.style.color = isLive ? 'var(--green-0)' : 'var(--amber-0)';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// LAST TRADE CARD (Change 6)
+// ═══════════════════════════════════════════════════════════════════════
+function updateLastTradeCard(s) {
+  const card = $('lastTradeCard');
+  const row = $('lastTradeRow');
+  if (!card || !row) return;
+  const rt = s.trade_analytics?.recent_trades;
+  if (!rt || rt.length === 0) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const t = rt[0];
+  const result = t.market_result === 'yes' ? 'W' : t.market_result === 'no' ? 'L' : '?';
+  const rColor = result === 'W' ? 'var(--green-0)' : result === 'L' ? 'var(--red-0)' : 'var(--text-3)';
+  const pnl = t.pnl_cents != null ? ((t.pnl_cents - (t.fee_cents || 0)) / 100) : null;
+  const ago = t.settled_at ? Math.floor((Date.now() - new Date(t.settled_at).getTime()) / 60000) : null;
+  row.innerHTML = `
+    <span><span class="dim">asset</span>${t.asset || '—'}</span>
+    <span><span class="dim">side</span>${t.side || '—'}</span>
+    <span><span class="dim">price</span>${t.entry_price_cents || '—'}c</span>
+    <span style="color:${rColor};font-weight:700"><span class="dim">result</span>${result}</span>
+    ${pnl != null ? `<span style="color:${pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)'}"><span class="dim">P&L</span>${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</span>` : ''}
+    ${ago != null ? `<span><span class="dim">ago</span>${ago}m</span>` : ''}
+  `;
+}
 
 // ═══════════════════════════════════════════════════════════════════════
 // UPDATERS — PIECE 1
@@ -3939,10 +4253,13 @@ function updateTradingConfig(s) {
   const el = $('elTradingConfig');
   if (!el) return;
 
-  function kv(label, value, color) {
-    return `<div style="display:flex;justify-content:space-between;padding:3px 6px;border-radius:4px;background:var(--bg-2)">` +
-      `<span style="color:var(--text-3)">${label}</span>` +
-      `<span style="color:${color || 'var(--text-1)'};font-weight:600">${value}</span></div>`;
+  function kv(label, value, badge) {
+    // badge: {text, cls} or null for plain value
+    const valHtml = badge
+      ? `<span class="cfg-badge ${badge.cls}">${badge.text}</span>`
+      : `<span style="color:var(--text-1);font-weight:600">${value}</span>`;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 6px;border-radius:4px;background:var(--bg-2)">` +
+      `<span style="color:var(--text-3)">${label}</span>${valHtml}</div>`;
   }
 
   const blend = cfg.market_blend_w;
@@ -3963,15 +4280,32 @@ function updateTradingConfig(s) {
   const ddQtr = cfg.drawdown_quarter != null ? ((1 - cfg.drawdown_quarter) * 100).toFixed(0) + '%' : '—';
   const ddHalt = cfg.drawdown_halt != null ? ((1 - cfg.drawdown_halt) * 100).toFixed(0) + '%' : '—';
 
+  // Change 9: Status-colored badges
+  const isObs = s.observation_mode !== false;
+  const maxRisk = cfg.max_risk_per_trade;
+  const minEntry = cfg.min_entry_price;
+
   let html = '';
-  html += kv('Model Blend', modelPct + '% model / ' + mktPct + '% mkt', 'var(--blue-0)');
-  html += kv('Min Edge', edgeStr, 'var(--yellow-0)');
-  html += kv('Entry Price', (cfg.min_entry_price ?? '—') + '–' + (cfg.max_entry_price ?? '—') + 'c');
-  html += kv('Max Risk/Trade', cfg.max_risk_per_trade != null ? (cfg.max_risk_per_trade * 100).toFixed(0) + '%' : '—');
-  html += kv('Max STC', cfg.max_seconds_before_close != null ? cfg.max_seconds_before_close + 's' : '—');
-  html += kv('Maker-Only', cfg.maker_only_threshold != null ? '<' + cfg.maker_only_threshold + 's' : '—');
-  html += kv('DD Half/Qtr/Halt', ddHalf + ' / ' + ddQtr + ' / ' + ddHalt, 'var(--red-0)');
-  html += kv('Hourly', cfg.hourly_observation_only ? 'Observation' : 'LIVE', cfg.hourly_observation_only ? 'var(--text-3)' : 'var(--green-0)');
+  // OBSERVATION_MODE
+  html += kv('Mode', '', isObs
+    ? { text: 'OBSERVATION', cls: 'warn' }
+    : { text: 'LIVE', cls: 'live' });
+  html += kv('Model Blend', modelPct + '% model / ' + mktPct + '% mkt', null);
+  html += kv('Min Edge', edgeStr, null);
+  html += kv('Entry Price', (minEntry ?? '—') + '–' + (cfg.max_entry_price ?? '—') + 'c',
+    minEntry === 87 ? { text: (minEntry ?? '—') + '–' + (cfg.max_entry_price ?? '—') + 'c', cls: 'ok' }
+    : { text: (minEntry ?? '—') + '–' + (cfg.max_entry_price ?? '—') + 'c', cls: 'changed' });
+  html += kv('Max Risk/Trade', maxRisk != null ? (maxRisk * 100).toFixed(0) + '%' : '—',
+    maxRisk != null && maxRisk <= 0.25
+    ? { text: (maxRisk * 100).toFixed(0) + '%', cls: 'ok' }
+    : maxRisk != null ? { text: (maxRisk * 100).toFixed(0) + '%', cls: 'warn' } : null);
+  html += kv('Max STC', cfg.max_seconds_before_close != null ? cfg.max_seconds_before_close + 's' : '—', null);
+  html += kv('Maker-Only', cfg.maker_only_threshold != null ? '<' + cfg.maker_only_threshold + 's' : '—', null);
+  html += kv('DD Half/Qtr/Halt', ddHalf + ' / ' + ddQtr + ' / ' + ddHalt, null);
+  // HOURLY_OBSERVATION_ONLY
+  html += kv('Hourly', '', cfg.hourly_observation_only
+    ? { text: 'OBSERVATION', cls: 'obs' }
+    : { text: 'LIVE', cls: 'live' });
 
   // Sizing tiers
   if (cfg.sizing_tiers && cfg.sizing_tiers.length) {
@@ -4319,11 +4653,6 @@ function updateExecutionEngine(s) {
 
   // WS connection status
   const connected = ee.kalshi_ws_connected === true;
-  const dot = $('execWsDot');
-  const label = $('execWsLabel');
-  dot.className = 'execeng-ws-dot ' + (connected ? 'connected' : 'disconnected');
-  label.className = 'execeng-ws-label ' + (connected ? 'connected' : 'disconnected');
-  label.textContent = connected ? 'CONNECTED' : 'DISCONNECTED';
 
   // Tag
   const tag = $('execEngTag');
@@ -4337,20 +4666,77 @@ function updateExecutionEngine(s) {
     tag.textContent = 'REST ONLY';
   }
 
+  // Change 7: Redesigned top section — status indicators + metrics grid
+  const wsFills = ee.session_ws_fills ?? 0;
+  const restFills = ee.session_rest_fills ?? 0;
+  const iocFills = ee.session_ioc_fills ?? 0;
+  const postOnlyRejects = ee.session_post_only_rejections ?? 0;
+  const totalFills = wsFills + restFills + iocFills;
+
+  // WS status
+  const wsStatus = connected ? (wsFills > 0 ? 'healthy' : 'degraded') : 'broken';
+  const wsText = connected ? (wsFills > 0 ? 'OK' : 'NO FILLS') : 'DOWN';
+  // Maker status
+  const makerStatus = totalFills > 0 ? 'healthy' : 'degraded';
+  const makerText = totalFills > 0 ? 'OK' : 'WAITING';
+  // Taker status
+  const dtAttempts = ee.session_direct_taker_attempts ?? 0;
+  const dtFills = ee.session_direct_taker_fills ?? 0;
+  const takerStatus = dtAttempts === 0 ? 'healthy' : (dtFills > 0 ? 'healthy' : 'broken');
+  const takerText = dtAttempts === 0 ? 'IDLE' : (dtFills > 0 ? 'OK' : 'FAILING');
+
+  // Inject status row + metrics grid before the existing WS status area
+  const dot = $('execWsDot');
+  const label = $('execWsLabel');
+  dot.className = 'execeng-ws-dot ' + (connected ? 'connected' : 'disconnected');
+  label.className = 'execeng-ws-label ' + (connected ? 'connected' : 'disconnected');
+  label.textContent = connected ? 'CONNECTED' : 'DISCONNECTED';
+
   // WS meta
   $('execWsTickers').textContent = ee.kalshi_ws_subscribed_tickers ?? 0;
   $('execWsOBs').textContent = ee.kalshi_ws_orderbooks_cached ?? 0;
 
-  // Session stats
+  // Build redesigned status indicators + metrics into the quality inline section
+  const qualityEl = $('execQualityInline');
+  if (qualityEl) {
+    const eq = s.execution_quality || {};
+    const avgLat = eq.avg_fill_latency_ms != null ? eq.avg_fill_latency_ms.toFixed(0) + 'ms' : '—';
+    const medLat = eq.median_fill_latency_ms != null ? eq.median_fill_latency_ms.toFixed(0) + 'ms' : '—';
+    const sessF = eq.session_fills ?? totalFills;
+    const makerRate = eq.maker_fill_rate != null ? (eq.maker_fill_rate * 100).toFixed(0) + '%' : '—';
+
+    qualityEl.innerHTML = `
+      <div class="ee-status-row" style="grid-column:1/-1;margin-bottom:6px">
+        <div class="ee-status-indicator ${wsStatus}">
+          <div class="ee-si-label">WS Fills</div>
+          <div class="ee-si-val">${wsText}</div>
+        </div>
+        <div class="ee-status-indicator ${makerStatus}">
+          <div class="ee-si-label">Maker Path</div>
+          <div class="ee-si-val">${makerText}</div>
+        </div>
+        <div class="ee-status-indicator ${takerStatus}">
+          <div class="ee-si-label">Taker Path</div>
+          <div class="ee-si-val">${takerText}</div>
+        </div>
+      </div>
+      <div style="text-align:center"><div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Total Fills</div><div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text-0)">${sessF}</div></div>
+      <div style="text-align:center"><div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Avg Lat</div><div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text-0)">${avgLat}</div></div>
+      <div style="text-align:center"><div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">PO Rejects</div><div style="font-family:var(--mono);font-size:13px;font-weight:600;color:${postOnlyRejects > 10 ? 'var(--amber-0)' : 'var(--text-0)'}">${postOnlyRejects}</div></div>
+      <div style="text-align:center"><div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Maker %</div><div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text-0)">${makerRate}</div></div>
+    `;
+  }
+
+  // Session stats (keep existing counters updated)
   $('eeDTAttempts').textContent = ee.session_direct_taker_attempts ?? 0;
   $('eeDTFills').textContent = ee.session_direct_taker_fills ?? 0;
   $('eeDTUnfilled').textContent = ee.session_direct_taker_unfilled ?? 0;
   $('eeDTSkipped').textContent = ee.session_direct_taker_skipped ?? 0;
-  $('eeIocFills').textContent = ee.session_ioc_fills ?? 0;
+  $('eeIocFills').textContent = iocFills;
   $('eeIocUnfilled').textContent = ee.session_ioc_unfilled ?? 0;
-  $('eeWsFills').textContent = ee.session_ws_fills ?? 0;
-  $('eeRestFills').textContent = ee.session_rest_fills ?? 0;
-  $('eePostOnly').textContent = ee.session_post_only_rejections ?? 0;
+  $('eeWsFills').textContent = wsFills;
+  $('eeRestFills').textContent = restFills;
+  $('eePostOnly').textContent = postOnlyRejects;
   $('eeAddonAttempts').textContent = ee.session_addon_attempts ?? 0;
   $('eeAddonFills').textContent = ee.session_addon_fills ?? 0;
   $('eeAddonUnfilled').textContent = ee.session_addon_unfilled ?? 0;
@@ -4358,8 +4744,6 @@ function updateExecutionEngine(s) {
 
   // Derived rates
   const dtRate = $('eeDTRate');
-  const dtAttempts = ee.session_direct_taker_attempts ?? 0;
-  const dtFills = ee.session_direct_taker_fills ?? 0;
   if (dtAttempts > 0) {
     const rate = dtFills / dtAttempts;
     dtRate.textContent = (rate * 100).toFixed(0) + '%';
@@ -4672,6 +5056,25 @@ function updateHourlyObservation(s) {
       <div class="shadow-metrics">${fsHtml}</div>
     </div>
   `;
+
+  // Change 10: Hourly readiness badge
+  const simPnl = h.sim_pnl_cents ?? null;
+  const simCount = h.sim_trade_count ?? 0;
+  const simWR = h.sim_win_rate ?? 0;
+  let readyClass, readyText;
+  if (simCount < 30) {
+    readyClass = 'collecting';
+    readyText = 'COLLECTING (' + simCount + '/30 trades)';
+  } else if (simWR < 0.80 || (simPnl != null && simPnl <= 0)) {
+    readyClass = 'not-ready';
+    readyText = 'NOT READY — ' + (simWR * 100).toFixed(1) + '% WR' + (simPnl != null ? ', $' + (simPnl / 100).toFixed(2) + ' sim' : '');
+  } else {
+    readyClass = 'ready';
+    readyText = 'READY — ' + (simWR * 100).toFixed(1) + '% WR, +$' + ((simPnl || 0) / 100).toFixed(2) + ' sim';
+  }
+  box.innerHTML += `<div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--bg-3)">
+    <div class="readiness-badge ${readyClass}">${readyText}</div>
+  </div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -4741,6 +5144,10 @@ function update(s) {
   $('pillText').textContent = 'LIVE';
   $('elLastUpdate').textContent = 'updated ' + fmtTime(Date.now());
 
+  // Dismiss stale overlay on fresh data (Change 3)
+  const overlay = $('stale-overlay');
+  if (overlay) { overlay.className = ''; overlay.style.display = 'none'; }
+
   try { updateSpotPrices(s); } catch (e) { console.error('updateSpotPrices:', e); }
   try { drawEquityCurve(s); } catch (e) { console.error('drawEquityCurve:', e); }
   try { drawPnlChart(s); } catch (e) { console.error('drawPnlChart:', e); }
@@ -4783,6 +5190,11 @@ function update(s) {
   try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
   try { updateExecutionQuality(s); } catch (e) { console.error('updateExecutionQuality:', e); }
   try { updateActiveOrderExecFields(s); } catch (e) { console.error('updateActiveOrderExecFields:', e); }
+
+  // Change 5: Status strip
+  try { updateStatusStrip(s); } catch (e) { console.error('updateStatusStrip:', e); }
+  // Change 6: Last trade card
+  try { updateLastTradeCard(s); } catch (e) { console.error('updateLastTradeCard:', e); }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -5427,16 +5839,39 @@ setInterval(() => {
   }
 }, 1000);
 
-// Staleness checker
+// Staleness checker (Change 3: with overlay)
 setInterval(() => {
   if (!lastUpdate) return;
   const age = Date.now() - lastUpdate;
-  if (age > 30000) {
+  const overlay = $('stale-overlay');
+  const staleText = $('staleText');
+  const staleSub = $('staleSub');
+  const ageSec = Math.floor(age / 1000);
+  if (age > 60000) {
     $('pill').className = 'hdr-pill off';
     $('pillText').textContent = 'OFFLINE';
+    if (overlay) {
+      overlay.className = 'visible offline';
+      overlay.style.display = 'flex';
+      staleText.textContent = 'OFFLINE';
+      staleSub.textContent = 'Last update ' + ageSec + 's ago';
+    }
+  } else if (age > 30000) {
+    $('pill').className = 'hdr-pill off';
+    $('pillText').textContent = 'OFFLINE';
+    if (overlay) {
+      overlay.className = 'visible';
+      overlay.style.display = 'flex';
+      staleText.textContent = 'DATA STALE';
+      staleSub.textContent = 'Last update ' + ageSec + 's ago';
+    }
   } else if (age > 12000) {
     $('pill').className = 'hdr-pill stale';
     $('pillText').textContent = 'STALE';
+    if (overlay) { overlay.className = ''; overlay.style.display = 'none'; }
+  } else {
+    // Fresh — hide overlay
+    if (overlay) { overlay.className = ''; overlay.style.display = 'none'; }
   }
 }, 5000);
 
