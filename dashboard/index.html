@@ -2147,6 +2147,17 @@ body::before {
     </div>
   </div>
 
+  <!-- Sports Comeback Observation -->
+  <div class="cell" style="grid-column:span 4">
+    <div class="cell-label">
+      Sports Comeback
+      <span class="tag" id="sportsObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elSportsObs">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Capital Allocation -->
   <div class="cell" style="grid-column:span 4">
     <div class="cell-label">Capital Allocation</div>
@@ -5365,6 +5376,72 @@ function updateWeatherObservation(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// SPORTS COMEBACK OBSERVATION
+// ═══════════════════════════════════════════════════════════════════════
+function updateSportsObservation(s) {
+  const d = s.sports_observation;
+  const box = $('elSportsObs');
+  const tag = $('sportsObsTag');
+  if (!d || typeof d !== 'object') {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">Sports engine not enabled</div>';
+    return;
+  }
+
+  const obsOnly = d.observation_only !== false;
+  tag.textContent = obsOnly ? 'SHADOW' : 'LIVE';
+  tag.style.background = obsOnly ? 'var(--amber-bg)' : 'var(--green-bg)';
+  tag.style.color = obsOnly ? 'var(--amber-0)' : 'var(--green-0)';
+  tag.style.border = obsOnly ? '1px solid var(--amber-border)' : '1px solid var(--green-border)';
+
+  const totalEvals = d.total_evaluations ?? 0;
+  const totalSignals = d.total_signals ?? 0;
+
+  // League breakdown
+  const leagues = d.leagues || {};
+  const leagueEntries = Object.entries(leagues).sort((a, b) => b[1].evaluations - a[1].evaluations);
+  const leagueHtml = leagueEntries.length
+    ? leagueEntries.map(([league, info]) => {
+        const sigs = info.signals ?? 0;
+        return `<div class="shadow-metric"><span class="shadow-metric-label">${league}</span><span class="shadow-metric-val">${info.evaluations} eval${sigs > 0 ? ' / ' + sigs + ' sig' : ''}</span></div>`;
+      }).join('')
+    : '<div class="shadow-metric"><span class="shadow-metric-label">no games tracked yet</span><span class="shadow-metric-val">—</span></div>';
+
+  // Edge stats
+  const avgEdge = d.avg_edge != null ? (d.avg_edge * 100).toFixed(1) + '%' : '—';
+
+  box.innerHTML = `
+    <div class="shadow-metrics" style="margin-bottom:8px">
+      <div class="shadow-metric"><span class="shadow-metric-label">evaluations</span><span class="shadow-metric-val">${totalEvals}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">signals</span><span class="shadow-metric-val">${totalSignals}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">avg edge</span><span class="shadow-metric-val">${avgEdge}</span></div>
+    </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--bg-3)">
+      <div style="font-size:9px;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Leagues</div>
+      <div class="shadow-metrics">${leagueHtml}</div>
+    </div>
+  `;
+
+  // Readiness badge
+  const simCount = d.sim_trade_count ?? 0;
+  const simWR = d.sim_win_rate ?? 0;
+  const simPnl = d.sim_pnl_cents ?? null;
+  let readyClass, readyText;
+  if (totalSignals < 300) {
+    readyClass = 'collecting';
+    readyText = 'COLLECTING (' + totalSignals + '/300 signals)';
+  } else if (simWR < 0.55 || (simPnl != null && simPnl <= 0)) {
+    readyClass = 'not-ready';
+    readyText = 'NOT READY — ' + (simWR * 100).toFixed(1) + '% WR' + (simPnl != null ? ', $' + (simPnl / 100).toFixed(2) + ' sim' : '');
+  } else {
+    readyClass = 'ready';
+    readyText = 'READY — ' + (simWR * 100).toFixed(1) + '% WR, +$' + ((simPnl || 0) / 100).toFixed(2) + ' sim';
+  }
+  box.innerHTML += `<div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--bg-3)">
+    <div class="readiness-badge ${readyClass}">${readyText}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // CAPITAL ALLOCATION
 // ═══════════════════════════════════════════════════════════════════════
 function updateCapitalAllocation(s) {
@@ -5512,6 +5589,7 @@ function update(s) {
   try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
   try { updateSpxObservation(s); } catch (e) { console.error('updateSpxObservation:', e); }
   try { updateWeatherObservation(s); } catch (e) { console.error('updateWeatherObservation:', e); }
+  try { updateSportsObservation(s); } catch (e) { console.error('updateSportsObservation:', e); }
   try { updateCapitalAllocation(s); } catch (e) { console.error('updateCapitalAllocation:', e); }
 
   try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
