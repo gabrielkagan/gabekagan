@@ -2107,6 +2107,36 @@ body::before {
     </div>
   </div>
 
+  <!-- S&P 500 Observation -->
+  <div class="cell" style="grid-column:span 2">
+    <div class="cell-label">
+      S&amp;P 500 Hourly
+      <span class="tag" id="spxObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elSpxObs">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Weather Observation -->
+  <div class="cell" style="grid-column:span 2">
+    <div class="cell-label">
+      Weather Markets
+      <span class="tag" id="weatherObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elWeatherObs">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Capital Allocation -->
+  <div class="cell" style="grid-column:span 4">
+    <div class="cell-label">Capital Allocation</div>
+    <div id="elCapitalAlloc">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Trading Config -->
   <div class="cell" style="grid-column:span 4">
     <div class="cell-label">Trading Config</div>
@@ -5111,6 +5141,193 @@ function updateHourlyObservation(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// S&P 500 OBSERVATION
+// ═══════════════════════════════════════════════════════════════════════
+function updateSpxObservation(s) {
+  const d = s.spx_observation;
+  const box = $('elSpxObs');
+  const tag = $('spxObsTag');
+  if (!d || typeof d !== 'object') {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">SPX engine not enabled</div>';
+    return;
+  }
+
+  const obsOnly = d.observation_only !== false;
+  tag.textContent = obsOnly ? 'SHADOW' : 'LIVE';
+  tag.style.background = obsOnly ? 'var(--amber-bg)' : 'var(--green-bg)';
+  tag.style.color = obsOnly ? 'var(--amber-0)' : 'var(--green-0)';
+  tag.style.border = obsOnly ? '1px solid var(--amber-border)' : '1px solid var(--green-border)';
+
+  const settled = d.settled_count ?? 0;
+  const wins = d.settled_wins ?? 0;
+  const pending = d.pending_count ?? 0;
+  const wr = settled > 0 ? (wins / settled * 100).toFixed(1) + '%' : '—';
+  const spxPrice = d.spx_price != null ? '$' + d.spx_price.toFixed(2) : '—';
+  const vix = d.vix_level != null ? d.vix_level.toFixed(1) : '—';
+  const mktOpen = d.market_open ? '🟢 Open' : '🔴 Closed';
+  const blendW = d.market_blend_w != null ? (d.market_blend_w * 100).toFixed(0) + '%' : '—';
+  const feeRate = d.fee_multiplier_taker != null ? (d.fee_multiplier_taker * 100).toFixed(1) + '%' : '—';
+
+  const fs = d.filter_stages || {};
+  const fsEntries = Object.entries(fs).sort((a, b) => b[1] - a[1]);
+  const fsHtml = fsEntries.length
+    ? fsEntries.map(([stage, cnt]) => {
+        const label = stage.replace('spx_', '').replace(/_/g, ' ');
+        return `<div class="shadow-metric"><span class="shadow-metric-label">${label}</span><span class="shadow-metric-val">${cnt}</span></div>`;
+      }).join('')
+    : '<div class="shadow-metric"><span class="shadow-metric-label">no data yet</span><span class="shadow-metric-val">—</span></div>';
+
+  box.innerHTML = `
+    <div class="shadow-metrics" style="margin-bottom:8px">
+      <div class="shadow-metric"><span class="shadow-metric-label">market</span><span class="shadow-metric-val">${mktOpen}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">SPX</span><span class="shadow-metric-val">${spxPrice}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">VIX</span><span class="shadow-metric-val">${vix}</span></div>
+    </div>
+    <div class="shadow-metrics" style="margin-bottom:8px">
+      <div class="shadow-metric"><span class="shadow-metric-label">blend</span><span class="shadow-metric-val">${blendW}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">fee rate</span><span class="shadow-metric-val">${feeRate}</span></div>
+    </div>
+    <div class="shadow-metrics" style="margin-bottom:8px">
+      <div class="shadow-metric"><span class="shadow-metric-label">settled</span><span class="shadow-metric-val">${settled}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">wins</span><span class="shadow-metric-val">${wins}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">win rate</span><span class="shadow-metric-val">${wr}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">pending</span><span class="shadow-metric-val">${pending}</span></div>
+    </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--bg-3)">
+      <div style="font-size:9px;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Filter Stages</div>
+      <div class="shadow-metrics">${fsHtml}</div>
+    </div>
+  `;
+
+  // Readiness badge
+  const simCount = d.sim_trade_count ?? 0;
+  const simWR = d.sim_win_rate ?? 0;
+  const simPnl = d.sim_pnl_cents ?? null;
+  let readyClass, readyText;
+  if (simCount < 200) {
+    readyClass = 'collecting';
+    readyText = 'COLLECTING (' + simCount + '/200 trades)';
+  } else if (simWR < 0.80 || (simPnl != null && simPnl <= 0)) {
+    readyClass = 'not-ready';
+    readyText = 'NOT READY — ' + (simWR * 100).toFixed(1) + '% WR' + (simPnl != null ? ', $' + (simPnl / 100).toFixed(2) + ' sim' : '');
+  } else {
+    readyClass = 'ready';
+    readyText = 'READY — ' + (simWR * 100).toFixed(1) + '% WR, +$' + ((simPnl || 0) / 100).toFixed(2) + ' sim';
+  }
+  box.innerHTML += `<div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--bg-3)">
+    <div class="readiness-badge ${readyClass}">${readyText}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// WEATHER OBSERVATION
+// ═══════════════════════════════════════════════════════════════════════
+function updateWeatherObservation(s) {
+  const d = s.weather_observation;
+  const box = $('elWeatherObs');
+  const tag = $('weatherObsTag');
+  if (!d || typeof d !== 'object') {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">Weather engine not enabled</div>';
+    return;
+  }
+
+  const obsOnly = d.observation_only !== false;
+  tag.textContent = obsOnly ? 'SHADOW' : 'LIVE';
+  tag.style.background = obsOnly ? 'var(--amber-bg)' : 'var(--green-bg)';
+  tag.style.color = obsOnly ? 'var(--amber-0)' : 'var(--green-0)';
+  tag.style.border = obsOnly ? '1px solid var(--amber-border)' : '1px solid var(--green-border)';
+
+  const settled = d.settled_count ?? 0;
+  const wins = d.settled_wins ?? 0;
+  const pending = d.pending_count ?? 0;
+  const wr = settled > 0 ? (wins / settled * 100).toFixed(1) + '%' : '—';
+  const blendW = d.market_blend_w != null ? (d.market_blend_w * 100).toFixed(0) + '%' : '—';
+
+  const fs = d.filter_stages || {};
+  const fsEntries = Object.entries(fs).sort((a, b) => b[1] - a[1]);
+  const fsHtml = fsEntries.length
+    ? fsEntries.map(([stage, cnt]) => {
+        const label = stage.replace('weather_', '').replace(/_/g, ' ');
+        return `<div class="shadow-metric"><span class="shadow-metric-label">${label}</span><span class="shadow-metric-val">${cnt}</span></div>`;
+      }).join('')
+    : '<div class="shadow-metric"><span class="shadow-metric-label">no data yet</span><span class="shadow-metric-val">—</span></div>';
+
+  box.innerHTML = `
+    <div class="shadow-metrics" style="margin-bottom:8px">
+      <div class="shadow-metric"><span class="shadow-metric-label">blend</span><span class="shadow-metric-val">${blendW}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">min price</span><span class="shadow-metric-val">${d.min_entry_price ?? '—'}¢</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">max risk</span><span class="shadow-metric-val">${d.max_risk_per_trade != null ? (d.max_risk_per_trade * 100).toFixed(0) + '%' : '—'}</span></div>
+    </div>
+    <div class="shadow-metrics" style="margin-bottom:8px">
+      <div class="shadow-metric"><span class="shadow-metric-label">settled</span><span class="shadow-metric-val">${settled}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">wins</span><span class="shadow-metric-val">${wins}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">win rate</span><span class="shadow-metric-val">${wr}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">pending</span><span class="shadow-metric-val">${pending}</span></div>
+    </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--bg-3)">
+      <div style="font-size:9px;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Filter Stages</div>
+      <div class="shadow-metrics">${fsHtml}</div>
+    </div>
+  `;
+
+  // Readiness badge
+  const simCount = d.sim_trade_count ?? 0;
+  const simWR = d.sim_win_rate ?? 0;
+  const simPnl = d.sim_pnl_cents ?? null;
+  let readyClass, readyText;
+  if (simCount < 300) {
+    readyClass = 'collecting';
+    readyText = 'COLLECTING (' + simCount + '/300 trades)';
+  } else if (simWR < 0.65 || (simPnl != null && simPnl <= 0)) {
+    readyClass = 'not-ready';
+    readyText = 'NOT READY — ' + (simWR * 100).toFixed(1) + '% WR' + (simPnl != null ? ', $' + (simPnl / 100).toFixed(2) + ' sim' : '');
+  } else {
+    readyClass = 'ready';
+    readyText = 'READY — ' + (simWR * 100).toFixed(1) + '% WR, +$' + ((simPnl || 0) / 100).toFixed(2) + ' sim';
+  }
+  box.innerHTML += `<div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--bg-3)">
+    <div class="readiness-badge ${readyClass}">${readyText}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CAPITAL ALLOCATION
+// ═══════════════════════════════════════════════════════════════════════
+function updateCapitalAllocation(s) {
+  const d = s.capital_allocation;
+  const box = $('elCapitalAlloc');
+  if (!d || typeof d !== 'object') {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">Capital allocator not active</div>';
+    return;
+  }
+
+  const regime = d.regime ?? 'UNKNOWN';
+  const score = d.composite_score ?? 0;
+  const corr = d.ewma_corr != null ? d.ewma_corr.toFixed(3) : '—';
+  const vix = d.vix_level != null ? d.vix_level.toFixed(1) : '—';
+
+  const regimeColors = {
+    GREEN: { bg: 'var(--green-bg)', fg: 'var(--green-0)', border: 'var(--green-border)' },
+    YELLOW: { bg: 'var(--amber-bg)', fg: 'var(--amber-0)', border: 'var(--amber-border)' },
+    ORANGE: { bg: '#3d2800', fg: '#ff9500', border: '#664400' },
+    RED: { bg: 'var(--red-bg)', fg: 'var(--red-0)', border: 'var(--red-border)' },
+  };
+  const rc = regimeColors[regime] || regimeColors.GREEN;
+
+  box.innerHTML = `
+    <div class="shadow-metrics" style="margin-bottom:8px">
+      <div class="shadow-metric">
+        <span class="shadow-metric-label">regime</span>
+        <span class="shadow-metric-val" style="background:${rc.bg};color:${rc.fg};border:1px solid ${rc.border};padding:1px 6px;border-radius:4px;font-weight:600">${regime}</span>
+      </div>
+      <div class="shadow-metric"><span class="shadow-metric-label">score</span><span class="shadow-metric-val">${score}/12</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">BTC-SPX corr</span><span class="shadow-metric-val">${corr}</span></div>
+      <div class="shadow-metric"><span class="shadow-metric-label">VIX</span><span class="shadow-metric-val">${vix}</span></div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // SHADOW CALIBRATION PIPELINE
 // ═══════════════════════════════════════════════════════════════════════
 function updateShadowCalPipeline(s) {
@@ -5219,6 +5436,9 @@ function update(s) {
   try { updateShadowCalPipeline(s); } catch (e) { console.error('updateShadowCalPipeline:', e); }
 
   try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
+  try { updateSpxObservation(s); } catch (e) { console.error('updateSpxObservation:', e); }
+  try { updateWeatherObservation(s); } catch (e) { console.error('updateWeatherObservation:', e); }
+  try { updateCapitalAllocation(s); } catch (e) { console.error('updateCapitalAllocation:', e); }
 
   try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
   try { updateExecutionQuality(s); } catch (e) { console.error('updateExecutionQuality:', e); }
