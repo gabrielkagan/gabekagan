@@ -1193,6 +1193,23 @@ body::before {
 .pos-badge.ws { background: var(--blue-bg, rgba(56,189,248,0.12)); color: var(--blue-0, #38bdf8); }
 .pos-badge.rest { background: var(--bg-2); color: var(--text-3); }
 
+/* Position health indicators */
+.health-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; flex-shrink: 0; }
+.health-dot.lock { background: var(--green-0); }
+.health-dot.watch { background: var(--amber-0); }
+.health-dot.danger { background: var(--red-0); animation: blink 1s ease-in-out infinite; }
+.health-summary { display: flex; gap: 12px; margin-bottom: 8px; font-family: var(--mono); font-size: 11px; }
+.health-summary span { display: flex; align-items: center; gap: 4px; }
+.pos-mtm { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 4px; font-family: var(--mono); font-size: 10px; }
+.pos-mtm .up { color: var(--green-0); }
+.pos-mtm .down { color: var(--red-0); }
+.pos-mtm .flat { color: var(--text-2); }
+.spark { display: inline-flex; align-items: flex-end; gap: 1px; height: 16px; vertical-align: middle; }
+.spark-bar { width: 3px; border-radius: 1px; min-height: 2px; }
+.spark-bar.up { background: var(--green-0); }
+.spark-bar.down { background: var(--red-0); }
+.spark-bar.flat { background: var(--text-3); }
+
 /* ═══════════════════════════════════════════════════════════════════════
    CALIBRATION ENGINE PANEL
    ═══════════════════════════════════════════════════════════════════════ */
@@ -2031,6 +2048,7 @@ body::before {
       Active Positions
       <span class="tag" id="elPosCount" style="background:var(--blue-bg);color:var(--blue-0)">0</span>
     </div>
+    <div class="health-summary" id="elHealthSummary" style="display:none"></div>
     <div class="pos-list" id="elPositions">
       <div class="empty">No active positions</div>
     </div>
@@ -3606,6 +3624,24 @@ function updatePositions(s) {
   const posArr = Array.isArray(positions) ? positions : Object.values(positions);
   $('elPosCount').textContent = posArr.length;
   const box = $('elPositions');
+  const summaryEl = $('elHealthSummary');
+
+  // Health data (graceful: may not exist)
+  const ph = s.position_health ?? {};
+  const phPositions = ph.positions ?? {};
+  const phSummary = ph.summary ?? {};
+
+  // Health summary bar
+  if (phSummary.total > 0) {
+    summaryEl.style.display = 'flex';
+    summaryEl.innerHTML =
+      `<span><span class="health-dot lock"></span>${phSummary.lock ?? 0} LOCK</span>` +
+      `<span><span class="health-dot watch"></span>${phSummary.watch ?? 0} WATCH</span>` +
+      `<span><span class="health-dot danger"></span>${phSummary.danger ?? 0} DANGER</span>`;
+  } else {
+    summaryEl.style.display = 'none';
+    summaryEl.innerHTML = '';
+  }
 
   if (!posArr.length) {
     box.innerHTML = '<div class="empty">No active positions</div>';
@@ -3624,7 +3660,7 @@ function updatePositions(s) {
     const costDollars = (totalCost / 100).toFixed(2);
     const openedAt = p.opened_at ? fmtTimestamp(p.opened_at) : '—';
 
-    // Execution details (new fields)
+    // Execution details
     const fillLatency = p.fill_latency_seconds != null ? p.fill_latency_seconds.toFixed(1) + 's' : '';
     const isTaker = p.is_taker === 1 || p.is_taker === true;
     const tierBadge = isTaker
@@ -3640,9 +3676,46 @@ function updatePositions(s) {
     const edge = p.edge != null ? (p.edge * 100).toFixed(1) + '%' : '';
     const strategy = p.strategy ?? '';
 
+    // Position health enrichment (graceful if missing)
+    const h = phPositions[ticker];
+    const healthDot = h ? `<span class="health-dot ${h.health.toLowerCase()}"></span>` : '';
+
+    // Mark-to-market row
+    let mtmHtml = '';
+    if (h) {
+      const pnlClass = h.unrealized_cents > 0 ? 'up' : h.unrealized_cents < 0 ? 'down' : 'flat';
+      const pnlSign = h.unrealized_cents > 0 ? '+' : '';
+      const pctSign = h.unrealized_pct > 0 ? '+' : '';
+      const stcStr = h.stc_seconds != null ? Math.round(h.stc_seconds) + 's' : '';
+
+      // Mini sparkline from mid_history
+      let sparkHtml = '';
+      const mids = h.mid_history ?? [];
+      if (mids.length >= 2) {
+        const entry = h.entry_price || avgPrice;
+        const lo = Math.min(...mids, entry);
+        const hi = Math.max(...mids, entry);
+        const range = hi - lo || 1;
+        sparkHtml = '<span class="spark">' + mids.map(m => {
+          const pct = Math.max(10, Math.round(((m - lo) / range) * 100));
+          const cls = m > entry ? 'up' : m < entry ? 'down' : 'flat';
+          return `<span class="spark-bar ${cls}" style="height:${pct}%"></span>`;
+        }).join('') + '</span>';
+      }
+
+      mtmHtml = `<div class="pos-mtm">
+        <span><span class="dim">mid</span>${h.mid_price}¢</span>
+        <span><span class="dim">bid</span>${h.best_bid}¢</span>
+        <span><span class="dim">spd</span>${h.spread}¢</span>
+        <span class="${pnlClass}"><span class="dim">P&L</span>${pnlSign}${h.unrealized_cents}¢ (${pctSign}${h.unrealized_pct}%)</span>
+        ${stcStr ? `<span><span class="dim">stc</span>${stcStr}</span>` : ''}
+        ${sparkHtml}
+      </div>`;
+    }
+
     return `<div class="pos-item">
       <div class="pos-top">
-        <span class="pos-ticker" title="${escHtml(ticker)}">${escHtml(short)}</span>
+        ${healthDot}<span class="pos-ticker" title="${escHtml(ticker)}">${escHtml(short)}</span>
         <span class="pos-side ${sideClass}">${side.toUpperCase()}</span>
         ${tierBadge}${srcBadge}
       </div>
@@ -3657,6 +3730,7 @@ function updatePositions(s) {
         ${strategy ? `<span><span class="dim">strat</span>${escHtml(strategy)}</span>` : ''}
         <span><span class="dim">opened</span>${openedAt}</span>
       </div>
+      ${mtmHtml}
     </div>`;
   }).join('');
 }
