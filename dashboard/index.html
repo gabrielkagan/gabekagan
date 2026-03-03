@@ -4827,11 +4827,12 @@ function updateExecutionEngine(s) {
   // Maker status
   const makerStatus = totalFills > 0 ? 'healthy' : 'degraded';
   const makerText = totalFills > 0 ? 'OK' : 'WAITING';
-  // Taker status
+  // Taker status — need 3+ unfilled attempts to flag as broken (1-2 is noise)
   const dtAttempts = ee.session_direct_taker_attempts ?? 0;
   const dtFills = ee.session_direct_taker_fills ?? 0;
-  const takerStatus = dtAttempts === 0 ? 'healthy' : (dtFills > 0 ? 'healthy' : 'broken');
-  const takerText = dtAttempts === 0 ? 'IDLE' : (dtFills > 0 ? 'OK' : 'FAILING');
+  const dtUnfilled = dtAttempts - dtFills;
+  const takerStatus = dtAttempts === 0 ? 'healthy' : (dtFills > 0 || dtUnfilled < 3 ? 'healthy' : 'broken');
+  const takerText = dtAttempts === 0 ? 'IDLE' : (dtFills > 0 ? 'OK' : (dtUnfilled >= 3 ? 'FAILING' : `0/${dtAttempts}`));
 
   // Inject status row + metrics grid before the existing WS status area
   const dot = $('execWsDot');
