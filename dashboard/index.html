@@ -1965,7 +1965,7 @@ body::before {
 
   <!-- Win / Loss -->
   <div class="cell wl-cell">
-    <div class="cell-label">Win / Loss</div>
+    <div class="cell-label">Win / Loss <span id="scopeToggle" class="tag" style="cursor:pointer;background:var(--green-1);color:var(--green-0);font-size:9px;padding:2px 6px;border-radius:4px;margin-left:6px;user-select:none" title="Click to toggle between 15M-only and All Products">15M</span></div>
     <div class="wl-top">
       <div class="wl-nums">
         <span class="wl-big up" id="elW">0</span><span class="wl-lbl">W</span>
@@ -2797,12 +2797,11 @@ function updateStatusStrip(s) {
     ssPnlEl.style.color = pnl > 0 ? 'var(--green-0)' : pnl < 0 ? 'var(--red-0)' : 'var(--text-3)';
   }
 
-  // Win rate
-  const ta = s.trade_analytics;
-  if (ta) {
-    const wr = ta.win_rate;
-    const ssWrEl = $('ssWinRate');
-    if (ssWrEl) ssWrEl.textContent = wr != null ? (wr * 100).toFixed(1) + '%' : '—';
+  // Win rate (use filtered data from win_rate key, not trade_analytics)
+  const ssWrEl = $('ssWinRate');
+  if (ssWrEl) {
+    const wr = s.win_rate;
+    ssWrEl.textContent = wr != null ? (wr <= 1 ? (wr * 100).toFixed(1) : wr.toFixed(1)) + '%' : '—';
   }
 
   // Last trade
@@ -2996,7 +2995,8 @@ function drawPnlChart(s) {
   if (!canvas) return;
 
   const rta = s.real_trade_analytics;
-  const data = rta && rta.cumulative_pnl;
+  const useAll = _dashboardScope === 'all';
+  const data = rta && (useAll ? (rta.all_products_cumulative_pnl || rta.cumulative_pnl) : rta.cumulative_pnl);
   if (!data || !Array.isArray(data) || data.length < 1) return;
 
   const startBal = (s.starting_balance ?? 100) * 100; // cents
@@ -3144,7 +3144,8 @@ function drawPnlChart(s) {
 // RISK METRICS + EXECUTION QUALITY
 // ═══════════════════════════════════════════════════════════════════════
 function updateRiskMetrics(s) {
-  const r = s.risk_metrics;
+  const useAll = _dashboardScope === 'all';
+  const r = (useAll ? s.all_products_risk_metrics : s.risk_metrics) ?? s.risk_metrics;
   if (!r) return;
 
   const dd = $('rmDrawdown');
@@ -3161,9 +3162,9 @@ function updateRiskMetrics(s) {
 
   const pf = $('rmProfitFactor');
   if (pf) {
-    const v = r.profit_factor;
+    const v = r.profit_factor ?? null;
     pf.textContent = v != null ? (v >= 999 ? '\u221e' : v.toFixed(2)) : '—';
-    pf.style.color = v > 1.5 ? 'var(--green-0)' : v > 1 ? 'var(--text-0)' : 'var(--red-0)';
+    pf.style.color = v != null ? (v > 1.5 ? 'var(--green-0)' : v > 1 ? 'var(--text-0)' : 'var(--red-0)') : 'var(--text-3)';
   }
 
   const ap = $('rmAvgPnl');
@@ -3257,11 +3258,33 @@ function updateBotStatus(s) {
   }
 }
 
+// Scope toggle state: '15m' or 'all'
+let _dashboardScope = '15m';
+(function() {
+  const toggle = document.getElementById('scopeToggle');
+  if (toggle) {
+    toggle.addEventListener('click', function() {
+      _dashboardScope = _dashboardScope === '15m' ? 'all' : '15m';
+      toggle.textContent = _dashboardScope === '15m' ? '15M' : 'ALL';
+      toggle.style.background = _dashboardScope === '15m' ? 'var(--green-1)' : 'var(--bg-2)';
+      toggle.style.color = _dashboardScope === '15m' ? 'var(--green-0)' : 'var(--text-2)';
+      // Force re-render with current data
+      if (lastSnapshot) {
+        updateWinLoss(lastSnapshot);
+        updateRiskMetrics(lastSnapshot);
+        updateRecentTrades(lastSnapshot);
+        drawPnlChart(lastSnapshot);
+      }
+    });
+  }
+})();
+
 function updateWinLoss(s) {
-  const w = s.win_count ?? 0;
-  const l = s.loss_count ?? 0;
+  const useAll = _dashboardScope === 'all';
+  const w = (useAll ? s.all_products_win_count : s.win_count) ?? s.win_count ?? 0;
+  const l = (useAll ? s.all_products_loss_count : s.loss_count) ?? s.loss_count ?? 0;
   const tot = w + l;
-  const wrRaw = s.win_rate ?? (tot > 0 ? w / tot : 0);
+  const wrRaw = (useAll ? s.all_products_win_rate : s.win_rate) ?? s.win_rate ?? (tot > 0 ? w / tot : 0);
   // win_rate is 0-1, display as percentage
   const wr = wrRaw <= 1 ? wrRaw * 100 : wrRaw;
 
@@ -3473,23 +3496,24 @@ function updateMarketTiming(s) {
 let funnelAsset = 'BTC';
 let funnelData = null;
 
-const FUNNEL_STAGES = [
+// Canonical stage order + colors (known stages render in this order; unknown stages append at end)
+const _CANONICAL_FUNNEL_ORDER = [
   'evaluated', 'low_prob', 'no_orderbook', 'no_best_ask',
   'price_out_of_range', 'insufficient_edge', 'zero_sizing',
   'strategy_wait', 'candidates'
 ];
-
-const FUNNEL_COLORS = [
-  'var(--blue-0)',     // evaluated
-  'var(--text-2)',     // low_prob
-  'var(--text-3)',     // no_orderbook
-  'var(--text-3)',     // no_best_ask
-  'var(--amber-0)',    // price_out_of_range
-  'var(--red-0)',      // insufficient_edge
-  'var(--red-0)',      // zero_sizing
-  'var(--amber-0)',    // strategy_wait
-  'var(--green-0)',    // candidates
-];
+const _FUNNEL_COLOR_MAP = {
+  'evaluated': 'var(--blue-0)',
+  'low_prob': 'var(--text-2)',
+  'no_orderbook': 'var(--text-3)',
+  'no_best_ask': 'var(--text-3)',
+  'price_out_of_range': 'var(--amber-0)',
+  'insufficient_edge': 'var(--red-0)',
+  'zero_sizing': 'var(--red-0)',
+  'strategy_wait': 'var(--amber-0)',
+  'candidates': 'var(--green-0)',
+};
+const _FUNNEL_DEFAULT_COLOR = 'var(--text-2)';
 
 function renderFunnel() {
   const stages = $('funnelStages');
@@ -3499,13 +3523,23 @@ function renderFunnel() {
   }
 
   const data = funnelData[funnelAsset];
-  const max = Math.max(1, ...FUNNEL_STAGES.map(k => data[k] ?? 0));
+  // Build ordered stage list: canonical first, then any unknown stages sorted by count desc
+  const dataKeys = Object.keys(data).filter(k => typeof data[k] === 'number');
+  const orderedStages = [];
+  for (const s of _CANONICAL_FUNNEL_ORDER) {
+    if (dataKeys.includes(s)) orderedStages.push(s);
+  }
+  for (const s of dataKeys) {
+    if (!orderedStages.includes(s)) orderedStages.push(s);
+  }
 
-  stages.innerHTML = FUNNEL_STAGES.map((stage, i) => {
+  const max = Math.max(1, ...orderedStages.map(k => data[k] ?? 0));
+
+  stages.innerHTML = orderedStages.map(stage => {
     const count = data[stage] ?? 0;
     const pct = (count / max * 100).toFixed(0);
     const label = stage.replace(/_/g, ' ');
-    const color = FUNNEL_COLORS[i];
+    const color = _FUNNEL_COLOR_MAP[stage] || _FUNNEL_DEFAULT_COLOR;
     return `<div class="funnel-row">
       <span class="funnel-label" title="${stage}">${label}</span>
       <div class="funnel-bar-track">
@@ -4268,7 +4302,8 @@ function updateRateLimits(s) {
 }
 
 function updateRecentTrades(s) {
-  const trades = s.recent_trades;
+  const useAll = _dashboardScope === 'all';
+  const trades = (useAll ? s.all_products_recent_trades : s.recent_trades) ?? s.recent_trades;
   const body = $('elTradesBody');
   if (!trades || !Array.isArray(trades) || trades.length === 0) {
     body.innerHTML = '<tr><td colspan="12" style="text-align:center;color:var(--text-3);padding:24px">No trades yet</td></tr>';
@@ -4280,7 +4315,9 @@ function updateRecentTrades(s) {
 
   body.innerHTML = trades.map(t => {
     const time = t.settled_at ? fmtTime(t.settled_at) : (t.timestamp ? fmtTime(t.timestamp) : '—');
-    const asset = t.asset ?? '—';
+    const pt = t.product_type;
+    const ptBadge = pt && pt !== '15m' ? ` <span style="font-size:8px;padding:1px 3px;border-radius:2px;background:var(--bg-2);color:var(--text-3)">${pt === 'hourly' ? 'HRLY' : pt === 'spx_hourly' ? 'SPX' : pt === 'weather' ? 'WX' : pt.toUpperCase()}</span>` : '';
+    const asset = (t.asset ?? '—') + ptBadge;
     const ticker = t.ticker ? escHtml(t.ticker.length > 28 ? t.ticker.slice(0, 28) + '…' : t.ticker) : '—';
     const price = t.entry_price_cents ?? t.yes_price ?? t.price;
     const priceStr = price != null ? price + '¢' : '—';
@@ -5135,6 +5172,35 @@ function checkTradeAlert(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// DATA COLLECTION PROGRESS BAR HELPER
+// ═══════════════════════════════════════════════════════════════════════
+function renderProgressBar(dc) {
+  if (!dc || typeof dc !== 'object') return '';
+  const settled = dc.settled ?? 0;
+  const target = dc.target ?? 200;
+  const rate = dc.rate_per_day;
+  const eta = dc.eta_days;
+  const pct = target > 0 ? Math.min(100, Math.round(settled / target * 100)) : 0;
+  const rateStr = rate != null ? Math.round(rate) + '/day' : '—';
+  const etaStr = eta != null ? (eta < 1 ? '<1d' : Math.round(eta) + 'd') : '—';
+  const barColor = pct >= 100 ? 'var(--green-0)' : pct >= 50 ? 'var(--amber-0)' : 'var(--text-3)';
+  return `<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--bg-3)">
+    <div style="font-size:9px;color:var(--text-3);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.5px">Collection Progress</div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--text-2);margin-bottom:3px">
+      <span>${settled}/${target} settled</span>
+      <span style="color:var(--text-3)">|</span>
+      <span>${rateStr}</span>
+      <span style="color:var(--text-3)">|</span>
+      <span>ETA ${etaStr}</span>
+    </div>
+    <div style="height:6px;background:var(--bg-3);border-radius:3px;overflow:hidden">
+      <div style="height:100%;width:${pct}%;background:${barColor};border-radius:3px;transition:width 0.3s"></div>
+    </div>
+    <div style="font-size:9px;color:var(--text-3);margin-top:2px;text-align:right">${pct}%</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // HOURLY OBSERVATION
 // ═══════════════════════════════════════════════════════════════════════
 function updateHourlyObservation(s) {
@@ -5204,6 +5270,7 @@ function updateHourlyObservation(s) {
       <div style="font-size:9px;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Filter Stages</div>
       <div class="shadow-metrics">${fsHtml}</div>
     </div>
+    ${renderProgressBar(s.data_collection && s.data_collection.hourly)}
   `;
 
   // Change 10: Hourly readiness badge
@@ -5283,6 +5350,7 @@ function updateSpxObservation(s) {
       <div style="font-size:9px;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Filter Stages</div>
       <div class="shadow-metrics">${fsHtml}</div>
     </div>
+    ${renderProgressBar(s.data_collection && s.data_collection.spx_hourly)}
   `;
 
   // Readiness badge
@@ -5354,6 +5422,7 @@ function updateWeatherObservation(s) {
       <div style="font-size:9px;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Filter Stages</div>
       <div class="shadow-metrics">${fsHtml}</div>
     </div>
+    ${renderProgressBar(s.data_collection && s.data_collection.weather)}
   `;
 
   // Readiness badge
@@ -5420,6 +5489,7 @@ function updateSportsObservation(s) {
       <div style="font-size:9px;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Leagues</div>
       <div class="shadow-metrics">${leagueHtml}</div>
     </div>
+    ${renderProgressBar(s.data_collection && s.data_collection.sports)}
   `;
 
   // Readiness badge
