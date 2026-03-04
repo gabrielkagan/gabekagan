@@ -2524,6 +2524,17 @@ body::before {
     </div>
   </div>
 
+  <!-- CalEngine Registry (per-engine observation tracking) -->
+  <div class="cell" id="calRegistryCell" style="grid-column:span 4">
+    <div class="cell-label">
+      CalEngine Registry
+      <span class="tag" id="calRegCount" style="background:var(--bg-2);color:var(--text-3)">0 engines</span>
+    </div>
+    <div id="calRegBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Calibration Tournament (7d, Supabase) -->
   <div class="cell" style="grid-column:span 4">
     <div class="cell-label">
@@ -4595,6 +4606,36 @@ function updateCalibration(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// CAL ENGINE REGISTRY
+// ═══════════════════════════════════════════════════════════════════════
+function updateCalRegistry(s) {
+  const reg = s.cal_registry;
+  if (!reg || typeof reg !== 'object') return;
+  const keys = Object.keys(reg).sort();
+  $('calRegCount').textContent = keys.length + ' engines';
+  if (!keys.length) { $('calRegBody').innerHTML = '<div style="color:var(--text-3)">No engines registered</div>'; return; }
+  let html = '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+  html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)">'
+        + '<td style="padding:3px 6px">Engine</td><td style="padding:3px 6px">Obs</td>'
+        + '<td style="padding:3px 6px">Method</td><td style="padding:3px 6px">Brier</td></tr>';
+  for (const k of keys) {
+    const e = reg[k];
+    const nObs = e.n_observations ?? 0;
+    const method = (e.active_method ?? 'raw').toUpperCase();
+    const brier = e.rolling_brier != null ? e.rolling_brier.toFixed(4) : '—';
+    const obsColor = nObs >= 200 ? 'var(--green-0)' : nObs >= 50 ? 'var(--amber-0)' : 'var(--text-3)';
+    const methodColor = e.learned_method_active ? 'var(--green-0)' : 'var(--text-2)';
+    html += '<tr style="border-bottom:1px solid var(--border-0)">'
+          + '<td style="padding:3px 6px;font-weight:500">' + k + '</td>'
+          + '<td style="padding:3px 6px;color:' + obsColor + '">' + nObs + '</td>'
+          + '<td style="padding:3px 6px;color:' + methodColor + '">' + method + '</td>'
+          + '<td style="padding:3px 6px">' + brier + '</td></tr>';
+  }
+  html += '</table>';
+  $('calRegBody').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // COUNTERFACTUAL ANALYSIS
 // ═══════════════════════════════════════════════════════════════════════
 function updateCounterfactual(s) {
@@ -5650,6 +5691,7 @@ function update(s) {
   try { updateObservationMode(s); } catch (e) { console.error('updateObservationMode:', e); }
   try { updateTradingConfig(s); } catch (e) { console.error('updateTradingConfig:', e); }
   try { updateCalibration(s); } catch (e) { console.error('updateCalibration:', e); }
+  try { updateCalRegistry(s); } catch (e) { console.error('updateCalRegistry:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
 
