@@ -2390,6 +2390,57 @@ body::before {
     </div>
   </div>
 
+  <!-- Risk Deep Dive (Supabase) -->
+  <div class="cell" style="grid-column:span 4">
+    <div class="cell-label">
+      Tail Risk
+      <span class="sa-ts" id="saRiskTailTs" style="font-size:9px;color:var(--text-3);font-weight:400;letter-spacing:0;text-transform:none;margin-left:auto"></span>
+    </div>
+    <div id="riskTailPanel" style="font-family:var(--mono);font-size:11px">
+      <div style="padding:12px;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
+  <div class="cell" style="grid-column:span 4">
+    <div class="cell-label">
+      Execution Quality
+      <span class="sa-ts" id="saRiskExecTs" style="font-size:9px;color:var(--text-3);font-weight:400;letter-spacing:0;text-transform:none;margin-left:auto"></span>
+    </div>
+    <div id="riskExecPanel" style="font-family:var(--mono);font-size:11px">
+      <div style="padding:12px;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
+  <div class="cell" style="grid-column:span 4">
+    <div class="cell-label">
+      Asset Concentration
+      <span class="sa-ts" id="saRiskConcTs" style="font-size:9px;color:var(--text-3);font-weight:400;letter-spacing:0;text-transform:none;margin-left:auto"></span>
+    </div>
+    <div id="riskConcPanel" style="font-family:var(--mono);font-size:11px">
+      <div style="padding:12px;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Rolling 7d Risk (Supabase) -->
+  <div class="cell" style="grid-column:span 6">
+    <div class="cell-label">
+      Rolling 7-Day Risk
+      <span class="sa-ts" id="saRisk7dTs" style="font-size:9px;color:var(--text-3);font-weight:400;letter-spacing:0;text-transform:none;margin-left:auto"></span>
+    </div>
+    <div id="risk7dPanel" style="font-family:var(--mono);font-size:11px">
+      <div style="padding:12px;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Daily Drawdown (Supabase) -->
+  <div class="cell" style="grid-column:span 6">
+    <div class="cell-label">
+      Daily Drawdown from Peak
+      <span class="sa-ts" id="saRiskDDTs" style="font-size:9px;color:var(--text-3);font-weight:400;letter-spacing:0;text-transform:none;margin-left:auto"></span>
+    </div>
+    <div class="sa-chart-wrap"><canvas id="riskDDCanvas"></canvas></div>
+  </div>
+
   <!-- Refresh button for Supabase analytics -->
   <div style="grid-column:1/-1;background:var(--bg-0);padding:4px 22px;display:flex;justify-content:flex-end;align-items:center;gap:8px">
     <span class="sa-status" id="analyticsStatus" style="font-family:var(--mono);font-size:9px;color:var(--text-3)"></span>
@@ -5928,6 +5979,30 @@ async function fetchAndRenderAnalytics() {
   if (edgeDecay.data) renderEdgeDecay(edgeDecay.data);
   if (calDrift.data) renderHourlyCalDrift(calDrift.data);
   if (winCorr.data) renderWindowCorrelation(winCorr.data);
+
+  // Risk deep dive panels — fetch independently (new RPCs, may not exist yet)
+  try {
+    const riskRpcs = [
+      _analyticsClient.rpc('get_risk_tail', { p_product_type: '15m' }),
+      _analyticsClient.rpc('get_risk_execution', { p_product_type: '15m' }),
+      _analyticsClient.rpc('get_risk_concentration', { p_product_type: '15m' }),
+      _analyticsClient.rpc('get_risk_rolling_7d', { p_product_type: '15m' }),
+      _analyticsClient.rpc('get_risk_daily', { p_product_type: '15m' }),
+    ];
+    const [riskTail, riskExec, riskConc, risk7d, riskDaily] = await Promise.all(riskRpcs);
+    _analyticsData.riskTail = riskTail;
+    _analyticsData.riskExec = riskExec;
+    _analyticsData.riskConc = riskConc;
+    _analyticsData.risk7d = risk7d;
+    _analyticsData.riskDaily = riskDaily;
+    if (riskTail.data) renderRiskTail(riskTail.data);
+    if (riskExec.data) renderRiskExecution(riskExec.data);
+    if (riskConc.data) renderRiskConcentration(riskConc.data);
+    if (risk7d.data) renderRisk7d(risk7d.data);
+    if (riskDaily.data) drawRiskDrawdownChart(riskDaily.data);
+  } catch (e) {
+    console.warn('Risk RPCs not available yet (run migration_003):', e.message);
+  }
 }
 
 function redrawAnalyticsCharts() {
@@ -6507,6 +6582,222 @@ function renderWindowCorrelation(data) {
   }
   html += '</tbody></table>';
   el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RISK DEEP DIVE PANELS (Supabase)
+// ═══════════════════════════════════════════════════════════════════════
+
+function renderRiskTail(data) {
+  const el = $('riskTailPanel');
+  if (!el) return;
+  if (!data || !data.length) { el.innerHTML = '<div style="padding:12px;color:var(--text-3)">No tail risk data yet</div>'; return; }
+  const r = data[0];
+  const fmtC = v => v != null ? (v >= 0 ? '+' : '') + (v / 100).toFixed(2) : '—';
+  const color = v => v > 0 ? 'var(--green-0)' : v < 0 ? 'var(--red-0)' : 'var(--text-2)';
+  el.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div style="padding:8px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Worst Trade</div>
+      <div style="font-size:16px;font-weight:700;color:var(--red-0)">${fmtC(r.worst_trade_cents)}</div>
+    </div>
+    <div style="padding:8px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Best Trade</div>
+      <div style="font-size:16px;font-weight:700;color:var(--green-0)">${fmtC(r.best_trade_cents)}</div>
+    </div>
+    <div style="padding:8px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">CVaR 5%</div>
+      <div style="font-size:16px;font-weight:700;color:${color(r.cvar_5pct_cents)}">${fmtC(r.cvar_5pct_cents)}</div>
+      <div style="font-size:9px;color:var(--text-3)">avg of worst 5%</div>
+    </div>
+    <div style="padding:8px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Max Loss Streak</div>
+      <div style="font-size:16px;font-weight:700;color:${+r.max_consecutive_losses > 3 ? 'var(--red-0)' : +r.max_consecutive_losses > 1 ? 'var(--amber-0)' : 'var(--text-0)'}">${r.max_consecutive_losses ?? '—'}</div>
+      <div style="font-size:9px;color:var(--text-3)">consecutive</div>
+    </div>
+  </div>
+  <div style="margin-top:6px;font-size:9px;color:var(--text-3);text-align:right">n=${r.total_trades ?? '?'} trades</div>`;
+  $('saRiskTailTs').textContent = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+}
+
+function renderRiskExecution(data) {
+  const el = $('riskExecPanel');
+  if (!el) return;
+  if (!data || !data.length) { el.innerHTML = '<div style="padding:12px;color:var(--text-3)">No execution data yet</div>'; return; }
+  const r = data[0];
+  const pct = v => v != null ? (v * 100).toFixed(1) + '%' : '—';
+  const fmt = (v, sfx) => v != null ? Number(v).toFixed(1) + sfx : '—';
+  const escRate = r.escalation_rate ?? 0;
+  const escColor = escRate > 0.2 ? 'var(--red-0)' : escRate > 0.1 ? 'var(--amber-0)' : 'var(--green-0)';
+  el.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div style="padding:8px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Avg Fee</div>
+      <div style="font-size:14px;font-weight:600;color:var(--text-0)">${fmt(r.avg_fee_cents, '\u00a2')}</div>
+    </div>
+    <div style="padding:8px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Escalation Rate</div>
+      <div style="font-size:14px;font-weight:600;color:${escColor}">${pct(r.escalation_rate)}</div>
+    </div>
+    <div style="padding:8px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Fill Latency P50</div>
+      <div style="font-size:14px;font-weight:600;color:var(--text-0)">${fmt(r.p50_fill_latency_s, 's')}</div>
+    </div>
+    <div style="padding:8px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Fill Latency P95</div>
+      <div style="font-size:14px;font-weight:600;color:${+r.p95_fill_latency_s > 10 ? 'var(--red-0)' : +r.p95_fill_latency_s > 5 ? 'var(--amber-0)' : 'var(--text-0)'}">${fmt(r.p95_fill_latency_s, 's')}</div>
+    </div>
+    <div style="padding:8px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Fee / PnL Ratio</div>
+      <div style="font-size:14px;font-weight:600;color:${+r.fee_to_pnl_ratio > 0.3 ? 'var(--red-0)' : +r.fee_to_pnl_ratio > 0.15 ? 'var(--amber-0)' : 'var(--green-0)'}">${pct(r.fee_to_pnl_ratio)}</div>
+    </div>
+    <div style="padding:8px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">Total Fees</div>
+      <div style="font-size:14px;font-weight:600;color:var(--text-0)">$${(+(r.total_fees_cents ?? 0) / 100).toFixed(2)}</div>
+    </div>
+  </div>`;
+  $('saRiskExecTs').textContent = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+}
+
+function renderRiskConcentration(data) {
+  const el = $('riskConcPanel');
+  if (!el) return;
+  if (!data || !data.length) { el.innerHTML = '<div style="padding:12px;color:var(--text-3)">No concentration data yet</div>'; return; }
+  let html = '<table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px">';
+  html += '<thead><tr style="color:var(--text-3);font-size:9px;text-transform:uppercase;letter-spacing:0.5px">';
+  html += '<th style="text-align:left;padding:4px 6px">Asset</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Trades</th>';
+  html += '<th style="text-align:right;padding:4px 6px">WR</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Net P&L</th>';
+  html += '<th style="text-align:right;padding:4px 6px">Share</th>';
+  html += '</tr></thead><tbody>';
+  for (const r of data) {
+    const pnl = +(r.net_pnl_cents ?? 0) / 100;
+    const pnlC = pnl > 0 ? 'var(--green-0)' : pnl < 0 ? 'var(--red-0)' : 'var(--text-2)';
+    const share = r.pnl_share != null ? (Math.abs(+r.pnl_share) * 100).toFixed(0) + '%' : '—';
+    const wr = r.win_rate != null ? (+r.win_rate * 100).toFixed(0) + '%' : '—';
+    html += `<tr style="border-top:1px solid var(--border-0)">
+      <td style="padding:4px 6px;font-weight:600;color:var(--text-0)">${escHtml(r.asset)}</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--text-1)">${r.trades ?? '—'}</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--text-1)">${wr}</td>
+      <td style="padding:4px 6px;text-align:right;color:${pnlC}">$${pnl.toFixed(2)}</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--text-2)">${share}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  el.innerHTML = html;
+  $('saRiskConcTs').textContent = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+}
+
+function renderRisk7d(data) {
+  const el = $('risk7dPanel');
+  if (!el) return;
+  if (!data || !data.length) { el.innerHTML = '<div style="padding:12px;color:var(--text-3)">No 7d risk data yet</div>'; return; }
+  // Show latest row summary + table of recent days
+  const latest = data[data.length - 1];
+  const r7pnl = +(latest.rolling_7d_pnl ?? 0) / 100;
+  const r7wr = (latest.rolling_7d_wins && latest.rolling_7d_trades) ? (+latest.rolling_7d_wins / +latest.rolling_7d_trades * 100).toFixed(0) : '—';
+  const r7worst = +(latest.rolling_7d_worst_day ?? 0) / 100;
+
+  let html = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">
+    <div style="text-align:center;padding:6px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase">7d P&L</div>
+      <div style="font-size:14px;font-weight:600;color:${r7pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)'}">$${r7pnl.toFixed(2)}</div>
+    </div>
+    <div style="text-align:center;padding:6px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase">7d WR</div>
+      <div style="font-size:14px;font-weight:600;color:var(--text-0)">${r7wr}%</div>
+    </div>
+    <div style="text-align:center;padding:6px;background:var(--bg-2);border-radius:var(--radius-sm);border:1px solid var(--border-0)">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase">7d Worst Day</div>
+      <div style="font-size:14px;font-weight:600;color:var(--red-0)">$${r7worst.toFixed(2)}</div>
+    </div>
+  </div>`;
+
+  // Table of last 7 days
+  html += '<table style="width:100%;border-collapse:collapse;font-size:10px">';
+  html += '<thead><tr style="color:var(--text-3);font-size:9px;text-transform:uppercase;letter-spacing:0.5px">';
+  html += '<th style="text-align:left;padding:3px 4px">Date</th>';
+  html += '<th style="text-align:right;padding:3px 4px">Trades</th>';
+  html += '<th style="text-align:right;padding:3px 4px">W/L</th>';
+  html += '<th style="text-align:right;padding:3px 4px">Day P&L</th>';
+  html += '<th style="text-align:right;padding:3px 4px">Rolling</th>';
+  html += '</tr></thead><tbody>';
+  const recent = data.slice(-7);
+  for (const r of recent) {
+    const dpnl = +(r.net_pnl_cents ?? 0) / 100;
+    const rpnl = +(r.rolling_7d_pnl ?? 0) / 100;
+    const dc = dpnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+    const d = r.trade_date ? String(r.trade_date).slice(5) : '—';
+    html += `<tr style="border-top:1px solid var(--border-0)">
+      <td style="padding:3px 4px;color:var(--text-2)">${d}</td>
+      <td style="padding:3px 4px;text-align:right;color:var(--text-1)">${r.trades ?? 0}</td>
+      <td style="padding:3px 4px;text-align:right;color:var(--text-1)">${r.wins ?? 0}/${(r.trades ?? 0) - (r.wins ?? 0)}</td>
+      <td style="padding:3px 4px;text-align:right;color:${dc}">${dpnl >= 0 ? '+' : ''}$${dpnl.toFixed(2)}</td>
+      <td style="padding:3px 4px;text-align:right;color:${rpnl >= 0 ? 'var(--green-0)' : 'var(--red-0)'}">$${rpnl.toFixed(2)}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  el.innerHTML = html;
+  $('saRisk7dTs').textContent = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+}
+
+function drawRiskDrawdownChart(data) {
+  const canvas = $('riskDDCanvas');
+  if (!canvas || !data || !data.length) return;
+
+  const filtered = data.filter(d => d.daily_drawdown_from_peak_pct != null);
+  if (!filtered.length) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 120 * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = '120px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = 120;
+  ctx.clearRect(0, 0, W, H);
+
+  const vals = filtered.map(d => +d.daily_drawdown_from_peak_pct);
+  const maxDD = Math.max(...vals, 1);
+  const toX = i => (i / Math.max(filtered.length - 1, 1)) * (W - 40) + 30;
+  const toY = v => 8 + (v / maxDD) * (H - 24);
+
+  // Area fill
+  ctx.beginPath();
+  ctx.moveTo(toX(0), 8);
+  filtered.forEach((d, i) => ctx.lineTo(toX(i), toY(vals[i])));
+  ctx.lineTo(toX(filtered.length - 1), 8);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(244, 63, 94, 0.12)';
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  filtered.forEach((d, i) => {
+    if (i === 0) ctx.moveTo(toX(i), toY(vals[i]));
+    else ctx.lineTo(toX(i), toY(vals[i]));
+  });
+  ctx.strokeStyle = '#f43f5e';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Y-axis labels
+  ctx.font = '9px "IBM Plex Mono"';
+  ctx.fillStyle = '#64748b';
+  ctx.textAlign = 'right';
+  ctx.fillText('0%', 26, 12);
+  ctx.fillText(maxDD.toFixed(0) + '%', 26, H - 8);
+
+  // X-axis: first/last date
+  ctx.textAlign = 'left';
+  const first = String(filtered[0].trade_date || '').slice(5);
+  const last = String(filtered[filtered.length - 1].trade_date || '').slice(5);
+  ctx.fillText(first, 30, H - 1);
+  ctx.textAlign = 'right';
+  ctx.fillText(last, W - 4, H - 1);
+
+  $('saRiskDDTs').textContent = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
 }
 
 // ── Daily P&L time range selector ───────────────────────────────────
