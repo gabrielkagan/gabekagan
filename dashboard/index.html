@@ -1965,7 +1965,7 @@ body::before {
 
   <!-- Win / Loss -->
   <div class="cell wl-cell">
-    <div class="cell-label">Win / Loss <span id="scopeToggle" class="tag" style="cursor:pointer;background:var(--green-1);color:var(--green-0);font-size:9px;padding:2px 6px;border-radius:4px;margin-left:6px;user-select:none" title="Click to toggle between 15M-only and All Products">15M</span></div>
+    <div class="cell-label">Win / Loss <span id="scopeToggle" class="tag" style="cursor:pointer;background:var(--green-1);color:var(--green-0);font-size:9px;padding:2px 6px;border-radius:4px;margin-left:6px;user-select:none" title="Click to toggle: 15M → REGIME → ALL">15M</span><span id="scopeSubtitle" style="display:none;font-size:9px;color:var(--amber-0);margin-left:6px;font-family:var(--mono)"></span></div>
     <div class="wl-top">
       <div class="wl-nums">
         <span class="wl-big up" id="elW">0</span><span class="wl-lbl">W</span>
@@ -3007,6 +3007,7 @@ function drawPnlChart(s) {
 
   const rta = s.real_trade_analytics;
   const useAll = _dashboardScope === 'all';
+  // Regime has no separate cumulative PnL — use 15M data (same as default)
   const data = rta && (useAll ? (rta.all_products_cumulative_pnl || rta.cumulative_pnl) : rta.cumulative_pnl);
   if (!data || !Array.isArray(data) || data.length < 1) return;
 
@@ -3155,14 +3156,19 @@ function drawPnlChart(s) {
 // RISK METRICS + EXECUTION QUALITY
 // ═══════════════════════════════════════════════════════════════════════
 function updateRiskMetrics(s) {
-  const useAll = _dashboardScope === 'all';
-  const r = (useAll ? s.all_products_risk_metrics : s.risk_metrics) ?? s.risk_metrics;
+  const scope = _dashboardScope;
+  let r;
+  if (scope === 'regime') r = s.regime_risk_metrics ?? s.risk_metrics;
+  else if (scope === 'all') r = s.all_products_risk_metrics ?? s.risk_metrics;
+  else r = s.risk_metrics;
   if (!r) return;
 
+  // Use true_max_drawdown when available (real peak-to-trough), fallback to max_drawdown_pct
   const dd = $('rmDrawdown');
   if (dd) {
-    dd.textContent = r.max_drawdown_pct != null ? r.max_drawdown_pct.toFixed(1) + '%' : '—';
-    dd.style.color = r.max_drawdown_pct > 10 ? 'var(--red-0)' : r.max_drawdown_pct > 5 ? 'var(--amber-0)' : 'var(--text-0)';
+    const ddVal = r.true_max_drawdown_pct ?? r.max_drawdown_pct;
+    dd.textContent = ddVal != null ? ddVal.toFixed(1) + '%' : '—';
+    dd.style.color = ddVal > 10 ? 'var(--red-0)' : ddVal > 5 ? 'var(--amber-0)' : 'var(--text-0)';
   }
 
   const sh = $('rmSharpe');
@@ -3186,7 +3192,10 @@ function updateRiskMetrics(s) {
   }
 
   const tt = $('rmTotalTrades');
-  if (tt) tt.textContent = r.total_trades ?? '—';
+  if (tt) {
+    const ttVal = r.total_trades ?? '—';
+    tt.textContent = scope === 'regime' ? ttVal + ' (regime)' : ttVal;
+  }
 }
 
 function updateExecutionQuality(s) {
@@ -3269,21 +3278,42 @@ function updateBotStatus(s) {
   }
 }
 
-// Scope toggle state: '15m' or 'all'
+// Scope toggle state: '15m' → 'regime' → 'all'
 let _dashboardScope = '15m';
+const _scopeCycle = ['15m', 'regime', 'all'];
+const _scopeLabels = { '15m': '15M', 'regime': 'REGIME', 'all': 'ALL' };
+const _scopeStyles = {
+  '15m':    { bg: 'var(--green-1)', fg: 'var(--green-0)' },
+  'regime': { bg: 'var(--amber-bg)', fg: 'var(--amber-0)' },
+  'all':    { bg: 'var(--bg-2)',     fg: 'var(--text-2)' }
+};
 (function() {
   const toggle = document.getElementById('scopeToggle');
+  const subtitle = document.getElementById('scopeSubtitle');
   if (toggle) {
     toggle.addEventListener('click', function() {
-      _dashboardScope = _dashboardScope === '15m' ? 'all' : '15m';
-      toggle.textContent = _dashboardScope === '15m' ? '15M' : 'ALL';
-      toggle.style.background = _dashboardScope === '15m' ? 'var(--green-1)' : 'var(--bg-2)';
-      toggle.style.color = _dashboardScope === '15m' ? 'var(--green-0)' : 'var(--text-2)';
+      const idx = _scopeCycle.indexOf(_dashboardScope);
+      _dashboardScope = _scopeCycle[(idx + 1) % _scopeCycle.length];
+      const st = _scopeStyles[_dashboardScope];
+      toggle.textContent = _scopeLabels[_dashboardScope];
+      toggle.style.background = st.bg;
+      toggle.style.color = st.fg;
+      // Show "Since Mar 3" subtitle for regime scope
+      if (subtitle) {
+        if (_dashboardScope === 'regime' && lastSnapshot && lastSnapshot.config_regime_since) {
+          const d = new Date(lastSnapshot.config_regime_since);
+          subtitle.textContent = 'Since ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          subtitle.style.display = 'inline';
+        } else {
+          subtitle.style.display = 'none';
+        }
+      }
       // Force re-render with current data
       if (lastSnapshot) {
         updateWinLoss(lastSnapshot);
         updateRiskMetrics(lastSnapshot);
         updateRecentTrades(lastSnapshot);
+        updateTradeAnalytics(lastSnapshot);
         drawPnlChart(lastSnapshot);
       }
     });
@@ -3291,11 +3321,23 @@ let _dashboardScope = '15m';
 })();
 
 function updateWinLoss(s) {
-  const useAll = _dashboardScope === 'all';
-  const w = (useAll ? s.all_products_win_count : s.win_count) ?? s.win_count ?? 0;
-  const l = (useAll ? s.all_products_loss_count : s.loss_count) ?? s.loss_count ?? 0;
+  const scope = _dashboardScope;
+  const rr = s.regime_risk_metrics;
+  let w, l, wrRaw;
+  if (scope === 'regime' && rr) {
+    w = rr.win_count ?? 0;
+    l = rr.loss_count ?? 0;
+    wrRaw = rr.win_rate ?? (w + l > 0 ? w / (w + l) : 0);
+  } else if (scope === 'all') {
+    w = s.all_products_win_count ?? s.win_count ?? 0;
+    l = s.all_products_loss_count ?? s.loss_count ?? 0;
+    wrRaw = s.all_products_win_rate ?? s.win_rate ?? (w + l > 0 ? w / (w + l) : 0);
+  } else {
+    w = s.win_count ?? 0;
+    l = s.loss_count ?? 0;
+    wrRaw = s.win_rate ?? (w + l > 0 ? w / (w + l) : 0);
+  }
   const tot = w + l;
-  const wrRaw = (useAll ? s.all_products_win_rate : s.win_rate) ?? s.win_rate ?? (tot > 0 ? w / tot : 0);
   // win_rate is 0-1, display as percentage
   const wr = wrRaw <= 1 ? wrRaw * 100 : wrRaw;
 
@@ -4148,14 +4190,27 @@ function updateTradeAnalytics(s) {
   const rta = s.real_trade_analytics;
   if (!rta || typeof rta !== 'object') return;
 
-  const risk = s.risk_metrics || {};
-  const totalTrades = risk.total_trades ?? 0;
-  const wins = s.win_count ?? 0;
-  const losses = s.loss_count ?? 0;
-  const wr = s.win_rate ?? 0;
-  const totalPnlCents = risk.total_pnl_cents ?? 0;
+  const scope = _dashboardScope;
+  const rr = s.regime_risk_metrics;
+  let risk, totalTrades, wins, losses, wr, totalPnlCents, avgPnl;
+  if (scope === 'regime' && rr) {
+    risk = rr;
+    totalTrades = rr.total_trades ?? 0;
+    wins = rr.win_count ?? 0;
+    losses = rr.loss_count ?? 0;
+    wr = rr.win_rate ?? 0;
+    totalPnlCents = rr.total_pnl_cents ?? 0;
+    avgPnl = rr.avg_pnl_per_trade ?? 0;
+  } else {
+    risk = s.risk_metrics || {};
+    totalTrades = risk.total_trades ?? 0;
+    wins = s.win_count ?? 0;
+    losses = s.loss_count ?? 0;
+    wr = s.win_rate ?? 0;
+    totalPnlCents = risk.total_pnl_cents ?? 0;
+    avgPnl = risk.avg_pnl_per_trade ?? 0;
+  }
   const totalPnl = totalPnlCents / 100;
-  const avgPnl = risk.avg_pnl_per_trade ?? 0;
   const dailyPnlCents = s.daily_pnl_cents ?? 0;
 
   $('taCountTag').textContent = totalTrades + ' trade' + (totalTrades !== 1 ? 's' : '');
@@ -4195,11 +4250,20 @@ function updateTradeAnalytics(s) {
   notable.style.display = notableHtml ? 'block' : 'none';
 
   // Store breakdown data for tab rendering
-  taBdData = {
-    asset: rta.by_asset || {},
-    bucket: rta.by_bucket || {},
-    strategy: rta.by_strategy || {}
-  };
+  const regimeAn = s.regime_trade_analytics;
+  if (scope === 'regime' && regimeAn) {
+    taBdData = {
+      asset: regimeAn.by_asset || {},
+      bucket: regimeAn.by_bucket || {},
+      strategy: regimeAn.by_strategy || rta.by_strategy || {}
+    };
+  } else {
+    taBdData = {
+      asset: rta.by_asset || {},
+      bucket: rta.by_bucket || {},
+      strategy: rta.by_strategy || {}
+    };
+  }
   renderTradeBreakdowns();
 }
 
@@ -4314,6 +4378,7 @@ function updateRateLimits(s) {
 
 function updateRecentTrades(s) {
   const useAll = _dashboardScope === 'all';
+  // Regime uses same recent trades as 15M (no separate regime list in firebase)
   const trades = (useAll ? s.all_products_recent_trades : s.recent_trades) ?? s.recent_trades;
   const body = $('elTradesBody');
   if (!trades || !Array.isArray(trades) || trades.length === 0) {
