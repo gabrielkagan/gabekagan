@@ -1965,7 +1965,7 @@ body::before {
 
   <!-- Win / Loss -->
   <div class="cell wl-cell">
-    <div class="cell-label">Win / Loss <span id="scopeToggle" class="tag" style="cursor:pointer;background:var(--green-1);color:var(--green-0);font-size:9px;padding:2px 6px;border-radius:4px;margin-left:6px;user-select:none" title="Click to toggle: 15M → REGIME → ALL">15M</span><span id="scopeSubtitle" style="display:none;font-size:9px;color:var(--amber-0);margin-left:6px;font-family:var(--mono)"></span></div>
+    <div class="cell-label">Win / Loss <span id="scopeToggle" class="tag" style="cursor:pointer;background:var(--green-1);color:var(--green-0);font-size:10px;padding:3px 8px;border-radius:4px;margin-left:6px;user-select:none;border:1px solid var(--green-0);font-weight:600;letter-spacing:0.3px" title="Click to toggle: 15M → REGIME → ALL">15M</span><span id="scopeSubtitle" style="display:none;font-size:9px;color:var(--amber-0);margin-left:6px;font-family:var(--mono)"></span></div>
     <div class="wl-top">
       <div class="wl-nums">
         <span class="wl-big up" id="elW">0</span><span class="wl-lbl">W</span>
@@ -1978,7 +1978,7 @@ body::before {
     <div class="wl-meta">
       <div class="bm">Daily P&L <span id="elDailyPnl">$0.00</span></div>
       <div class="bm">Daily % <span id="elDailyPct">0.0%</span></div>
-      <div class="bm">Streak <span id="elStreak">0</span></div>
+      <div class="bm">Streak <span id="elStreak">—</span></div>
       <div class="bm">Pending <span id="elPending">0</span></div>
     </div>
     <div class="last-trade-card" id="lastTradeCard" style="display:none">
@@ -1989,10 +1989,10 @@ body::before {
 
   <!-- Risk Metrics -->
   <div class="cell risk-cell">
-    <div class="cell-label">Risk Metrics</div>
+    <div class="cell-label">Risk Metrics <span style="font-size:8px;color:var(--text-3);font-weight:400">(15M only)</span></div>
     <div class="metric-grid" id="riskMetricsGrid">
       <div class="metric-item"><div class="metric-label">Max Drawdown</div><div class="metric-val" id="rmDrawdown">—</div></div>
-      <div class="metric-item"><div class="metric-label">Sharpe Ratio</div><div class="metric-val" id="rmSharpe">—</div></div>
+      <div class="metric-item"><div class="metric-label">Sharpe <span style="font-size:7px;color:var(--text-3);font-weight:400" title="Daily P&L aggregation, annualized sqrt(252)">(ann.)</span></div><div class="metric-val" id="rmSharpe">—</div></div>
       <div class="metric-item"><div class="metric-label">Profit Factor</div><div class="metric-val" id="rmProfitFactor">—</div></div>
       <div class="metric-item"><div class="metric-label">Avg P&amp;L/Trade</div><div class="metric-val" id="rmAvgPnl">—</div></div>
       <div class="metric-item"><div class="metric-label">Total Trades</div><div class="metric-val" id="rmTotalTrades">—</div></div>
@@ -2126,7 +2126,7 @@ body::before {
   </div>
 
   <!-- S&P 500 Observation -->
-  <div class="cell" style="grid-column:span 2">
+  <div class="cell" style="grid-column:span 4">
     <div class="cell-label">
       S&amp;P 500 Hourly
       <span class="tag" id="spxObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
@@ -2137,7 +2137,7 @@ body::before {
   </div>
 
   <!-- Weather Observation -->
-  <div class="cell" style="grid-column:span 2">
+  <div class="cell" style="grid-column:span 4">
     <div class="cell-label">
       Weather Markets
       <span class="tag" id="weatherObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
@@ -2472,11 +2472,11 @@ body::before {
     </div>
   </div>
 
-  <!-- Cross-Exchange Data -->
+  <!-- Cross-Exchange Data (Binance geo-blocked on VPS — Coinbase is primary feed) -->
   <div class="cell xchg-cell">
-    <div class="cell-label">Cross-Exchange Prices</div>
+    <div class="cell-label">Cross-Exchange Prices <span class="tag" style="background:var(--bg-2);color:var(--text-3);font-size:8px">LIMITED</span></div>
     <div class="xchg-grid" id="elXchgGrid">
-      <div class="empty">Waiting for cross-exchange data...</div>
+      <div class="empty" style="font-size:10px;color:var(--text-3);padding:12px">Binance geo-blocked on VPS. Coinbase provides primary pricing. Cross-exchange arb data unavailable.</div>
     </div>
   </div>
 
@@ -2505,12 +2505,10 @@ body::before {
     </div>
   </div>
 
-  <!-- Funding Rates & Feed Health -->
+  <!-- Feed Health (funding rates removed — not relevant to prediction markets) -->
   <div class="cell funding-cell">
-    <div class="cell-label">Funding Rates</div>
-    <div class="funding-grid" id="elFundingGrid"></div>
+    <div class="cell-label">Feed Health</div>
     <div class="feed-health">
-      <div class="feed-health-label">Feed Health</div>
       <div class="feed-dots" id="elFeedDots">
         <div class="empty" style="padding:8px">Waiting...</div>
       </div>
@@ -3410,14 +3408,26 @@ function updateWinLoss(s) {
   $('elDailyPct').textContent = (pnlPct >= 0 ? '+' : '') + Number(pnlPct).toFixed(1) + '%';
   $('elDailyPct').style.color = pnlPct > 0 ? 'var(--green-0)' : pnlPct < 0 ? 'var(--red-0)' : 'var(--text-3)';
 
-  $('elStreak').textContent = s.consecutive_losses ?? 0;
+  // Show current streak: win streak (green) or loss streak (red)
+  const consLosses = s.consecutive_losses ?? 0;
+  const consWins = s.consecutive_wins ?? 0;
+  const streakEl = $('elStreak');
+  if (consLosses > 0) {
+    streakEl.textContent = consLosses + 'L';
+    streakEl.style.color = 'var(--red-0)';
+  } else if (consWins > 0) {
+    streakEl.textContent = consWins + 'W';
+    streakEl.style.color = 'var(--green-0)';
+  } else {
+    streakEl.textContent = '—';
+    streakEl.style.color = 'var(--text-3)';
+  }
   $('elPending').textContent = s.pending_settlements ?? 0;
 
   // Hot streak styling when consecutive wins >= 5
   const wlEl = document.querySelector('.wl-cell');
   if (wlEl) {
-    const consLosses = s.consecutive_losses ?? 0;
-    if (consLosses === 0 && w >= 5) wlEl.classList.add('hot-streak');
+    if (consWins >= 5) wlEl.classList.add('hot-streak');
     else wlEl.classList.remove('hot-streak');
   }
 }
@@ -4794,27 +4804,27 @@ function updateCounterfactual(s) {
   const buckets = cf.by_bucket;
   const bucketContainer = $('cfBuckets');
   const bucketOrder = ['80-84', '85-89', '90-94', '95-99'];
-  const beMap = {'80-84': 82, '85-89': 87, '90-94': 92, '95-99': 97};
+  const beMap = {'80-84': 83.5, '85-89': 88.4, '90-94': 93.2, '95-99': 97.6};
   if (buckets && Array.isArray(buckets)) {
     const bucketMap = {};
     buckets.forEach(b => { bucketMap[b.bucket] = b; });
     bucketContainer.innerHTML = bucketOrder.map(label => {
       const b = bucketMap[label];
       const be = beMap[label];
-      if (!b) return `<div class="cf-bucket"><div class="cf-bucket-label">${label}&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: ${be}%</div></div>`;
+      if (!b) return `<div class="cf-bucket"><div class="cf-bucket-label">${label}&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: ${Number(be).toFixed(1)}%</div></div>`;
       const wr = ((b.win_rate ?? 0) * 100).toFixed(1);
       const above = b.above_breakeven;
       const wrColor = above ? 'var(--green-0)' : 'var(--red-0)';
       return `<div class="cf-bucket">
         <div class="cf-bucket-label">${label}&cent;</div>
         <div class="cf-bucket-wr" style="color:${wrColor}">${wr}%</div>
-        <div class="cf-bucket-be">BE: ${be}% · n=${b.total}</div>
+        <div class="cf-bucket-be">BE: ${Number(be).toFixed(1)}% · n=${b.total}</div>
       </div>`;
     }).join('');
   } else {
     bucketContainer.innerHTML = bucketOrder.map(label => {
       const be = beMap[label];
-      return `<div class="cf-bucket"><div class="cf-bucket-label">${label}&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: ${be}%</div></div>`;
+      return `<div class="cf-bucket"><div class="cf-bucket-label">${label}&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: ${Number(be).toFixed(1)}%</div></div>`;
     }).join('');
   }
 }
@@ -5430,23 +5440,24 @@ function updateHourlyObservation(s) {
     ${renderProgressBar(s.data_collection && s.data_collection.hourly)}
   `;
 
-  // Change 10: Hourly readiness badge
+  // Hourly readiness badge (hypothetical — based on simulated P&L, not real trades)
   const simPnl = h.sim_pnl_cents ?? null;
   const simCount = h.sim_trade_count ?? 0;
   const simWR = h.sim_win_rate ?? 0;
   let readyClass, readyText;
   if (simCount < 30) {
     readyClass = 'collecting';
-    readyText = 'COLLECTING (' + simCount + '/30 trades)';
+    readyText = 'COLLECTING (' + simCount + '/30 sim trades)';
   } else if (simWR < 0.80 || (simPnl != null && simPnl <= 0)) {
     readyClass = 'not-ready';
-    readyText = 'NOT READY — ' + (simWR * 100).toFixed(1) + '% WR' + (simPnl != null ? ', $' + (simPnl / 100).toFixed(2) + ' sim' : '');
+    readyText = 'NOT READY — ' + (simWR * 100).toFixed(1) + '% sim WR' + (simPnl != null ? ', $' + (simPnl / 100).toFixed(2) + ' sim P&L' : '');
   } else {
     readyClass = 'ready';
-    readyText = 'READY — ' + (simWR * 100).toFixed(1) + '% WR, +$' + ((simPnl || 0) / 100).toFixed(2) + ' sim';
+    readyText = 'READY — ' + (simWR * 100).toFixed(1) + '% sim WR, +$' + ((simPnl || 0) / 100).toFixed(2) + ' sim P&L';
   }
   box.innerHTML += `<div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--bg-3)">
     <div class="readiness-badge ${readyClass}">${readyText}</div>
+    <div style="font-size:8px;color:var(--text-3);margin-top:2px;text-align:center">Hypothetical — assumes flat 1-contract sizing, no slippage</div>
   </div>`;
 }
 
@@ -5510,23 +5521,24 @@ function updateSpxObservation(s) {
     ${renderProgressBar(s.data_collection && s.data_collection.spx_hourly)}
   `;
 
-  // Readiness badge
+  // SPX readiness badge (hypothetical — based on simulated P&L, not real trades)
   const simCount = d.sim_trade_count ?? 0;
   const simWR = d.sim_win_rate ?? 0;
   const simPnl = d.sim_pnl_cents ?? null;
   let readyClass, readyText;
   if (simCount < 200) {
     readyClass = 'collecting';
-    readyText = 'COLLECTING (' + simCount + '/200 trades)';
+    readyText = 'COLLECTING (' + simCount + '/200 sim trades)';
   } else if (simWR < 0.80 || (simPnl != null && simPnl <= 0)) {
     readyClass = 'not-ready';
-    readyText = 'NOT READY — ' + (simWR * 100).toFixed(1) + '% WR' + (simPnl != null ? ', $' + (simPnl / 100).toFixed(2) + ' sim' : '');
+    readyText = 'NOT READY — ' + (simWR * 100).toFixed(1) + '% sim WR' + (simPnl != null ? ', $' + (simPnl / 100).toFixed(2) + ' sim P&L' : '');
   } else {
     readyClass = 'ready';
-    readyText = 'READY — ' + (simWR * 100).toFixed(1) + '% WR, +$' + ((simPnl || 0) / 100).toFixed(2) + ' sim';
+    readyText = 'READY — ' + (simWR * 100).toFixed(1) + '% sim WR, +$' + ((simPnl || 0) / 100).toFixed(2) + ' sim P&L';
   }
   box.innerHTML += `<div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--bg-3)">
     <div class="readiness-badge ${readyClass}">${readyText}</div>
+    <div style="font-size:8px;color:var(--text-3);margin-top:2px;text-align:center">Hypothetical — assumes flat 1-contract sizing, no slippage</div>
   </div>`;
 }
 
@@ -5582,23 +5594,24 @@ function updateWeatherObservation(s) {
     ${renderProgressBar(s.data_collection && s.data_collection.weather)}
   `;
 
-  // Readiness badge
+  // Weather readiness badge (hypothetical — based on simulated P&L, not real trades)
   const simCount = d.sim_trade_count ?? 0;
   const simWR = d.sim_win_rate ?? 0;
   const simPnl = d.sim_pnl_cents ?? null;
   let readyClass, readyText;
   if (simCount < 300) {
     readyClass = 'collecting';
-    readyText = 'COLLECTING (' + simCount + '/300 trades)';
+    readyText = 'COLLECTING (' + simCount + '/300 sim trades)';
   } else if (simWR < 0.65 || (simPnl != null && simPnl <= 0)) {
     readyClass = 'not-ready';
-    readyText = 'NOT READY — ' + (simWR * 100).toFixed(1) + '% WR' + (simPnl != null ? ', $' + (simPnl / 100).toFixed(2) + ' sim' : '');
+    readyText = 'NOT READY — ' + (simWR * 100).toFixed(1) + '% sim WR' + (simPnl != null ? ', $' + (simPnl / 100).toFixed(2) + ' sim P&L' : '');
   } else {
     readyClass = 'ready';
-    readyText = 'READY — ' + (simWR * 100).toFixed(1) + '% WR, +$' + ((simPnl || 0) / 100).toFixed(2) + ' sim';
+    readyText = 'READY — ' + (simWR * 100).toFixed(1) + '% sim WR, +$' + ((simPnl || 0) / 100).toFixed(2) + ' sim P&L';
   }
   box.innerHTML += `<div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--bg-3)">
     <div class="readiness-badge ${readyClass}">${readyText}</div>
+    <div style="font-size:8px;color:var(--text-3);margin-top:2px;text-align:center">Hypothetical — assumes flat 1-contract sizing, no slippage</div>
   </div>`;
 }
 
