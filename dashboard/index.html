@@ -4804,7 +4804,7 @@ function updateCounterfactual(s) {
   const buckets = cf.by_bucket;
   const bucketContainer = $('cfBuckets');
   const bucketOrder = ['80-84', '85-89', '90-94', '95-99'];
-  const beMap = {'80-84': 83.5, '85-89': 88.4, '90-94': 93.2, '95-99': 97.6};
+  const beMap = {'80-84': 83, '85-89': 88, '90-94': 93, '95-99': 98};
   if (buckets && Array.isArray(buckets)) {
     const bucketMap = {};
     buckets.forEach(b => { bucketMap[b.bucket] = b; });
