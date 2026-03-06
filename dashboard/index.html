@@ -1309,6 +1309,21 @@ body::before {
   scrollbar-width: thin; scrollbar-color: var(--border-1) transparent;
   margin-bottom: 14px;
 }
+.mini-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--mono); font-size: 11px;
+}
+.mini-table th {
+  text-align: left; font-size: 9px; font-weight: 600;
+  letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-3);
+  padding: 6px 8px; border-bottom: 1px solid var(--border-0);
+}
+.mini-table td {
+  padding: 5px 8px; color: var(--text-1);
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+  white-space: nowrap; font-size: 11px;
+}
+.mini-table tr:hover td { background: var(--bg-2); }
 .cf-table {
   width: 100%; border-collapse: collapse;
   font-family: var(--mono); font-size: 11px;
@@ -2020,6 +2035,14 @@ body::before {
     </div>
   </div>
 
+  <!-- System Health Card -->
+  <div class="cell" id="sysHealthCell" style="grid-column:span 4">
+    <div class="cell-label">SYSTEM HEALTH <span class="tag" id="sysHealthTag" style="background:var(--green-bg);color:var(--green-0)">ALL OK</span></div>
+    <div id="sysHealthBody" style="font-family:var(--mono);font-size:12px">
+      <div style="text-align:center;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
 
   <!-- ══════════════ TIER 2: ACTIVE TRADING ══════════════ -->
 
@@ -2114,50 +2137,6 @@ body::before {
     </div>
   </div>
 
-  <!-- Hourly Markets Observation -->
-  <div class="cell hourly-obs-cell" style="grid-column:span 4">
-    <div class="cell-label">
-      Hourly Markets
-      <span class="tag" id="hourlyObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div class="hourly-obs-grid" id="elHourlyObs">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- S&P 500 Observation -->
-  <div class="cell" style="grid-column:span 4">
-    <div class="cell-label">
-      S&amp;P 500 Hourly
-      <span class="tag" id="spxObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="elSpxObs">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- Weather Observation -->
-  <div class="cell" style="grid-column:span 4">
-    <div class="cell-label">
-      Weather Markets
-      <span class="tag" id="weatherObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="elWeatherObs">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- Sports Comeback Observation -->
-  <div class="cell" style="grid-column:span 4">
-    <div class="cell-label">
-      Sports Comeback
-      <span class="tag" id="sportsObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="elSportsObs">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
   <!-- Capital Allocation -->
   <div class="cell" style="grid-column:span 4">
     <div class="cell-label">Capital Allocation</div>
@@ -2227,14 +2206,6 @@ body::before {
       <div class="cf-bucket"><div class="cf-bucket-label">85-89&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: 87%</div></div>
       <div class="cf-bucket"><div class="cf-bucket-label">90-94&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: 92%</div></div>
       <div class="cf-bucket"><div class="cf-bucket-label">95-99&cent;</div><div class="cf-bucket-wr" style="color:var(--text-3)">—</div><div class="cf-bucket-be">BE: 97%</div></div>
-    </div>
-  </div>
-
-  <!-- Shadow Variants (hourly counterfactual configs) -->
-  <div class="cell" id="svCell" style="grid-column:span 2">
-    <div class="cell-label">Shadow Variants (Hourly)</div>
-    <div id="svBody" style="padding:8px 0">
-      <div style="color:var(--text-3);text-align:center;padding:12px">Waiting for data...</div>
     </div>
   </div>
 
@@ -2449,6 +2420,38 @@ body::before {
     <div class="sa-chart-wrap"><canvas id="riskDDCanvas"></canvas></div>
   </div>
 
+  <!-- Calibration Health -->
+  <div class="cell" id="calHealthCell" style="grid-column:span 4">
+    <div class="cell-label">CALIBRATION HEALTH <span class="tag" id="calHealthTag" style="background:var(--green-bg);color:var(--green-0)">OK</span></div>
+    <div id="calHealthBody" style="font-family:var(--mono);font-size:12px">
+      <div style="text-align:center;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
+  <!-- STC Performance -->
+  <div class="cell" id="stcPerfCell" style="grid-column:span 4">
+    <div class="cell-label">STC PERFORMANCE <span class="tag" style="background:var(--blue-bg);color:var(--blue-0)">REGIME</span></div>
+    <div id="stcPerfBody" style="font-family:var(--mono);font-size:12px">
+      <div style="text-align:center;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Edge Integrity -->
+  <div class="cell" id="edgeIntCell" style="grid-column:span 4">
+    <div class="cell-label">EDGE INTEGRITY <span class="tag" id="edgeIntTag" style="background:var(--green-bg);color:var(--green-0)">OK</span></div>
+    <div id="edgeIntBody" style="font-family:var(--mono);font-size:12px">
+      <div style="text-align:center;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Loss Clustering -->
+  <div class="cell" id="lossClusterCell" style="grid-column:span 4">
+    <div class="cell-label">LOSS CLUSTERING <span class="tag" id="lossClusterTag" style="background:var(--green-bg);color:var(--green-0)">OK</span></div>
+    <div id="lossClusterBody" style="font-family:var(--mono);font-size:12px">
+      <div style="text-align:center;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
   <!-- Refresh button for Supabase analytics -->
   <div style="grid-column:1/-1;background:var(--bg-0);padding:4px 22px;display:flex;justify-content:flex-end;align-items:center;gap:8px">
     <span class="sa-status" id="analyticsStatus" style="font-family:var(--mono);font-size:9px;color:var(--text-3)"></span>
@@ -2456,6 +2459,138 @@ body::before {
   </div>
 
   </div><!-- /tier-content 3 -->
+
+  <!-- ══════════════ SHADOW STRATEGIES ══════════════ -->
+
+  <div class="section-divider" data-tier="shadow" onclick="toggleTier(this)">
+    <div class="divider-top">
+      <span class="chevron">&#9660;</span>
+      <span class="divider-label">Shadow Strategies</span>
+      <div class="divider-line"></div>
+    </div>
+  </div>
+  <div class="tier-content" data-tier="shadow">
+
+  <!-- Shadow Strategy Comparison Table -->
+  <div class="cell shadow-panel" id="shadowCompCell" style="grid-column:span 12">
+    <div class="cell-label">SHADOW STRATEGY COMPARISON <span class="tag" style="background:var(--violet-bg);color:var(--violet-0)">SHADOW</span></div>
+    <div style="overflow-x:auto">
+      <table class="mini-table" id="shadowCompTable" style="width:100%">
+        <thead><tr>
+          <th>Product</th><th>Status</th><th>Settled</th><th>Wins</th><th>Win Rate</th><th>Sim P&L</th><th>Avg Edge</th><th>Readiness</th>
+        </tr></thead>
+        <tbody id="shadowCompBody">
+          <tr><td colspan="8" style="text-align:center;color:var(--text-3)">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- STC Shadow Counterfactual -->
+  <div class="cell shadow-panel" id="stcShadowCell" style="grid-column:span 4">
+    <div class="cell-label">STC SHADOW ZONE (500-900s) <span class="tag" style="background:var(--violet-bg);color:var(--violet-0)">SHADOW</span></div>
+    <div id="stcShadowBody" style="font-family:var(--mono);font-size:12px">
+      <div style="text-align:center;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Pipeline Completeness -->
+  <div class="cell" id="pipelineCell" style="grid-column:span 4">
+    <div class="cell-label">DATA PIPELINE HEALTH <span class="tag" id="pipelineTag" style="background:var(--green-bg);color:var(--green-0)">OK</span></div>
+    <div id="pipelineBody" style="font-family:var(--mono);font-size:12px">
+      <div style="text-align:center;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Shadow Variants (hourly counterfactual configs) -->
+  <div class="cell shadow-panel" id="svCell" style="grid-column:span 4">
+    <div class="cell-label">Shadow Variants (Hourly)</div>
+    <div id="svBody" style="padding:8px 0">
+      <div style="color:var(--text-3);text-align:center;padding:12px">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Hourly Markets Observation -->
+  <div class="cell hourly-obs-cell shadow-panel" style="grid-column:span 4">
+    <div class="cell-label">
+      Hourly Markets
+      <span class="tag" id="hourlyObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div class="hourly-obs-grid" id="elHourlyObs">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- S&P 500 Observation -->
+  <div class="cell shadow-panel" style="grid-column:span 4">
+    <div class="cell-label">
+      S&amp;P 500 Hourly
+      <span class="tag" id="spxObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elSpxObs">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Weather Observation -->
+  <div class="cell shadow-panel" style="grid-column:span 4">
+    <div class="cell-label">
+      Weather Markets
+      <span class="tag" id="weatherObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elWeatherObs">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Sports Comeback Observation -->
+  <div class="cell shadow-panel" style="grid-column:span 4">
+    <div class="cell-label">
+      Sports Comeback
+      <span class="tag" id="sportsObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elSportsObs">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Hourly Alt Shadow Strategies (ETH/SOL/XRP) -->
+  <div class="cell shadow-panel" id="altShadowCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Hourly Alt Shadow
+      <span class="tag" id="altShadowTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
+    </div>
+    <div id="altShadowBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- SPX HAR-RV Shadow -->
+  <div class="cell shadow-panel" id="spxHarvCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      SPX HAR-RV Shadow
+      <span class="tag" id="spxHarvTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
+    </div>
+    <div id="spxHarvBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Shadow Cal Pipeline -->
+  <div class="cell shadow-cal-cell shadow-panel" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Shadow Cal Pipeline
+      <span class="tag" id="shadowCalTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elShadowCal">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  </div><!-- /tier-content shadow -->
 
   <!-- ══════════════ TIER 4: MARKET INTELLIGENCE ══════════════ -->
 
@@ -2592,30 +2727,6 @@ body::before {
     </div>
   </div>
 
-  <!-- Hourly Alt Shadow Strategies (ETH/SOL/XRP) -->
-  <div class="cell shadow-panel" id="altShadowCell" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      Hourly Alt Shadow
-      <span class="tag" id="altShadowTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
-    </div>
-    <div id="altShadowBody" style="font-size:11px;color:var(--text-2)">
-      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- SPX HAR-RV Shadow -->
-  <div class="cell shadow-panel" id="spxHarvCell" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      SPX HAR-RV Shadow
-      <span class="tag" id="spxHarvTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
-    </div>
-    <div id="spxHarvBody" style="font-size:11px;color:var(--text-2)">
-      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
-    </div>
-  </div>
-
   <!-- Calibration Tournament (7d, Supabase) -->
   <div class="cell" style="grid-column:span 4">
     <div class="cell-label">
@@ -2659,18 +2770,6 @@ body::before {
     </div>
     <div id="elEGARCHBlendDiag">
       <div class="empty">Waiting for EGARCH blend data...</div>
-    </div>
-  </div>
-
-  <!-- Shadow Cal Pipeline -->
-  <div class="cell shadow-cal-cell shadow-panel" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      Shadow Cal Pipeline
-      <span class="tag" id="shadowCalTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="elShadowCal">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
     </div>
   </div>
 
@@ -2881,7 +2980,7 @@ function updateStatusStrip(s) {
   if (ssBalEl) ssBalEl.textContent = bal != null ? '$' + bal.toFixed(2) : '$—';
 
   // Session PnL
-  const start = s.session_start_balance ?? s.start_balance;
+  const start = s.starting_balance;
   const pnl = (bal != null && start != null) ? bal - start : null;
   const ssPnlEl = $('ssPnl');
   if (ssPnlEl && pnl != null) {
@@ -2897,7 +2996,7 @@ function updateStatusStrip(s) {
   }
 
   // Last trade
-  const rt = s.trade_analytics?.recent_trades;
+  const rt = s.recent_trades;
   const ssLastEl = $('ssLastTrade');
   if (ssLastEl && rt && rt.length > 0) {
     const t = rt[0];
@@ -2925,7 +3024,7 @@ function updateLastTradeCard(s) {
   const card = $('lastTradeCard');
   const row = $('lastTradeRow');
   if (!card || !row) return;
-  const rt = s.trade_analytics?.recent_trades;
+  const rt = s.recent_trades;
   if (!rt || rt.length === 0) { card.style.display = 'none'; return; }
   card.style.display = '';
   const t = rt[0];
@@ -4294,6 +4393,14 @@ function updateTradeAnalytics(s) {
     wr = rr.win_rate ?? 0;
     totalPnlCents = rr.total_pnl_cents ?? 0;
     avgPnl = rr.avg_pnl_per_trade ?? 0;
+  } else if (scope === 'all') {
+    risk = s.all_products_risk_metrics ?? s.risk_metrics ?? {};
+    totalTrades = risk.total_trades ?? (s.all_products_win_count ?? 0) + (s.all_products_loss_count ?? 0);
+    wins = s.all_products_win_count ?? 0;
+    losses = s.all_products_loss_count ?? 0;
+    wr = s.all_products_win_rate ?? (wins + losses > 0 ? wins / (wins + losses) : 0);
+    totalPnlCents = risk.total_pnl_cents ?? 0;
+    avgPnl = risk.avg_pnl_per_trade ?? 0;
   } else {
     risk = s.risk_metrics || {};
     totalTrades = risk.total_trades ?? 0;
@@ -4377,11 +4484,18 @@ function renderTradeBreakdowns() {
     const pnl = netCents / 100;
     const pnlColor = pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
     const wrPct = cnt > 0 ? (w / cnt * 100).toFixed(0) : '0';
+    const wrNum = cnt > 0 ? w / cnt * 100 : 0;
     const label = key.replace(/_/g, ' ');
+    let beHtml = '';
+    if (taBdTab === 'bucket' && val.breakeven_wr != null) {
+      const bePct = (val.breakeven_wr * 100).toFixed(0);
+      const aboveBe = wrNum >= val.breakeven_wr * 100;
+      beHtml = ` \u00b7 <span style="color:${aboveBe ? 'var(--green-0)' : 'var(--red-0)'}">BE ${bePct}%</span>`;
+    }
     return `<div class="ta-bd-card">
       <div class="ta-bd-name">${escHtml(label)}</div>
       <div class="ta-bd-pnl" style="color:${pnlColor}">${pnl >= 0 ? '+$' : '-$'}${Math.abs(pnl).toFixed(2)}</div>
-      <div class="ta-bd-detail">${cnt} trades \u00b7 ${w}W \u00b7 ${wrPct}% WR</div>
+      <div class="ta-bd-detail">${cnt} trades \u00b7 ${w}W \u00b7 ${wrPct}% WR${beHtml}</div>
     </div>`;
   }).join('');
 }
@@ -4447,7 +4561,7 @@ function updateRateLimits(s) {
     const used = rl.requests_used ?? rl.used ?? 0;
     const limit = rl.requests_limit ?? rl.limit ?? 100;
     const remaining = rl.requests_remaining ?? rl.remaining ?? (limit - used);
-    categories.push({ name: 'API Requests', used, limit, remaining });
+    categories.push({ name: 'Read Requests', used, limit, remaining });
   }
 
   box.innerHTML = categories.map(c => {
@@ -6010,6 +6124,259 @@ function updateShadowCalPipeline(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// NEW PANELS
+// ═══════════════════════════════════════════════════════════════════════
+
+function updateSystemHealth(s) {
+  const h = s.system_health;
+  if (!h) return;
+  const tag = $('sysHealthTag');
+  const body = $('sysHealthBody');
+  if (h.status === 'healthy') {
+    tag.textContent = 'ALL OK';
+    tag.style.background = 'var(--green-bg)';
+    tag.style.color = 'var(--green-0)';
+    body.innerHTML = '<div style="color:var(--green-0);text-align:center;padding:12px">All systems operational</div>';
+  } else {
+    tag.textContent = h.issue_count + ' ISSUE' + (h.issue_count !== 1 ? 'S' : '');
+    tag.style.background = h.status === 'degraded' ? 'var(--amber-bg)' : 'var(--red-bg)';
+    tag.style.color = h.status === 'degraded' ? 'var(--amber-0)' : 'var(--red-0)';
+    body.innerHTML = (h.issues || []).map(i =>
+      `<div style="padding:4px 0;border-bottom:1px solid var(--border-0);display:flex;gap:8px">
+        <span style="color:var(--text-3);min-width:70px">${escHtml(i.source)}</span>
+        <span style="color:${h.status === 'degraded' ? 'var(--amber-0)' : 'var(--red-0)'}">${escHtml(i.message)}</span>
+      </div>`
+    ).join('');
+  }
+}
+
+function updateShadowComparison(s) {
+  const data = s.shadow_comparison;
+  if (!data || !Array.isArray(data) || data.length === 0) return;
+  const body = $('shadowCompBody');
+  body.innerHTML = data.map(d => {
+    const wr = d.wr ? (d.wr * 100).toFixed(1) + '%' : '—';
+    const pnl = d.sim_pnl_cents != null ? (d.sim_pnl_cents / 100).toFixed(2) : '—';
+    const pnlColor = d.sim_pnl_cents > 0 ? 'var(--green-0)' : d.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+    const statusColor = d.status === 'LIVE' ? 'var(--green-0)' : 'var(--amber-0)';
+    const edge = d.avg_edge != null ? (d.avg_edge * 100).toFixed(2) + '%' : '—';
+    let readiness, readColor;
+    if (d.settled >= 200 && d.wr > 0.55 && d.sim_pnl_cents > 0) {
+      readiness = 'READY'; readColor = 'var(--green-0)';
+    } else if (d.settled >= 50) {
+      readiness = 'COLLECTING'; readColor = 'var(--amber-0)';
+    } else {
+      readiness = 'EARLY'; readColor = 'var(--text-3)';
+    }
+    return `<tr>
+      <td style="font-weight:600">${escHtml(d.product)}</td>
+      <td><span style="color:${statusColor};font-weight:600">${escHtml(d.status)}</span></td>
+      <td>${d.settled}</td>
+      <td>${d.wins ?? '—'}</td>
+      <td style="color:${d.wr > 0.55 ? 'var(--green-0)' : d.wr > 0.50 ? 'var(--amber-0)' : 'var(--red-0)'}">${wr}</td>
+      <td style="color:${pnlColor}">${d.sim_pnl_cents >= 0 ? '+' : ''}$${pnl}</td>
+      <td>${edge}</td>
+      <td><span style="color:${readColor};font-weight:600">${readiness}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function updateStcPerformance(s) {
+  const d = s.stc_performance;
+  if (!d || typeof d !== 'object') return;
+  const body = $('stcPerfBody');
+  const rows = Object.entries(d).map(([label, v]) => {
+    const wr = v.trades > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+    const pnl = (v.pnl_cents / 100).toFixed(2);
+    const pnlColor = v.pnl_cents >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+    const wrColor = v.wr >= 0.85 ? 'var(--green-0)' : v.wr >= 0.70 ? 'var(--amber-0)' : 'var(--red-0)';
+    return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-0)">
+      <span style="color:var(--text-1)">${escHtml(label)}s</span>
+      <span>${v.trades} trades</span>
+      <span style="color:${wrColor}">${wr}</span>
+      <span style="color:${pnlColor}">${v.pnl_cents >= 0 ? '+' : ''}$${pnl}</span>
+    </div>`;
+  }).join('');
+  body.innerHTML = rows || '<div style="color:var(--text-3);text-align:center">No data</div>';
+}
+
+function updateStcShadow(s) {
+  const d = s.stc_shadow_counterfactual;
+  if (!d) return;
+  const body = $('stcShadowBody');
+  const pnl = (d.sim_pnl_cents / 100).toFixed(2);
+  const pnlColor = d.sim_pnl_cents >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+  const wr = d.n > 0 ? (d.wr * 100).toFixed(1) + '%' : '—';
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div><div style="color:var(--text-3);font-size:10px">SIGNALS</div><div style="font-size:18px;font-weight:600">${d.n}</div></div>
+      <div><div style="color:var(--text-3);font-size:10px">WIN RATE</div><div style="font-size:18px;font-weight:600;color:${d.wr >= 0.85 ? 'var(--green-0)' : d.wr >= 0.70 ? 'var(--amber-0)' : 'var(--red-0)'}">${wr}</div></div>
+      <div style="grid-column:1/-1"><div style="color:var(--text-3);font-size:10px">SIMULATED P&L</div><div style="font-size:22px;font-weight:700;color:${pnlColor}">${d.sim_pnl_cents >= 0 ? '+' : ''}$${pnl}</div></div>
+    </div>
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border-0);font-size:11px;color:var(--text-2)">
+      Money ${d.sim_pnl_cents >= 0 ? 'left on table' : 'saved'} by shadow gating STC 500-900s
+    </div>`;
+}
+
+function updateCalibrationHealth(s) {
+  const d = s.calibration_health;
+  if (!d || !d.n) return;
+  const tag = $('calHealthTag');
+  const body = $('calHealthBody');
+  const overconf = d.overconfidence_pp;
+  const absOC = Math.abs(overconf);
+  if (absOC <= 2) {
+    tag.textContent = 'GOOD';
+    tag.style.background = 'var(--green-bg)'; tag.style.color = 'var(--green-0)';
+  } else if (absOC <= 5) {
+    tag.textContent = 'DRIFT';
+    tag.style.background = 'var(--amber-bg)'; tag.style.color = 'var(--amber-0)';
+  } else {
+    tag.textContent = 'BAD';
+    tag.style.background = 'var(--red-bg)'; tag.style.color = 'var(--red-0)';
+  }
+  const ocColor = absOC <= 2 ? 'var(--green-0)' : absOC <= 5 ? 'var(--amber-0)' : 'var(--red-0)';
+  const ocSign = overconf >= 0 ? '+' : '';
+  const brierDelta = d.brier_improvement_pct;
+
+  let bucketHtml = '';
+  if (d.brier_by_bucket) {
+    bucketHtml = '<div style="margin-top:10px;border-top:1px solid var(--border-0);padding-top:8px">';
+    bucketHtml += '<div style="color:var(--text-3);font-size:10px;margin-bottom:6px">RELIABILITY DIAGRAM</div>';
+    for (const [bk, bv] of Object.entries(d.brier_by_bucket)) {
+      const gap = bv.gap_pp;
+      const gapColor = Math.abs(gap) <= 3 ? 'var(--green-0)' : Math.abs(gap) <= 7 ? 'var(--amber-0)' : 'var(--red-0)';
+      const predPct = Math.min(100, bv.avg_predicted * 100);
+      const actPct = Math.min(100, bv.avg_actual * 100);
+      bucketHtml += `<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px">
+        <span style="min-width:40px;color:var(--text-2)">${escHtml(bk)}%</span>
+        <span style="min-width:20px;color:var(--text-3)">(${bv.n})</span>
+        <div style="flex:1;position:relative;height:14px;background:var(--bg-3);border-radius:3px;overflow:hidden">
+          <div style="position:absolute;height:100%;width:${predPct}%;background:var(--blue-bg);border-right:2px solid var(--blue-0)"></div>
+          <div style="position:absolute;height:100%;width:${actPct}%;background:rgba(16,185,129,0.15);border-right:2px solid var(--green-0)"></div>
+        </div>
+        <span style="min-width:50px;text-align:right;color:${gapColor}">${gap >= 0 ? '+' : ''}${gap.toFixed(1)}pp</span>
+      </div>`;
+    }
+    bucketHtml += '<div style="display:flex;gap:16px;margin-top:4px;font-size:10px;color:var(--text-3)"><span style="color:var(--blue-0)">Predicted</span> <span style="color:var(--green-0)">Actual</span></div>';
+    bucketHtml += '</div>';
+  }
+
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:8px">
+      <div><div style="color:var(--text-3);font-size:10px">OVERCONFIDENCE</div>
+        <div style="font-size:16px;font-weight:600;color:${ocColor}">${ocSign}${overconf.toFixed(1)}pp</div></div>
+      <div><div style="color:var(--text-3);font-size:10px">MODEL BRIER</div>
+        <div style="font-size:16px;font-weight:600">${d.model_brier.toFixed(4)}</div></div>
+      <div><div style="color:var(--text-3);font-size:10px">vs MARKET</div>
+        <div style="font-size:16px;font-weight:600;color:${brierDelta > 0 ? 'var(--green-0)' : 'var(--red-0)'}">${brierDelta > 0 ? '+' : ''}${brierDelta.toFixed(1)}%</div></div>
+    </div>
+    <div style="color:var(--text-3);font-size:10px">n=${d.n} settled trades (current regime)</div>
+    ${bucketHtml}`;
+}
+
+function updateEdgeIntegrity(s) {
+  const d = s.edge_integrity;
+  if (!d || !d.n || d.n < 10) return;
+  const tag = $('edgeIntTag');
+  const body = $('edgeIntBody');
+  if (d.monotonic) {
+    tag.textContent = 'MONOTONIC'; tag.style.background = 'var(--green-bg)'; tag.style.color = 'var(--green-0)';
+  } else if (d.inversions <= 1) {
+    tag.textContent = d.inversions + ' INVERSION'; tag.style.background = 'var(--amber-bg)'; tag.style.color = 'var(--amber-0)';
+  } else {
+    tag.textContent = d.inversions + ' INVERSIONS'; tag.style.background = 'var(--red-bg)'; tag.style.color = 'var(--red-0)';
+  }
+  const corrColor = d.correlation > 0.05 ? 'var(--green-0)' : d.correlation > -0.05 ? 'var(--amber-0)' : 'var(--red-0)';
+  let qHtml = '';
+  if (d.quintiles) {
+    qHtml = d.quintiles.map(q => {
+      const wrPct = (q.wr * 100).toFixed(1);
+      const barW = Math.min(100, q.wr * 100);
+      return `<div style="display:flex;align-items:center;gap:8px;padding:3px 0">
+        <span style="min-width:24px;color:var(--text-2)">${escHtml(q.label)}</span>
+        <div style="flex:1;height:14px;background:var(--bg-3);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${barW}%;background:${q.wr >= 0.85 ? 'var(--green-bg)' : q.wr >= 0.70 ? 'var(--amber-bg)' : 'var(--red-bg)'};border-right:2px solid ${q.wr >= 0.85 ? 'var(--green-0)' : q.wr >= 0.70 ? 'var(--amber-0)' : 'var(--red-0)'}"></div>
+        </div>
+        <span style="min-width:45px;text-align:right">${wrPct}%</span>
+        <span style="min-width:30px;text-align:right;color:var(--text-3)">(${q.n})</span>
+        <span style="min-width:50px;text-align:right;color:var(--text-2)">${(q.avg_edge * 100).toFixed(2)}%</span>
+      </div>`;
+    }).join('');
+  }
+  body.innerHTML = `
+    <div style="margin-bottom:8px">
+      <span style="color:var(--text-3)">Edge-Outcome r = </span>
+      <span style="color:${corrColor};font-weight:600">${d.correlation.toFixed(3)}</span>
+      <span style="color:var(--text-3);margin-left:8px">(n=${d.n})</span>
+    </div>
+    <div style="color:var(--text-3);font-size:10px;margin-bottom:4px">EDGE QUINTILES (low &rarr; high edge)</div>
+    ${qHtml}`;
+}
+
+function updateLossClustering(s) {
+  const d = s.loss_clustering;
+  if (!d) return;
+  const tag = $('lossClusterTag');
+  const body = $('lossClusterBody');
+  if (d.cluster_count === 0) {
+    tag.textContent = 'NO CLUSTERS'; tag.style.background = 'var(--green-bg)'; tag.style.color = 'var(--green-0)';
+  } else if (d.max_cluster_size <= 2) {
+    tag.textContent = d.cluster_count + ' CLUSTER' + (d.cluster_count > 1 ? 'S' : ''); tag.style.background = 'var(--amber-bg)'; tag.style.color = 'var(--amber-0)';
+  } else {
+    tag.textContent = 'WARNING'; tag.style.background = 'var(--red-bg)'; tag.style.color = 'var(--red-0)';
+  }
+  let clusterRows = '';
+  if (d.clusters && d.clusters.length > 0) {
+    clusterRows = d.clusters.map((c, i) =>
+      `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-0)">
+        <span style="color:var(--text-2)">Cluster ${i + 1}</span>
+        <span>${c.size} losses</span>
+        <span style="color:var(--red-0)">${(c.total_loss_cents / 100).toFixed(2)}</span>
+      </div>`
+    ).join('');
+  }
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+      <div><div style="color:var(--text-3);font-size:10px">TOTAL LOSSES</div><div style="font-size:16px;font-weight:600">${d.total_losses}</div></div>
+      <div><div style="color:var(--text-3);font-size:10px">CLUSTERS (1h)</div><div style="font-size:16px;font-weight:600">${d.cluster_count}</div></div>
+      <div><div style="color:var(--text-3);font-size:10px">MAX SIZE</div><div style="font-size:16px;font-weight:600">${d.max_cluster_size}</div></div>
+    </div>
+    ${clusterRows}`;
+}
+
+function updatePipelineCompleteness(s) {
+  const d = s.pipeline_completeness;
+  if (!d || typeof d !== 'object') return;
+  const body = $('pipelineBody');
+  const tag = $('pipelineTag');
+  let hasIssue = false;
+  let html = '';
+  for (const [pt, info] of Object.entries(d)) {
+    if (!info || info.total === 0) continue;
+    html += `<div style="margin-bottom:8px"><div style="color:var(--text-1);font-weight:600;margin-bottom:4px">${escHtml(pt.toUpperCase())} (${info.total} rows)</div>`;
+    if (info.columns) {
+      for (const [col, pct] of Object.entries(info.columns)) {
+        if (pct === null) continue;
+        const color = pct >= 95 ? 'var(--green-0)' : pct >= 80 ? 'var(--amber-0)' : 'var(--red-0)';
+        if (pct < 95) hasIssue = true;
+        html += `<div style="display:flex;justify-content:space-between;padding:2px 0">
+          <span style="color:var(--text-2)">${escHtml(col)}</span>
+          <span style="color:${color}">${pct}%</span>
+        </div>`;
+      }
+    }
+    html += '</div>';
+  }
+  body.innerHTML = html || '<div style="color:var(--text-3);text-align:center">No data</div>';
+  if (hasIssue) {
+    tag.textContent = 'GAPS'; tag.style.background = 'var(--amber-bg)'; tag.style.color = 'var(--amber-0)';
+  } else {
+    tag.textContent = 'OK'; tag.style.background = 'var(--green-bg)'; tag.style.color = 'var(--green-0)';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // MAIN UPDATE
 // ═══════════════════════════════════════════════════════════════════════
 function update(s) {
@@ -6076,6 +6443,16 @@ function update(s) {
   try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
   try { updateExecutionQuality(s); } catch (e) { console.error('updateExecutionQuality:', e); }
   try { updateActiveOrderExecFields(s); } catch (e) { console.error('updateActiveOrderExecFields:', e); }
+
+  // New panels
+  try { updateSystemHealth(s); } catch (e) { console.error('updateSystemHealth:', e); }
+  try { updateShadowComparison(s); } catch (e) { console.error('updateShadowComparison:', e); }
+  try { updateStcPerformance(s); } catch (e) { console.error('updateStcPerformance:', e); }
+  try { updateStcShadow(s); } catch (e) { console.error('updateStcShadow:', e); }
+  try { updateCalibrationHealth(s); } catch (e) { console.error('updateCalibrationHealth:', e); }
+  try { updateEdgeIntegrity(s); } catch (e) { console.error('updateEdgeIntegrity:', e); }
+  try { updateLossClustering(s); } catch (e) { console.error('updateLossClustering:', e); }
+  try { updatePipelineCompleteness(s); } catch (e) { console.error('updatePipelineCompleteness:', e); }
 
   // Change 5: Status strip
   try { updateStatusStrip(s); } catch (e) { console.error('updateStatusStrip:', e); }
