@@ -2892,16 +2892,18 @@ body::before {
      JAVASCRIPT
      ═══════════════════════════════════════════════════════════════════════ -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
-
-// ═══════════════════════════════════════════════════════════════════════
-// FIREBASE CONFIG
-// ═══════════════════════════════════════════════════════════════════════
-const app = initializeApp({
-  databaseURL: "https://kalshi-dash-v2-default-rtdb.firebaseio.com"
-});
-const db = getDatabase(app);
+// Firebase SDK loaded lazily only when ?source=firebase
+let db = null;
+const _wantFirebase = new URLSearchParams(window.location.search).get('source') === 'firebase';
+if (_wantFirebase) {
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js");
+  const { getDatabase: _getDb, ref: _ref, onValue: _onVal } = await import("https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js");
+  const app = initializeApp({ databaseURL: "https://kalshi-dash-v2-default-rtdb.firebaseio.com" });
+  db = _getDb(app);
+  // Make Firebase functions available in the else branch below
+  window._fbRef = _ref;
+  window._fbOnValue = _onVal;
+}
 
 // ═══════════════════════════════════════════════════════════════════════
 // HELPERS
@@ -6551,9 +6553,9 @@ function update(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// DATA SOURCE (toggle with ?source=supabase)
+// DATA SOURCE (default: supabase, fallback: ?source=firebase)
 // ═══════════════════════════════════════════════════════════════════════
-const _dataSource = new URLSearchParams(window.location.search).get('source') || 'firebase';
+const _dataSource = new URLSearchParams(window.location.search).get('source') || 'supabase';
 console.log('Dashboard data source:', _dataSource);
 
 if (_dataSource === 'supabase') {
@@ -6606,10 +6608,10 @@ if (_dataSource === 'supabase') {
       $('pillText').textContent = 'ERROR (SUPABASE)';
     }
   })();
-} else {
-  // Original Firebase listener (unchanged)
-  const statusRef = ref(db, 'bot_status');
-  onValue(statusRef, snap => {
+} else if (_wantFirebase && db) {
+  // Firebase listener (fallback via ?source=firebase)
+  const statusRef = window._fbRef(db, 'bot_status');
+  window._fbOnValue(statusRef, snap => {
     const data = snap.val();
     if (!data) return;
     update(data);
