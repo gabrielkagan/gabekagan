@@ -2592,6 +2592,18 @@ body::before {
     </div>
   </div>
 
+  <!-- Hourly Alt Shadow Strategies (ETH/SOL/XRP) -->
+  <div class="cell shadow-panel" id="altShadowCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Hourly Alt Shadow
+      <span class="tag" id="altShadowTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
+    </div>
+    <div id="altShadowBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Calibration Tournament (7d, Supabase) -->
   <div class="cell" style="grid-column:span 4">
     <div class="cell-label">
@@ -4770,6 +4782,101 @@ function updateCalRegistry(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// HOURLY ALT SHADOW STRATEGIES
+// ═══════════════════════════════════════════════════════════════════════
+function updateAltShadow(s) {
+  const d = s.hourly_alt_shadow;
+  if (!d) { $('altShadowTag').textContent = 'OFF'; return; }
+  $('altShadowTag').textContent = d.enabled ? 'ACTIVE' : 'OFF';
+  $('altShadowTag').style.background = d.enabled ? 'var(--green-bg)' : 'var(--bg-2)';
+  $('altShadowTag').style.color = d.enabled ? 'var(--green-0)' : 'var(--text-3)';
+  if (!d.enabled) return;
+
+  let html = '';
+
+  // Strategy A: Market-Making
+  html += '<div style="margin-bottom:8px"><span style="font-weight:600;color:var(--text-1)">Strategy A: Market-Making</span>';
+  html += ' <span style="color:' + (d.mm && d.mm.enabled ? 'var(--green-0)' : 'var(--text-3)') + '">' + (d.mm && d.mm.enabled ? 'ON' : 'OFF') + '</span></div>';
+  if (d.mm && d.mm.metrics) {
+    const m = d.mm.metrics;
+    html += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:4px">';
+    html += '<span>Active orders: <b>' + (m.active_shadow_orders || 0) + '</b></span>';
+    if (m.signal_count) {
+      for (const [a, n] of Object.entries(m.signal_count)) {
+        html += '<span>' + a + ': <b>' + n + '</b> signals</span>';
+      }
+    }
+    html += '</div>';
+  }
+  if (d.mm && d.mm.settled) {
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Asset</td><td>N</td><td>WR</td><td>PnL</td></tr>';
+    for (const [a, v] of Object.entries(d.mm.settled)) {
+      const wrColor = v.wr >= 60 ? 'var(--green-0)' : v.wr >= 50 ? 'var(--amber-0)' : 'var(--red-0)';
+      const pnlColor = v.pnl_cents >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+      html += '<tr style="border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px;font-weight:500">' + a + '</td>';
+      html += '<td>' + v.n + '</td><td style="color:' + wrColor + '">' + v.wr + '%</td>';
+      html += '<td style="color:' + pnlColor + '">$' + (v.pnl_cents / 100).toFixed(2) + '</td></tr>';
+    }
+    html += '</table>';
+  }
+
+  // Strategy B: HAR-RV
+  html += '<div style="margin-bottom:8px"><span style="font-weight:600;color:var(--text-1)">Strategy B: HAR-RV</span>';
+  html += ' <span style="color:' + (d.harrv && d.harrv.enabled ? 'var(--green-0)' : 'var(--text-3)') + '">' + (d.harrv && d.harrv.enabled ? 'ON' : 'OFF') + '</span></div>';
+  if (d.harrv && d.harrv.metrics) {
+    const m = d.harrv.metrics;
+    html += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:4px">';
+    if (m.return_buffer_sizes) {
+      for (const [a, n] of Object.entries(m.return_buffer_sizes)) {
+        html += '<span>' + a + ': <b>' + n + '</b> returns</span>';
+      }
+    }
+    html += '</div>';
+    if (m.signal_count) {
+      html += '<div style="margin-bottom:4px">';
+      for (const [a, n] of Object.entries(m.signal_count)) {
+        html += '<span style="margin-right:8px">' + a + ': <b>' + n + '</b> signals</span>';
+      }
+      html += '</div>';
+    }
+    if (m.gate_failures) {
+      html += '<div style="margin-bottom:4px;color:var(--text-3)">Gates: ';
+      for (const [a, gates] of Object.entries(m.gate_failures)) {
+        const top = Object.entries(gates).sort((x,y) => y[1] - x[1]).slice(0, 3);
+        if (top.length) html += a + '=[' + top.map(([g,c]) => g + ':' + c).join(', ') + '] ';
+      }
+      html += '</div>';
+    }
+  }
+  if (d.harrv && d.harrv.settled) {
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Asset</td><td>N</td><td>WR</td><td>PnL</td></tr>';
+    for (const [a, v] of Object.entries(d.harrv.settled)) {
+      const wrColor = v.wr >= 60 ? 'var(--green-0)' : v.wr >= 50 ? 'var(--amber-0)' : 'var(--red-0)';
+      const pnlColor = v.pnl_cents >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+      html += '<tr style="border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px;font-weight:500">' + a + '</td>';
+      html += '<td>' + v.n + '</td><td style="color:' + wrColor + '">' + v.wr + '%</td>';
+      html += '<td style="color:' + pnlColor + '">$' + (v.pnl_cents / 100).toFixed(2) + '</td></tr>';
+    }
+    html += '</table>';
+  }
+
+  // Pending counts
+  if (d.pending) {
+    html += '<div style="margin-top:6px;color:var(--text-3);font-size:10px">Pending: ';
+    for (const [strat, assets] of Object.entries(d.pending)) {
+      for (const [a, n] of Object.entries(assets)) {
+        html += strat + '/' + a + ':' + n + ' ';
+      }
+    }
+    html += '</div>';
+  }
+
+  $('altShadowBody').innerHTML = html || '<div style="color:var(--text-3)">No signals yet</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // COUNTERFACTUAL ANALYSIS
 // ═══════════════════════════════════════════════════════════════════════
 function updateCounterfactual(s) {
@@ -5864,6 +5971,7 @@ function update(s) {
   try { updateTradingConfig(s); } catch (e) { console.error('updateTradingConfig:', e); }
   try { updateCalibration(s); } catch (e) { console.error('updateCalibration:', e); }
   try { updateCalRegistry(s); } catch (e) { console.error('updateCalRegistry:', e); }
+  try { updateAltShadow(s); } catch (e) { console.error('updateAltShadow:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
   try { updateShadowVariants(s); } catch (e) { console.error('updateShadowVariants:', e); }
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
