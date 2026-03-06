@@ -2578,6 +2578,18 @@ body::before {
     </div>
   </div>
 
+  <!-- 15M Shadow (Recalibrated EGARCH + LightGBM) -->
+  <div class="cell shadow-panel" id="fifteenmShadowCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      15M Shadow
+      <span class="tag" id="fifteenmShadowTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
+    </div>
+    <div id="fifteenmShadowBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Shadow Cal Pipeline -->
   <div class="cell shadow-cal-cell shadow-panel" style="grid-column:span 4">
     <div class="shadow-badge">SHADOW</div>
@@ -6070,6 +6082,83 @@ function updateCapitalAllocation(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// 15M SHADOW (RECALIBRATED EGARCH + LIGHTGBM)
+// ═══════════════════════════════════════════════════════════════════════
+function update15mShadow(s) {
+  const d = s.fifteenm_shadow;
+  const tag = $('fifteenmShadowTag');
+  const body = $('fifteenmShadowBody');
+  if (!d) { tag.textContent = 'OFF'; return; }
+  tag.textContent = d.enabled ? 'ACTIVE' : 'OFF';
+  tag.style.background = d.enabled ? 'var(--green-bg)' : 'var(--bg-2)';
+  tag.style.color = d.enabled ? 'var(--green-0)' : 'var(--text-3)';
+  if (!d.enabled) return;
+
+  let html = '';
+
+  // Approach 1: Recalibrated EGARCH
+  html += '<div style="margin-bottom:10px"><span style="font-weight:600;color:var(--text-1)">A1: Recalibrated EGARCH</span></div>';
+  if (d.approach1 && d.approach1.metrics) {
+    const m = d.approach1.metrics;
+    if (m.temperatures) {
+      html += '<div style="margin-bottom:4px;color:var(--text-3);font-size:10px">Temperatures: ';
+      for (const [a, t] of Object.entries(m.temperatures)) {
+        html += a + '=' + Number(t).toFixed(2) + ' ';
+      }
+      html += '</div>';
+    }
+  }
+  if (d.approach1 && d.approach1.settled && Object.keys(d.approach1.settled).length > 0) {
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Asset</td><td>N</td><td>WR</td><td>PnL</td></tr>';
+    for (const [a, v] of Object.entries(d.approach1.settled)) {
+      const wrColor = v.wr >= 85 ? 'var(--green-0)' : v.wr >= 70 ? 'var(--amber-0)' : 'var(--red-0)';
+      const pnlColor = v.pnl_cents >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+      html += '<tr style="border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px;font-weight:500">' + a + '</td>';
+      html += '<td>' + v.n + '</td><td style="color:' + wrColor + '">' + v.wr + '%</td>';
+      html += '<td style="color:' + pnlColor + '">$' + (v.pnl_cents / 100).toFixed(2) + '</td></tr>';
+    }
+    html += '</table>';
+  } else {
+    html += '<div style="color:var(--text-3);font-size:10px;margin-bottom:8px">No settled signals yet</div>';
+  }
+
+  // Approach 2: LightGBM
+  html += '<div style="margin-bottom:4px;border-top:1px solid var(--border-0);padding-top:8px"><span style="font-weight:600;color:var(--text-1)">A2: LightGBM</span>';
+  if (d.approach2 && d.approach2.metrics) {
+    const m2 = d.approach2.metrics;
+    html += ' <span style="color:' + (m2.available ? 'var(--green-0)' : 'var(--text-3)') + ';font-size:10px">' + (m2.available ? 'TRAINED' : 'NO MODEL') + '</span>';
+    if (m2.models_trained && m2.models_trained.length > 0) {
+      html += '<div style="font-size:10px;color:var(--text-3);margin-top:2px">Models: ' + m2.models_trained.join(', ') + '</div>';
+    }
+  }
+  html += '</div>';
+  if (d.approach2 && d.approach2.settled && Object.keys(d.approach2.settled).length > 0) {
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Asset</td><td>N</td><td>WR</td><td>PnL</td></tr>';
+    for (const [a, v] of Object.entries(d.approach2.settled)) {
+      const wrColor = v.wr >= 85 ? 'var(--green-0)' : v.wr >= 70 ? 'var(--amber-0)' : 'var(--red-0)';
+      const pnlColor = v.pnl_cents >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+      html += '<tr style="border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px;font-weight:500">' + a + '</td>';
+      html += '<td>' + v.n + '</td><td style="color:' + wrColor + '">' + v.wr + '%</td>';
+      html += '<td style="color:' + pnlColor + '">$' + (v.pnl_cents / 100).toFixed(2) + '</td></tr>';
+    }
+    html += '</table>';
+  } else {
+    html += '<div style="color:var(--text-3);font-size:10px">No settled signals yet</div>';
+  }
+
+  // Pending
+  if (d.pending && Object.keys(d.pending).length > 0) {
+    html += '<div style="margin-top:6px;color:var(--text-3);font-size:10px">Pending: ';
+    for (const [a, n] of Object.entries(d.pending)) html += a + ':' + n + ' ';
+    html += '</div>';
+  }
+
+  body.innerHTML = html || '<div style="color:var(--text-3)">No signals yet</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // SHADOW CALIBRATION PIPELINE
 // ═══════════════════════════════════════════════════════════════════════
 function updateShadowCalPipeline(s) {
@@ -6426,6 +6515,7 @@ function update(s) {
   try { updateCalRegistry(s); } catch (e) { console.error('updateCalRegistry:', e); }
   try { updateAltShadow(s); } catch (e) { console.error('updateAltShadow:', e); }
   try { updateSpxHarv(s); } catch (e) { console.error('updateSpxHarv:', e); }
+  try { update15mShadow(s); } catch (e) { console.error('update15mShadow:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
   try { updateShadowVariants(s); } catch (e) { console.error('updateShadowVariants:', e); }
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
@@ -7387,7 +7477,8 @@ function drawRiskDrawdownChart(data) {
   const W = rect.width, H = 120;
   ctx.clearRect(0, 0, W, H);
 
-  const vals = filtered.map(d => +d.daily_drawdown_from_peak_pct);
+  // Cap drawdown pct at 100% — early trades with tiny peak PnL produce absurd percentages
+  const vals = filtered.map(d => Math.min(+d.daily_drawdown_from_peak_pct, 100));
   const maxDD = Math.max(...vals, 1);
   const toX = i => (i / Math.max(filtered.length - 1, 1)) * (W - 40) + 30;
   const toY = v => 8 + (v / maxDD) * (H - 24);
