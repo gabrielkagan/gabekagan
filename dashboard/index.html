@@ -2230,6 +2230,14 @@ body::before {
     </div>
   </div>
 
+  <!-- Shadow Variants (hourly counterfactual configs) -->
+  <div class="cell" id="svCell" style="grid-column:span 2">
+    <div class="cell-label">Shadow Variants (Hourly)</div>
+    <div id="svBody" style="padding:8px 0">
+      <div style="color:var(--text-3);text-align:center;padding:12px">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Trade Analytics Overview -->
   <div class="cell ta-overview-cell" style="grid-column:span 2">
     <div class="cell-label">
@@ -4830,6 +4838,41 @@ function updateCounterfactual(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// SHADOW VARIANTS
+// ═══════════════════════════════════════════════════════════════════════
+function updateShadowVariants(s) {
+  const sv = s.shadow_variants;
+  const body = $('svBody');
+  if (!sv || typeof sv !== 'object' || Object.keys(sv).length === 0) {
+    body.innerHTML = '<div style="color:var(--text-3);text-align:center;padding:12px">No shadow variant data</div>';
+    return;
+  }
+  let html = '<table style="width:100%;font-size:13px;border-collapse:collapse">';
+  html += '<thead><tr style="border-bottom:1px solid var(--border-0)">';
+  html += '<th style="text-align:left;padding:4px 8px">Variant</th>';
+  html += '<th style="text-align:right;padding:4px 8px">N</th>';
+  html += '<th style="text-align:right;padding:4px 8px">W/L</th>';
+  html += '<th style="text-align:right;padding:4px 8px">WR</th>';
+  html += '<th style="text-align:right;padding:4px 8px">Sim P&L</th>';
+  html += '</tr></thead><tbody>';
+  for (const [key, v] of Object.entries(sv)) {
+    const wr = ((v.win_rate ?? 0) * 100).toFixed(1);
+    const pnl = (v.sim_pnl_cents ?? 0) / 100;
+    const pnlColor = pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+    const wrColor = (v.win_rate ?? 0) >= 0.90 ? 'var(--green-0)' : (v.win_rate ?? 0) >= 0.80 ? 'var(--yellow-0)' : 'var(--red-0)';
+    html += `<tr style="border-bottom:1px solid var(--border-1)">`;
+    html += `<td style="padding:6px 8px"><strong>${escHtml(v.label ?? key)}</strong><br><span style="font-size:11px;color:var(--text-3)">${escHtml(v.description ?? '')}</span></td>`;
+    html += `<td style="text-align:right;padding:6px 8px">${v.n ?? 0}</td>`;
+    html += `<td style="text-align:right;padding:6px 8px">${v.wins ?? 0}W/${v.losses ?? 0}L</td>`;
+    html += `<td style="text-align:right;padding:6px 8px;color:${wrColor};font-weight:600">${wr}%</td>`;
+    html += `<td style="text-align:right;padding:6px 8px;color:${pnlColor};font-weight:600">${pnl >= 0 ? '+$' : '-$'}${Math.abs(pnl).toFixed(2)}</td>`;
+    html += `</tr>`;
+  }
+  html += '</tbody></table>';
+  body.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // ASK PRICE DISTRIBUTION
 // ═══════════════════════════════════════════════════════════════════════
 function updateAskDistribution(s) {
@@ -5822,6 +5865,7 @@ function update(s) {
   try { updateCalibration(s); } catch (e) { console.error('updateCalibration:', e); }
   try { updateCalRegistry(s); } catch (e) { console.error('updateCalRegistry:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
+  try { updateShadowVariants(s); } catch (e) { console.error('updateShadowVariants:', e); }
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
 
   try { updateEGARCHDiagnostics(s); } catch (e) { console.error('updateEGARCHDiagnostics:', e); }
