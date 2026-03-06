@@ -2604,6 +2604,18 @@ body::before {
     </div>
   </div>
 
+  <!-- SPX HAR-RV Shadow -->
+  <div class="cell shadow-panel" id="spxHarvCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      SPX HAR-RV Shadow
+      <span class="tag" id="spxHarvTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
+    </div>
+    <div id="spxHarvBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Calibration Tournament (7d, Supabase) -->
   <div class="cell" style="grid-column:span 4">
     <div class="cell-label">
@@ -4877,6 +4889,80 @@ function updateAltShadow(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// SPX HAR-RV SHADOW
+// ═══════════════════════════════════════════════════════════════════════
+function updateSpxHarv(s) {
+  const d = s.spx_harrv_shadow;
+  if (!d) { $('spxHarvTag').textContent = 'OFF'; return; }
+  $('spxHarvTag').textContent = d.enabled ? 'ACTIVE' : 'OFF';
+  $('spxHarvTag').style.background = d.enabled ? 'var(--green-bg)' : 'var(--bg-2)';
+  $('spxHarvTag').style.color = d.enabled ? 'var(--green-0)' : 'var(--text-3)';
+  if (!d.enabled) return;
+
+  let html = '';
+
+  // Model metrics
+  if (d.metrics) {
+    const m = d.metrics;
+    html += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px">';
+    html += '<span>Returns: <b>' + (m.return_buffer_size || 0) + '</b></span>';
+    html += '<span>Signals: <b>' + (m.signal_count || 0) + '</b></span>';
+    html += '<span>OLS obs: <b>' + (m.ols_obs || 0) + '</b></span>';
+    html += '<span>Bankroll: <b>$' + ((m.bankroll_cents || 0) / 100).toFixed(0) + '</b></span>';
+    html += '</div>';
+
+    // Coefficients
+    if (m.coefficients) {
+      const c = m.coefficients;
+      html += '<div style="margin-bottom:4px;color:var(--text-3);font-size:10px">HAR: ';
+      html += 'β₀=' + (c.beta0 || 0).toExponential(1) + ' ';
+      html += 'β₁=' + (c.beta1 || 0).toFixed(2) + ' ';
+      html += 'β₂=' + (c.beta2 || 0).toFixed(2) + ' ';
+      html += 'β₃=' + (c.beta3 || 0).toFixed(2);
+      html += '</div>';
+    }
+
+    // Gate failures
+    if (m.gate_failures && Object.keys(m.gate_failures).length) {
+      const top = Object.entries(m.gate_failures).sort((a,b) => b[1] - a[1]).slice(0, 5);
+      html += '<div style="margin-bottom:4px;color:var(--text-3);font-size:10px">Gates: ';
+      html += top.map(([g,c]) => g + ':' + c).join(', ');
+      html += '</div>';
+    }
+  }
+
+  // Config
+  if (d.config) {
+    const c = d.config;
+    html += '<div style="margin-bottom:6px;color:var(--text-3);font-size:10px">';
+    html += 'T=' + c.temperature + ' blend=' + (c.market_blend_w * 100).toFixed(0) + '% mkt ';
+    html += 'price≥' + c.min_price + '¢ STC=' + c.min_stc + '-' + c.max_stc + 's ';
+    html += 'edge=' + (c.min_edge * 100).toFixed(1) + '-' + (c.max_edge * 100).toFixed(1) + '%';
+    html += '</div>';
+  }
+
+  // Settled stats
+  if (d.settled && d.settled.n > 0) {
+    const v = d.settled;
+    const wrColor = v.wr >= 70 ? 'var(--green-0)' : v.wr >= 55 ? 'var(--amber-0)' : 'var(--red-0)';
+    const pnlColor = v.pnl_cents >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+    html += '<div style="margin-bottom:4px">';
+    html += 'Settled: <b>' + v.n + '</b> trades, ';
+    html += '<span style="color:' + wrColor + '"><b>' + v.wr + '%</b> WR</span> ';
+    html += '(' + v.wins + 'W/' + (v.n - v.wins) + 'L), ';
+    html += '<span style="color:' + pnlColor + '"><b>$' + (v.pnl_cents / 100).toFixed(2) + '</b></span>';
+    html += '</div>';
+  }
+
+  // Pending
+  if (d.pending > 0) {
+    html += '<div style="color:var(--text-3);font-size:10px">Pending: ' + d.pending + '</div>';
+  }
+
+  $('spxHarvBody').innerHTML = html || '<div style="color:var(--text-3)">Collecting return data...</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // COUNTERFACTUAL ANALYSIS
 // ═══════════════════════════════════════════════════════════════════════
 function updateCounterfactual(s) {
@@ -5972,6 +6058,7 @@ function update(s) {
   try { updateCalibration(s); } catch (e) { console.error('updateCalibration:', e); }
   try { updateCalRegistry(s); } catch (e) { console.error('updateCalRegistry:', e); }
   try { updateAltShadow(s); } catch (e) { console.error('updateAltShadow:', e); }
+  try { updateSpxHarv(s); } catch (e) { console.error('updateSpxHarv:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
   try { updateShadowVariants(s); } catch (e) { console.error('updateShadowVariants:', e); }
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
