@@ -2590,6 +2590,18 @@ body::before {
     </div>
   </div>
 
+  <!-- NO-Side Shadow -->
+  <div class="cell shadow-panel" id="noSideShadowCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      NO-Side Shadow
+      <span class="tag" id="noSideShadowTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="noSideShadowBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Shadow Cal Pipeline -->
   <div class="cell shadow-cal-cell shadow-panel" style="grid-column:span 4">
     <div class="shadow-badge">SHADOW</div>
@@ -6150,6 +6162,69 @@ function update15mShadow(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// NO-SIDE SHADOW
+// ═══════════════════════════════════════════════════════════════════════
+function updateNoSideShadow(s) {
+  const d = s.no_side_shadow;
+  const tag = $('noSideShadowTag');
+  const body = $('noSideShadowBody');
+  if (!d) { tag.textContent = '—'; return; }
+
+  const settled = d.settled || 0;
+  const wins = d.wins || 0;
+  const wr = settled > 0 ? (d.wr * 100).toFixed(1) + '%' : '—';
+  const pnl = d.sim_pnl_cents != null ? (d.sim_pnl_cents / 100).toFixed(2) : '0.00';
+  const pnlColor = d.sim_pnl_cents > 0 ? 'var(--green-0)' : d.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+  const wrColor = d.wr >= 0.55 ? 'var(--green-0)' : d.wr >= 0.45 ? 'var(--amber-0)' : 'var(--red-0)';
+
+  tag.textContent = d.total_signals + ' SIG';
+  tag.style.background = settled > 0 ? 'var(--amber-bg)' : 'var(--bg-2)';
+  tag.style.color = settled > 0 ? 'var(--amber-0)' : 'var(--text-3)';
+
+  let html = `
+    <div style="display:flex;gap:12px;margin-bottom:8px">
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Signals</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${d.total_signals}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Settled</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${settled}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Win Rate</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${wrColor}">${wr}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Sim PnL</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${pnlColor}">${d.sim_pnl_cents >= 0 ? '+' : ''}$${pnl}</div>
+      </div>
+    </div>`;
+
+  // Per-product-type breakdown
+  const bpt = d.by_product_type;
+  if (bpt && Object.keys(bpt).length > 0) {
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Product</td><td>Signals</td><td>Settled</td><td>WR</td><td>PnL</td></tr>';
+    for (const [pt, v] of Object.entries(bpt)) {
+      const ptWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const ptPnl = (v.sim_pnl_cents / 100).toFixed(2);
+      const ptWrColor = v.wr >= 0.55 ? 'var(--green-0)' : v.wr >= 0.45 ? 'var(--amber-0)' : 'var(--red-0)';
+      const ptPnlColor = v.sim_pnl_cents > 0 ? 'var(--green-0)' : v.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      html += `<tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">${escHtml(pt)}</td>
+        <td>${v.n}</td><td>${v.settled}</td>
+        <td style="color:${ptWrColor}">${ptWr}</td>
+        <td style="color:${ptPnlColor}">${v.sim_pnl_cents >= 0 ? '+' : ''}$${ptPnl}</td>
+      </tr>`;
+    }
+    html += '</table>';
+  }
+
+  body.innerHTML = html || '<div style="color:var(--text-3)">No NO-side signals yet</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // SHADOW CALIBRATION PIPELINE
 // ═══════════════════════════════════════════════════════════════════════
 function updateShadowCalPipeline(s) {
@@ -6507,6 +6582,7 @@ function update(s) {
   try { updateAltShadow(s); } catch (e) { console.error('updateAltShadow:', e); }
   try { updateSpxHarv(s); } catch (e) { console.error('updateSpxHarv:', e); }
   try { update15mShadow(s); } catch (e) { console.error('update15mShadow:', e); }
+  try { updateNoSideShadow(s); } catch (e) { console.error('updateNoSideShadow:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
   try { updateShadowVariants(s); } catch (e) { console.error('updateShadowVariants:', e); }
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
