@@ -6151,6 +6151,45 @@ function update15mShadow(s) {
     html += '<div style="color:var(--text-3);font-size:10px">No settled signals yet</div>';
   }
 
+  // Approach 3: EGARCH Gating Model
+  html += '<div style="margin-bottom:4px;border-top:1px solid var(--border-0);padding-top:8px"><span style="font-weight:600;color:var(--text-1)">A3: EGARCH Gating</span>';
+  if (d.approach3 && d.approach3.metrics) {
+    const m3 = d.approach3.metrics;
+    html += ' <span style="color:' + (m3.model_trained ? 'var(--green-0)' : 'var(--text-3)') + ';font-size:10px">' + (m3.model_trained ? 'TRAINED' : 'NO MODEL') + '</span>';
+    if (m3.feature_importances && m3.feature_importances.pooled) {
+      const imp = m3.feature_importances.pooled;
+      const top3 = Object.entries(imp).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      html += '<div style="font-size:10px;color:var(--text-3);margin-top:2px">Top features: ';
+      top3.forEach(([k, v]) => { html += k + '=' + (v * 100).toFixed(1) + '% '; });
+      html += '</div>';
+    }
+  }
+  html += '</div>';
+  if (d.approach3 && d.approach3.settled && Object.keys(d.approach3.settled).length > 0) {
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Asset</td><td>N</td><td>@10%</td><td>@20%</td><td>@30%</td></tr>';
+    for (const [a, v] of Object.entries(d.approach3.settled)) {
+      html += '<tr style="border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px;font-weight:500">' + a + '</td>';
+      html += '<td>' + v.n + '</td>';
+      if (v.thresholds) {
+        for (const t of ['10pct', '20pct', '30pct']) {
+          const th = v.thresholds[t];
+          if (th) {
+            const diff = th.pnl_vs_baseline || 0;
+            const color = diff > 0 ? 'var(--green-0)' : diff < 0 ? 'var(--red-0)' : 'var(--text-2)';
+            html += '<td style="color:' + color + ';font-size:10px">' + (diff > 0 ? '+' : '') + diff + 'c</td>';
+          } else {
+            html += '<td>—</td>';
+          }
+        }
+      }
+      html += '</tr>';
+    }
+    html += '</table>';
+  } else {
+    html += '<div style="color:var(--text-3);font-size:10px">No settled gating data yet</div>';
+  }
+
   // Pending
   if (d.pending && Object.keys(d.pending).length > 0) {
     html += '<div style="margin-top:6px;color:var(--text-3);font-size:10px">Pending: ';
