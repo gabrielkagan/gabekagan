@@ -2602,6 +2602,18 @@ body::before {
     </div>
   </div>
 
+  <!-- Weekend Edge Discount Shadow -->
+  <div class="cell shadow-panel" id="weekendDiscountCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Weekend Edge Discount (0.6x)
+      <span class="tag" id="weekendDiscountTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="weekendDiscountBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for weekend data...</div>
+    </div>
+  </div>
+
   <!-- Shadow Cal Pipeline -->
   <div class="cell shadow-cal-cell shadow-panel" style="grid-column:span 4">
     <div class="shadow-badge">SHADOW</div>
@@ -6264,6 +6276,110 @@ function updateNoSideShadow(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// WEEKEND EDGE DISCOUNT SHADOW
+// ═══════════════════════════════════════════════════════════════════════
+function updateWeekendDiscount(s) {
+  const d = s.weekend_discount_shadow;
+  const tag = $('weekendDiscountTag');
+  const body = $('weekendDiscountBody');
+  if (!d) { if (tag) tag.textContent = '—'; return; }
+
+  const settled = d.settled || 0;
+  const wins = d.wins || 0;
+  const wr = settled > 0 ? (d.wr * 100).toFixed(1) + '%' : '—';
+  const pnl = d.sim_pnl_cents != null ? (d.sim_pnl_cents / 100).toFixed(2) : '0.00';
+  const pnlColor = d.sim_pnl_cents > 0 ? 'var(--green-0)' : d.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+  const wrColor = d.wr >= 0.85 ? 'var(--green-0)' : d.wr >= 0.75 ? 'var(--amber-0)' : 'var(--red-0)';
+
+  // Graduation status
+  const gradTarget = 60;
+  const gradPct = Math.min(100, Math.round(settled / gradTarget * 100));
+  const gradStatus = settled >= gradTarget
+    ? (d.wr >= 0.85 ? 'READY TO PROMOTE' : 'NOT PASSING')
+    : `${settled}/${gradTarget} settled`;
+
+  tag.textContent = d.total_signals + ' SIG';
+  tag.style.background = settled > 0 ? 'var(--amber-bg)' : 'var(--bg-2)';
+  tag.style.color = settled > 0 ? 'var(--amber-0)' : 'var(--text-3)';
+
+  let html = `
+    <div style="display:flex;gap:12px;margin-bottom:8px">
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Signals</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${d.total_signals}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Settled</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${settled}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Win Rate</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${wrColor}">${wr}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Sim PnL</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${pnlColor}">${d.sim_pnl_cents >= 0 ? '+' : ''}$${pnl}</div>
+      </div>
+    </div>`;
+
+  // Graduation progress bar
+  const gradColor = settled >= gradTarget ? (d.wr >= 0.85 ? 'var(--green-0)' : 'var(--red-0)') : 'var(--amber-0)';
+  html += `<div style="margin-bottom:8px;padding:4px 8px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+    <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">
+      <span style="color:var(--text-3)">Graduation</span>
+      <span style="color:${gradColor};font-weight:600">${gradStatus}</span>
+    </div>
+    <div style="height:4px;background:var(--bg-0);border-radius:2px;overflow:hidden">
+      <div style="width:${gradPct}%;height:100%;background:${gradColor};border-radius:2px"></div>
+    </div>
+  </div>`;
+
+  // Per-asset table
+  const ba = d.by_asset;
+  if (ba && Object.keys(ba).length > 0) {
+    html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By Asset</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Asset</td><td>Sig</td><td>Settled</td><td>WR</td><td>PnL</td></tr>';
+    for (const [a, v] of Object.entries(ba)) {
+      const aWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const aPnl = (v.sim_pnl_cents / 100).toFixed(2);
+      const aWrColor = v.wr >= 0.85 ? 'var(--green-0)' : v.wr >= 0.75 ? 'var(--amber-0)' : 'var(--red-0)';
+      const aPnlColor = v.sim_pnl_cents > 0 ? 'var(--green-0)' : v.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      html += `<tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">${escHtml(a)}</td>
+        <td>${v.n}</td><td>${v.settled}</td>
+        <td style="color:${aWrColor}">${aWr}</td>
+        <td style="color:${aPnlColor}">${v.sim_pnl_cents >= 0 ? '+' : ''}$${aPnl}</td>
+      </tr>`;
+    }
+    html += '</table>';
+  }
+
+  // Per-price-tier table
+  const bt = d.by_price_tier;
+  if (bt && Object.keys(bt).length > 0) {
+    html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By Price Tier</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Tier</td><td>Sig</td><td>Settled</td><td>WR</td><td>PnL</td></tr>';
+    for (const [t, v] of Object.entries(bt)) {
+      const tWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const tPnl = (v.sim_pnl_cents / 100).toFixed(2);
+      const tWrColor = v.wr >= 0.85 ? 'var(--green-0)' : v.wr >= 0.75 ? 'var(--amber-0)' : 'var(--red-0)';
+      const tPnlColor = v.sim_pnl_cents > 0 ? 'var(--green-0)' : v.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      html += `<tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">${escHtml(t)}</td>
+        <td>${v.n}</td><td>${v.settled}</td>
+        <td style="color:${tWrColor}">${tWr}</td>
+        <td style="color:${tPnlColor}">${v.sim_pnl_cents >= 0 ? '+' : ''}$${tPnl}</td>
+      </tr>`;
+    }
+    html += '</table>';
+  }
+
+  body.innerHTML = html || '<div style="color:var(--text-3)">No weekend discount signals yet (active Sat/Sun only)</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // SHADOW CALIBRATION PIPELINE
 // ═══════════════════════════════════════════════════════════════════════
 function updateShadowCalPipeline(s) {
@@ -6622,6 +6738,7 @@ function update(s) {
   try { updateSpxHarv(s); } catch (e) { console.error('updateSpxHarv:', e); }
   try { update15mShadow(s); } catch (e) { console.error('update15mShadow:', e); }
   try { updateNoSideShadow(s); } catch (e) { console.error('updateNoSideShadow:', e); }
+  try { updateWeekendDiscount(s); } catch (e) { console.error('updateWeekendDiscount:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
   try { updateShadowVariants(s); } catch (e) { console.error('updateShadowVariants:', e); }
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
