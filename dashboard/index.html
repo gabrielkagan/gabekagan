@@ -2626,6 +2626,54 @@ body::before {
     </div>
   </div>
 
+  <!-- Decided Contract Shadow -->
+  <div class="cell shadow-panel" id="decidedContractCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Decided Contract Shadow
+      <span class="tag" id="decidedContractTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="decidedContractBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Relaxed Edge Shadow -->
+  <div class="cell shadow-panel" id="relaxedEdgeCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Relaxed Edge Shadow
+      <span class="tag" id="relaxedEdgeTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="relaxedEdgeBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Calibration Gap -->
+  <div class="cell shadow-panel" id="calibrationGapCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Calibration Gap
+      <span class="tag" id="calibrationGapTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="calibrationGapBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Capital Utilization -->
+  <div class="cell shadow-panel" id="capitalUtilizationCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Capital Utilization
+      <span class="tag" id="capitalUtilizationTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="capitalUtilizationBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Shadow Cal Pipeline -->
   <div class="cell shadow-cal-cell shadow-panel" style="grid-column:span 4">
     <div class="shadow-badge">SHADOW</div>
@@ -6492,6 +6540,270 @@ function updateOvernightDiscount(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// DECIDED CONTRACT SHADOW
+// ═══════════════════════════════════════════════════════════════════════
+function updateDecidedContract(s) {
+  const d = s.decided_contract_shadow;
+  const tag = $('decidedContractTag');
+  const body = $('decidedContractBody');
+  if (!d) { if (tag) tag.textContent = '—'; return; }
+
+  const settled = d.settled || 0;
+  const wr = settled > 0 ? (d.wr * 100).toFixed(1) + '%' : '—';
+  const pnl = d.sim_pnl_cents != null ? (d.sim_pnl_cents / 100).toFixed(2) : '0.00';
+  const pnlColor = d.sim_pnl_cents > 0 ? 'var(--green-0)' : d.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+  const wrColor = d.wr >= 0.95 ? 'var(--green-0)' : d.wr >= 0.85 ? 'var(--amber-0)' : 'var(--red-0)';
+
+  tag.textContent = d.total_signals + ' SIG';
+  tag.style.background = settled > 0 ? 'var(--amber-bg)' : 'var(--bg-2)';
+  tag.style.color = settled > 0 ? 'var(--amber-0)' : 'var(--text-3)';
+
+  let html = `
+    <div style="display:flex;gap:12px;margin-bottom:8px">
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Signals</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${d.total_signals}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Settled</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${settled}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Win Rate</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${wrColor}">${wr}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Sim PnL</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${pnlColor}">${d.sim_pnl_cents >= 0 ? '+' : ''}$${pnl}</div>
+      </div>
+    </div>`;
+
+  // By-tier table (decided_contract_t1 vs decided_contract_t2)
+  const bt = d.by_tier;
+  if (bt && Object.keys(bt).length > 0) {
+    html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By Tier</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Tier</td><td>N</td><td>Settled</td><td>WR</td><td>PnL</td></tr>';
+    for (const [t, v] of Object.entries(bt)) {
+      const tWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const tPnl = (v.sim_pnl_cents / 100).toFixed(2);
+      const tWrColor = v.wr >= 0.95 ? 'var(--green-0)' : v.wr >= 0.85 ? 'var(--amber-0)' : 'var(--red-0)';
+      const tPnlColor = v.sim_pnl_cents > 0 ? 'var(--green-0)' : v.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      html += `<tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">${escHtml(t)}</td>
+        <td>${v.n}</td><td>${v.settled}</td>
+        <td style="color:${tWrColor}">${tWr}</td>
+        <td style="color:${tPnlColor}">${v.sim_pnl_cents >= 0 ? '+' : ''}$${tPnl}</td>
+      </tr>`;
+    }
+    html += '</table>';
+  }
+
+  // By-asset table
+  const ba = d.by_asset;
+  if (ba && Object.keys(ba).length > 0) {
+    html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By Asset</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Asset</td><td>N</td><td>Settled</td><td>WR</td><td>PnL</td></tr>';
+    for (const [a, v] of Object.entries(ba)) {
+      const aWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const aPnl = (v.sim_pnl_cents / 100).toFixed(2);
+      const aWrColor = v.wr >= 0.95 ? 'var(--green-0)' : v.wr >= 0.85 ? 'var(--amber-0)' : 'var(--red-0)';
+      const aPnlColor = v.sim_pnl_cents > 0 ? 'var(--green-0)' : v.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      html += `<tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">${escHtml(a)}</td>
+        <td>${v.n}</td><td>${v.settled}</td>
+        <td style="color:${aWrColor}">${aWr}</td>
+        <td style="color:${aPnlColor}">${v.sim_pnl_cents >= 0 ? '+' : ''}$${aPnl}</td>
+      </tr>`;
+    }
+    html += '</table>';
+  }
+
+  body.innerHTML = html || '<div style="color:var(--text-3)">No decided contract signals yet</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RELAXED EDGE SHADOW
+// ═══════════════════════════════════════════════════════════════════════
+function updateRelaxedEdge(s) {
+  const d = s.relaxed_edge_shadow;
+  const tag = $('relaxedEdgeTag');
+  const body = $('relaxedEdgeBody');
+  if (!d) { if (tag) tag.textContent = '—'; return; }
+
+  const settled = d.settled || 0;
+  const wr = settled > 0 ? (d.wr * 100).toFixed(1) + '%' : '—';
+  const pnl = d.sim_pnl_cents != null ? (d.sim_pnl_cents / 100).toFixed(2) : '0.00';
+  const pnlColor = d.sim_pnl_cents > 0 ? 'var(--green-0)' : d.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+  const wrColor = d.wr >= 0.85 ? 'var(--green-0)' : d.wr >= 0.70 ? 'var(--amber-0)' : 'var(--red-0)';
+
+  tag.textContent = d.total_signals + ' SIG';
+  tag.style.background = settled > 0 ? 'var(--amber-bg)' : 'var(--bg-2)';
+  tag.style.color = settled > 0 ? 'var(--amber-0)' : 'var(--text-3)';
+
+  let html = `
+    <div style="display:flex;gap:12px;margin-bottom:8px">
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Signals</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${d.total_signals}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Settled</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${settled}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Win Rate</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${wrColor}">${wr}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Sim PnL</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${pnlColor}">${d.sim_pnl_cents >= 0 ? '+' : ''}$${pnl}</div>
+      </div>
+    </div>`;
+
+  // By-price-tier table (88-89, 90-91, 92)
+  const bt = d.by_price_tier;
+  if (bt && Object.keys(bt).length > 0) {
+    html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By Price Tier</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Tier</td><td>N</td><td>Settled</td><td>WR</td><td>PnL</td></tr>';
+    for (const [t, v] of Object.entries(bt)) {
+      const tWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const tPnl = (v.sim_pnl_cents / 100).toFixed(2);
+      const tWrColor = v.wr >= 0.85 ? 'var(--green-0)' : v.wr >= 0.70 ? 'var(--amber-0)' : 'var(--red-0)';
+      const tPnlColor = v.sim_pnl_cents > 0 ? 'var(--green-0)' : v.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      html += `<tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">${escHtml(t)}</td>
+        <td>${v.n}</td><td>${v.settled}</td>
+        <td style="color:${tWrColor}">${tWr}</td>
+        <td style="color:${tPnlColor}">${v.sim_pnl_cents >= 0 ? '+' : ''}$${tPnl}</td>
+      </tr>`;
+    }
+    html += '</table>';
+  }
+
+  // By-asset table
+  const ba = d.by_asset;
+  if (ba && Object.keys(ba).length > 0) {
+    html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By Asset</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Asset</td><td>N</td><td>Settled</td><td>WR</td><td>PnL</td></tr>';
+    for (const [a, v] of Object.entries(ba)) {
+      const aWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const aPnl = (v.sim_pnl_cents / 100).toFixed(2);
+      const aWrColor = v.wr >= 0.85 ? 'var(--green-0)' : v.wr >= 0.70 ? 'var(--amber-0)' : 'var(--red-0)';
+      const aPnlColor = v.sim_pnl_cents > 0 ? 'var(--green-0)' : v.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      html += `<tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">${escHtml(a)}</td>
+        <td>${v.n}</td><td>${v.settled}</td>
+        <td style="color:${aWrColor}">${aWr}</td>
+        <td style="color:${aPnlColor}">${v.sim_pnl_cents >= 0 ? '+' : ''}$${aPnl}</td>
+      </tr>`;
+    }
+    html += '</table>';
+  }
+
+  body.innerHTML = html || '<div style="color:var(--text-3)">No relaxed edge signals yet</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CALIBRATION GAP
+// ═══════════════════════════════════════════════════════════════════════
+function updateCalibrationGap(s) {
+  const d = s.calibration_gap;
+  const tag = $('calibrationGapTag');
+  const body = $('calibrationGapBody');
+  if (!d) { if (tag) tag.textContent = '—'; return; }
+
+  const prices = d.prices || {};
+  const nPrices = Object.keys(prices).length;
+  tag.textContent = nPrices + ' prices';
+  tag.style.background = nPrices > 0 ? 'var(--amber-bg)' : 'var(--bg-2)';
+  tag.style.color = nPrices > 0 ? 'var(--amber-0)' : 'var(--text-3)';
+
+  let html = '';
+  if (nPrices > 0) {
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Price</td><td>N</td><td>Settled</td><td>WR%</td><td>Model Prob</td><td>Gap</td></tr>';
+    const sortedPrices = Object.keys(prices).sort((a, b) => Number(a) - Number(b));
+    for (const p of sortedPrices) {
+      const v = prices[p];
+      const pWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const modelProb = v.model_prob != null ? (v.model_prob * 100).toFixed(1) + '%' : '—';
+      const gap = v.gap_pp != null ? v.gap_pp.toFixed(1) : '—';
+      let gapColor = 'var(--text-2)';
+      if (v.gap_pp != null) {
+        if (v.gap_pp > 2) gapColor = 'var(--green-0)';
+        else if (v.gap_pp < -2) gapColor = 'var(--red-0)';
+      }
+      html += `<tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">${escHtml(String(p))}</td>
+        <td>${v.n || 0}</td><td>${v.settled || 0}</td>
+        <td>${pWr}</td>
+        <td>${modelProb}</td>
+        <td style="color:${gapColor};font-weight:600">${gap !== '—' ? (v.gap_pp >= 0 ? '+' : '') + gap + 'pp' : '—'}</td>
+      </tr>`;
+    }
+    html += '</table>';
+  }
+
+  body.innerHTML = html || '<div style="color:var(--text-3)">No calibration gap data yet</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CAPITAL UTILIZATION
+// ═══════════════════════════════════════════════════════════════════════
+function updateCapitalUtilization(s) {
+  const d = s.capital_utilization;
+  const tag = $('capitalUtilizationTag');
+  const body = $('capitalUtilizationBody');
+  if (!d) { if (tag) tag.textContent = '—'; return; }
+
+  const pct = d.utilization_pct != null ? d.utilization_pct : 0;
+  const pctDisplay = (pct * 100).toFixed(1) + '%';
+  const gaugeColor = pct >= 0.20 ? 'var(--green-0)' : pct >= 0.10 ? 'var(--amber-0)' : 'var(--red-0)';
+
+  tag.textContent = pctDisplay;
+  tag.style.background = pct >= 0.20 ? 'var(--green-bg)' : pct >= 0.10 ? 'var(--amber-bg)' : 'var(--red-bg)';
+  tag.style.color = gaugeColor;
+
+  const deployed = d.deployed_dollars != null ? '$' + d.deployed_dollars.toFixed(2) : '—';
+  const available = d.available_dollars != null ? '$' + d.available_dollars.toFixed(2) : '—';
+  const tradesDay = d.trades_per_day != null ? d.trades_per_day.toFixed(1) : '—';
+  const avgIdle = d.avg_idle_hours != null ? d.avg_idle_hours.toFixed(1) + 'h' : '—';
+
+  let html = `
+    <div style="margin-bottom:10px;text-align:center;padding:12px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Utilization</div>
+      <div style="font-family:var(--mono);font-size:28px;font-weight:700;color:${gaugeColor}">${pctDisplay}</div>
+      <div style="margin-top:6px;height:6px;background:var(--bg-0);border-radius:3px;overflow:hidden">
+        <div style="width:${Math.min(100, pct * 100)}%;height:100%;background:${gaugeColor};border-radius:3px"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px">
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Deployed</div>
+        <div style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--text-1)">${deployed}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Available</div>
+        <div style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--text-1)">${available}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Trades/Day</div>
+        <div style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--text-1)">${tradesDay}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Avg Idle</div>
+        <div style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--text-1)">${avgIdle}</div>
+      </div>
+    </div>`;
+
+  body.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // SHADOW CALIBRATION PIPELINE
 // ═══════════════════════════════════════════════════════════════════════
 function updateShadowCalPipeline(s) {
@@ -6852,6 +7164,10 @@ function update(s) {
   try { updateNoSideShadow(s); } catch (e) { console.error('updateNoSideShadow:', e); }
   try { updateWeekendDiscount(s); } catch (e) { console.error('updateWeekendDiscount:', e); }
   try { updateOvernightDiscount(s); } catch (e) { console.error('updateOvernightDiscount:', e); }
+  try { updateDecidedContract(s); } catch (e) { console.error('updateDecidedContract:', e); }
+  try { updateRelaxedEdge(s); } catch (e) { console.error('updateRelaxedEdge:', e); }
+  try { updateCalibrationGap(s); } catch (e) { console.error('updateCalibrationGap:', e); }
+  try { updateCapitalUtilization(s); } catch (e) { console.error('updateCapitalUtilization:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
   try { updateShadowVariants(s); } catch (e) { console.error('updateShadowVariants:', e); }
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
