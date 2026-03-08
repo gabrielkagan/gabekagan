@@ -2674,6 +2674,30 @@ body::before {
     </div>
   </div>
 
+  <!-- SOL Path C Shadow -->
+  <div class="cell shadow-panel" id="solPathcCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      SOL Path C (Maker vs Taker)
+      <span class="tag" id="solPathcTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="solPathcBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- ETH Filter Shadow -->
+  <div class="cell shadow-panel" id="ethFilterCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      ETH Entry Filter
+      <span class="tag" id="ethFilterTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="ethFilterBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Shadow Cal Pipeline -->
   <div class="cell shadow-cal-cell shadow-panel" style="grid-column:span 4">
     <div class="shadow-badge">SHADOW</div>
@@ -6707,6 +6731,116 @@ function updateRelaxedEdge(s) {
   body.innerHTML = html || '<div style="color:var(--text-3)">No relaxed edge signals yet</div>';
 }
 
+function updateSolPathcShadow(s) {
+  const d = s.sol_pathc_shadow;
+  const tag = $('solPathcTag');
+  const body = $('solPathcBody');
+  if (!d || !tag) return;
+  if (!d.total_signals) { tag.textContent = '—'; return; }
+
+  const settled = d.settled || 0;
+  const wr = settled > 0 ? ((d.wins / settled) * 100).toFixed(1) + '%' : '—';
+  const livePnl = (d.live_pnl_cents || 0) / 100;
+  const bestPnl = (d.pathc_best_pnl_cents || 0) / 100;
+  const delta = (d.pnl_delta_cents || 0) / 100;
+  const deltaColor = delta > 0 ? 'var(--green-0)' : delta < 0 ? 'var(--red-0)' : 'var(--text-2)';
+  const touchRate = d.maker_touch_rate != null ? (d.maker_touch_rate * 100).toFixed(1) + '%' : '—';
+
+  tag.textContent = d.total_signals + ' SIG';
+  tag.style.background = settled > 0 ? 'var(--amber-bg)' : 'var(--bg-2)';
+  tag.style.color = settled > 0 ? 'var(--amber-0)' : 'var(--text-3)';
+
+  const box = (label, value, color) => `
+    <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">${label}</div>
+      <div style="font-family:var(--mono);font-size:14px;font-weight:600;color:${color || 'var(--text-1)'}">${value}</div>
+    </div>`;
+
+  let html = `<div style="display:flex;gap:8px;margin-bottom:8px">
+    ${box('Signals', d.total_signals)}
+    ${box('Settled', settled)}
+    ${box('WR', wr, settled > 0 && d.wins/settled >= 0.85 ? 'var(--green-0)' : 'var(--amber-0)')}
+    ${box('Touch Rate', touchRate)}
+  </div>`;
+
+  html += `<div style="display:flex;gap:8px;margin-bottom:8px">
+    ${box('Live PnL', (livePnl >= 0 ? '+' : '') + '$' + livePnl.toFixed(2), livePnl >= 0 ? 'var(--green-0)' : 'var(--red-0)')}
+    ${box('PathC Best', (bestPnl >= 0 ? '+' : '') + '$' + bestPnl.toFixed(2), bestPnl >= 0 ? 'var(--green-0)' : 'var(--red-0)')}
+    ${box('Δ PnL', (delta >= 0 ? '+' : '') + '$' + delta.toFixed(2), deltaColor)}
+  </div>`;
+
+  if (settled > 0) {
+    const makerPnl = ((d.pathc_maker_pnl_cents || 0) / 100).toFixed(2);
+    const escPnl = ((d.pathc_esc_pnl_cents || 0) / 100).toFixed(2);
+    html += `<table style="width:100%;border-collapse:collapse;font-size:11px">
+      <tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px">Path</td><td>PnL</td><td>Note</td></tr>
+      <tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">Live Taker</td>
+        <td style="color:${livePnl >= 0 ? 'var(--green-0)' : 'var(--red-0)'}">${livePnl >= 0 ? '+' : ''}$${livePnl.toFixed(2)}</td>
+        <td style="color:var(--text-3)">${d.wins}W/${d.losses}L</td></tr>
+      <tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">PathC Maker</td>
+        <td style="color:${makerPnl >= 0 ? 'var(--green-0)' : 'var(--red-0)'}">$${makerPnl}</td>
+        <td style="color:var(--text-3)">Touch: ${touchRate}</td></tr>
+      <tr>
+        <td style="padding:2px 4px;font-weight:500">PathC Esc</td>
+        <td style="color:${escPnl >= 0 ? 'var(--green-0)' : 'var(--red-0)'}">$${escPnl}</td>
+        <td style="color:var(--text-3)">15s escalation</td></tr>
+    </table>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function updateEthFilterShadow(s) {
+  const d = s.eth_filter_shadow;
+  const tag = $('ethFilterTag');
+  const body = $('ethFilterBody');
+  if (!d || !tag) return;
+  if (!d.total_trades) { tag.textContent = '—'; return; }
+
+  const wr = (d.wr * 100).toFixed(1) + '%';
+  const pnl = (d.total_pnl_cents || 0) / 100;
+  const pnlColor = pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+
+  tag.textContent = d.total_trades + ' TRD';
+  tag.style.background = d.total_trades > 0 ? 'var(--amber-bg)' : 'var(--bg-2)';
+  tag.style.color = d.total_trades > 0 ? 'var(--amber-0)' : 'var(--text-3)';
+
+  let html = `<div style="margin-bottom:8px;color:var(--text-2)">
+    ETH 14d: ${d.total_trades} trades, ${d.wins}W/${d.losses}L (${wr}),
+    <span style="color:${pnlColor}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</span>
+  </div>`;
+
+  const filters = d.filters;
+  if (filters && Object.keys(filters).length > 0) {
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)">' +
+      '<td style="padding:2px 4px">Filter</td><td>Kept</td><td>Blocked</td><td>Kept WR</td><td>Impact</td></tr>';
+    const labels = {
+      price_89: '≥89¢', price_90: '≥90¢', price_91: '≥91¢', price_92: '≥92¢', price_93: '≥93¢',
+      edge_1pct: 'Edge≥1%', edge_3pct: 'Edge≥3%', edge_4pct: 'Edge≥4%', edge_5pct: 'Edge≥5%',
+      price_90_and_edge_1pct: '≥90¢+Edge≥1%', price_92_and_edge_1pct: '≥92¢+Edge≥1%',
+      price_90_and_edge_3pct: '≥90¢+Edge≥3%',
+    };
+    for (const [k, v] of Object.entries(filters)) {
+      const impact = (v.net_impact_cents || 0) / 100;
+      const impactColor = impact > 0 ? 'var(--green-0)' : impact < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      const keptWr = v.kept > 0 ? (v.kept_wr * 100).toFixed(1) + '%' : '—';
+      html += `<tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">${labels[k] || k}</td>
+        <td>${v.kept}</td><td>${v.blocked}</td>
+        <td>${keptWr}</td>
+        <td style="color:${impactColor}">${impact >= 0 ? '+' : ''}$${impact.toFixed(2)}</td>
+      </tr>`;
+    }
+    html += '</table>';
+  }
+
+  body.innerHTML = html;
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 // CALIBRATION GAP
 // ═══════════════════════════════════════════════════════════════════════
@@ -7166,6 +7300,8 @@ function update(s) {
   try { updateOvernightDiscount(s); } catch (e) { console.error('updateOvernightDiscount:', e); }
   try { updateDecidedContract(s); } catch (e) { console.error('updateDecidedContract:', e); }
   try { updateRelaxedEdge(s); } catch (e) { console.error('updateRelaxedEdge:', e); }
+  try { updateSolPathcShadow(s); } catch (e) { console.error('updateSolPathcShadow:', e); }
+  try { updateEthFilterShadow(s); } catch (e) { console.error('updateEthFilterShadow:', e); }
   try { updateCalibrationGap(s); } catch (e) { console.error('updateCalibrationGap:', e); }
   try { updateCapitalUtilization(s); } catch (e) { console.error('updateCapitalUtilization:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
