@@ -2486,6 +2486,14 @@ body::before {
     </div>
   </div>
 
+  <!-- Hourly Config A — Promotion Candidate -->
+  <div class="cell shadow-panel" id="configACell" style="grid-column:span 12">
+    <div class="cell-label">HOURLY CONFIG A <span class="tag" style="background:var(--amber-bg);color:var(--amber-0)">PROMOTION CANDIDATE</span></div>
+    <div id="configABody" style="font-family:var(--mono);font-size:12px">
+      <div style="text-align:center;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- STC Shadow Counterfactual -->
   <div class="cell shadow-panel" id="stcShadowCell" style="grid-column:span 4">
     <div class="cell-label">STC SHADOW ZONE (500-900s) <span class="tag" style="background:var(--violet-bg);color:var(--violet-0)">SHADOW</span></div>
@@ -5933,90 +5941,105 @@ function updateHourlyObservation(s) {
     <div style="font-size:8px;color:var(--text-3);margin-top:2px;text-align:center">Hypothetical — assumes flat 1-contract sizing, no slippage</div>
   </div>`;
 
-  // ── Config A comparison (no_XRP + edge ≤ 0.7%) ──
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// HOURLY CONFIG A — PROMOTION CANDIDATE
+// ═══════════════════════════════════════════════════════════════════════
+function updateConfigA(s) {
   const ca = s.hourly_config_a;
-  if (ca && typeof ca === 'object') {
-    const caSettled = ca.settled ?? 0;
-    const caWins = ca.wins ?? 0;
-    const caWr = ca.wr != null ? (ca.wr * 100).toFixed(1) + '%' : '—';
-    const caWilson = ca.wilson_lower != null ? (ca.wilson_lower * 100).toFixed(1) + '%' : '—';
-    const caBrier = ca.brier != null ? ca.brier.toFixed(3) : '—';
-    const caPnl = ca.sim_pnl_cents != null ? '$' + (ca.sim_pnl_cents / 100).toFixed(2) : '—';
-    const caDays = ca.days ?? 0;
-    const caMinDayWr = ca.min_day_wr != null ? (ca.min_day_wr * 100).toFixed(0) + '%' : '—';
-    const caFilters = ca.filters || {};
-    const caExcl = caFilters.excluded_assets ? caFilters.excluded_assets.join(', ') : '—';
-    const caMaxEdge = caFilters.max_edge != null ? (caFilters.max_edge * 100).toFixed(1) + '%' : '—';
-    const grad = ca.graduation || {};
-
-    // Graduation checks
-    const checks = [];
-    if (caDays >= (grad.days_required || 7)) checks.push({name: 'days', pass: true});
-    else checks.push({name: 'days', pass: false, val: caDays + '/' + (grad.days_required || 7)});
-
-    if (caSettled > 0 && ca.wr != null && ca.wr >= (grad.min_wr || 0.78)) checks.push({name: 'WR', pass: true});
-    else checks.push({name: 'WR', pass: false, val: caWr + ' (need ' + ((grad.min_wr || 0.78) * 100) + '%)'});
-
-    if (ca.wilson_lower != null && ca.wilson_lower >= (grad.min_wilson_lower || 0.72)) checks.push({name: 'Wilson', pass: true});
-    else checks.push({name: 'Wilson', pass: false, val: caWilson + ' (need ' + ((grad.min_wilson_lower || 0.72) * 100) + '%)'});
-
-    if (ca.brier != null && ca.brier < (grad.max_brier || 0.25)) checks.push({name: 'Brier', pass: true});
-    else checks.push({name: 'Brier', pass: false, val: caBrier + ' (need <' + (grad.max_brier || 0.25) + ')'});
-
-    if (ca.min_day_wr != null && ca.min_day_wr >= (grad.min_day_wr || 0.60)) checks.push({name: 'min day', pass: true});
-    else checks.push({name: 'min day', pass: false, val: caMinDayWr + ' (need ' + ((grad.min_day_wr || 0.60) * 100) + '%)'});
-
-    if (ca.sim_pnl_cents != null && ca.sim_pnl_cents > 0) checks.push({name: 'PnL+', pass: true});
-    else checks.push({name: 'PnL+', pass: false, val: caPnl});
-
-    const passCount = checks.filter(c => c.pass).length;
-    const allPass = passCount === checks.length;
-    const checksHtml = checks.map(c => {
-      const icon = c.pass ? '&#10003;' : '&#10007;';
-      const color = c.pass ? 'var(--green-0)' : 'var(--text-3)';
-      const detail = c.pass ? '' : ' <span style="font-size:8px;color:var(--text-3)">' + (c.val || '') + '</span>';
-      return `<span style="color:${color};font-size:9px;margin-right:6px">${icon} ${c.name}${detail}</span>`;
-    }).join('');
-
-    const gradBadgeClass = allPass ? 'ready' : (passCount >= 4 ? 'collecting' : 'not-ready');
-    const gradBadgeText = allPass ? 'READY TO PROMOTE' : passCount + '/' + checks.length + ' graduation checks';
-
-    // Baseline vs Config A comparison table
-    const baseWr = settled > 0 ? (wins / settled * 100).toFixed(1) + '%' : '—';
-    const basePnl = simPnl != null ? '$' + (simPnl / 100).toFixed(2) : '—';
-
-    box.innerHTML += `
-    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--bg-3)">
-      <div style="font-size:10px;font-weight:600;color:var(--text-1);margin-bottom:6px">
-        Config A <span style="font-size:8px;font-weight:400;color:var(--text-3)">no ${caExcl} &middot; edge &le; ${caMaxEdge}</span>
-      </div>
-      <table style="width:100%;font-size:9px;border-collapse:collapse">
-        <tr style="color:var(--text-3);border-bottom:1px solid var(--bg-3)">
-          <th style="text-align:left;padding:2px 4px"></th>
-          <th style="text-align:right;padding:2px 4px">Settled</th>
-          <th style="text-align:right;padding:2px 4px">WR</th>
-          <th style="text-align:right;padding:2px 4px">Brier</th>
-          <th style="text-align:right;padding:2px 4px">Sim PnL</th>
-        </tr>
-        <tr style="color:var(--text-2)">
-          <td style="padding:2px 4px">Baseline</td>
-          <td style="text-align:right;padding:2px 4px">${settled}</td>
-          <td style="text-align:right;padding:2px 4px">${baseWr}</td>
-          <td style="text-align:right;padding:2px 4px">—</td>
-          <td style="text-align:right;padding:2px 4px">${basePnl}</td>
-        </tr>
-        <tr style="color:var(--text-1);font-weight:500">
-          <td style="padding:2px 4px">Config A</td>
-          <td style="text-align:right;padding:2px 4px">${caSettled}</td>
-          <td style="text-align:right;padding:2px 4px">${caWr}</td>
-          <td style="text-align:right;padding:2px 4px">${caBrier}</td>
-          <td style="text-align:right;padding:2px 4px">${caPnl}</td>
-        </tr>
-      </table>
-      <div style="margin-top:6px">${checksHtml}</div>
-      <div class="readiness-badge ${gradBadgeClass}" style="margin-top:4px">${gradBadgeText}</div>
-    </div>`;
+  const h = s.hourly_observation;
+  const box = $('configABody');
+  if (!ca || typeof ca !== 'object') {
+    box.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:8px">Waiting for data...</div>';
+    return;
   }
+
+  const caSettled = ca.settled ?? 0;
+  const caWins = ca.wins ?? 0;
+  const caWr = ca.wr != null ? (ca.wr * 100).toFixed(1) + '%' : '—';
+  const caWilson = ca.wilson_lower != null ? (ca.wilson_lower * 100).toFixed(1) + '%' : '—';
+  const caBrier = ca.brier != null ? ca.brier.toFixed(3) : '—';
+  const caPnl = ca.sim_pnl_cents != null ? '$' + (ca.sim_pnl_cents / 100).toFixed(2) : '—';
+  const caDays = ca.days ?? 0;
+  const caMinDayWr = ca.min_day_wr != null ? (ca.min_day_wr * 100).toFixed(0) + '%' : '—';
+  const caFilters = ca.filters || {};
+  const caExcl = caFilters.excluded_assets ? caFilters.excluded_assets.join(', ') : '—';
+  const caMaxEdge = caFilters.max_edge != null ? (caFilters.max_edge * 100).toFixed(1) + '%' : '—';
+  const grad = ca.graduation || {};
+
+  // Baseline numbers from hourly_observation
+  const baseSettled = h ? (h.settled_count ?? 0) : 0;
+  const baseWins = h ? (h.settled_wins ?? 0) : 0;
+  const baseWr = baseSettled > 0 ? (baseWins / baseSettled * 100).toFixed(1) + '%' : '—';
+  const baseSimPnl = h && h.sim_pnl_cents != null ? '$' + (h.sim_pnl_cents / 100).toFixed(2) : '—';
+
+  // Graduation checks
+  const checks = [];
+  if (caDays >= (grad.days_required || 7)) checks.push({name: 'days', pass: true, val: caDays + 'd'});
+  else checks.push({name: 'days', pass: false, val: caDays + '/' + (grad.days_required || 7)});
+
+  if (caSettled > 0 && ca.wr != null && ca.wr >= (grad.min_wr || 0.78)) checks.push({name: 'WR', pass: true, val: caWr});
+  else checks.push({name: 'WR', pass: false, val: caWr + ' (need ' + ((grad.min_wr || 0.78) * 100) + '%)'});
+
+  if (ca.wilson_lower != null && ca.wilson_lower >= (grad.min_wilson_lower || 0.72)) checks.push({name: 'Wilson', pass: true, val: caWilson});
+  else checks.push({name: 'Wilson', pass: false, val: caWilson + ' (need ' + ((grad.min_wilson_lower || 0.72) * 100) + '%)'});
+
+  if (ca.brier != null && ca.brier < (grad.max_brier || 0.25)) checks.push({name: 'Brier', pass: true, val: caBrier});
+  else checks.push({name: 'Brier', pass: false, val: caBrier + ' (need <' + (grad.max_brier || 0.25) + ')'});
+
+  if (ca.min_day_wr != null && ca.min_day_wr >= (grad.min_day_wr || 0.60)) checks.push({name: 'min day', pass: true, val: caMinDayWr});
+  else checks.push({name: 'min day', pass: false, val: caMinDayWr + ' (need ' + ((grad.min_day_wr || 0.60) * 100) + '%)'});
+
+  if (ca.sim_pnl_cents != null && ca.sim_pnl_cents > 0) checks.push({name: 'PnL+', pass: true, val: caPnl});
+  else checks.push({name: 'PnL+', pass: false, val: caPnl});
+
+  const passCount = checks.filter(c => c.pass).length;
+  const allPass = passCount === checks.length;
+  const checksHtml = checks.map(c => {
+    const icon = c.pass ? '&#10003;' : '&#10007;';
+    const color = c.pass ? 'var(--green-0)' : 'var(--red-0, var(--text-3))';
+    return `<span style="color:${color};font-size:11px;margin-right:10px">${icon} ${c.name}: ${c.val || '—'}</span>`;
+  }).join('');
+
+  const gradBadgeClass = allPass ? 'ready' : (passCount >= 4 ? 'collecting' : 'not-ready');
+  const gradBadgeText = allPass ? 'READY TO PROMOTE' : passCount + '/' + checks.length + ' graduation checks passed';
+
+  box.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--text-2)">Filters: no <b>${caExcl}</b> &middot; edge &le; <b>${caMaxEdge}</b></span>
+      <div class="readiness-badge ${gradBadgeClass}" style="margin:0">${gradBadgeText}</div>
+    </div>
+    <table style="width:100%;font-size:11px;border-collapse:collapse;margin-bottom:8px">
+      <tr style="color:var(--text-3);border-bottom:1px solid var(--bg-3)">
+        <th style="text-align:left;padding:3px 6px"></th>
+        <th style="text-align:right;padding:3px 6px">Settled</th>
+        <th style="text-align:right;padding:3px 6px">Wins</th>
+        <th style="text-align:right;padding:3px 6px">WR</th>
+        <th style="text-align:right;padding:3px 6px">Wilson LB</th>
+        <th style="text-align:right;padding:3px 6px">Brier</th>
+        <th style="text-align:right;padding:3px 6px">Sim PnL</th>
+      </tr>
+      <tr style="color:var(--text-2)">
+        <td style="padding:3px 6px">Baseline (all hourly)</td>
+        <td style="text-align:right;padding:3px 6px">${baseSettled}</td>
+        <td style="text-align:right;padding:3px 6px">${baseWins}</td>
+        <td style="text-align:right;padding:3px 6px">${baseWr}</td>
+        <td style="text-align:right;padding:3px 6px">—</td>
+        <td style="text-align:right;padding:3px 6px">—</td>
+        <td style="text-align:right;padding:3px 6px">${baseSimPnl}</td>
+      </tr>
+      <tr style="color:var(--text-1);font-weight:600;border-top:1px solid var(--bg-3)">
+        <td style="padding:3px 6px">Config A</td>
+        <td style="text-align:right;padding:3px 6px">${caSettled}</td>
+        <td style="text-align:right;padding:3px 6px">${caWins}</td>
+        <td style="text-align:right;padding:3px 6px">${caWr}</td>
+        <td style="text-align:right;padding:3px 6px">${caWilson}</td>
+        <td style="text-align:right;padding:3px 6px">${caBrier}</td>
+        <td style="text-align:right;padding:3px 6px">${caPnl}</td>
+      </tr>
+    </table>
+    <div>${checksHtml}</div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -7529,6 +7552,7 @@ function update(s) {
   try { updateEGARCHBlendDiag(s); } catch (e) { console.error('updateEGARCHBlendDiag:', e); }
   try { updateShadowCalPipeline(s); } catch (e) { console.error('updateShadowCalPipeline:', e); }
 
+  try { updateConfigA(s); } catch (e) { console.error('updateConfigA:', e); }
   try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
   try { updateSpxObservation(s); } catch (e) { console.error('updateSpxObservation:', e); }
   try { updateWeatherObservation(s); } catch (e) { console.error('updateWeatherObservation:', e); }
