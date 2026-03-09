@@ -2562,6 +2562,17 @@ body::before {
     </div>
   </div>
 
+  <!-- Sports Strong Config Analysis -->
+  <div class="cell shadow-panel" style="grid-column:span 4">
+    <div class="cell-label">
+      Sports Strong Config
+      <span class="tag" id="sportsStrongTag" style="background:var(--amber-bg);color:var(--amber-0);border:1px solid var(--amber-border)">SHADOW</span>
+    </div>
+    <div id="elSportsStrong">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Hourly Alt Shadow Strategies (ETH/SOL/XRP) -->
   <div class="cell shadow-panel" id="altShadowCell" style="grid-column:span 4">
     <div class="shadow-badge">SHADOW</div>
@@ -6264,6 +6275,78 @@ function updateSportsObservation(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// SPORTS STRONG CONFIG
+// ═══════════════════════════════════════════════════════════════════════
+function updateSportsStrongConfig(s) {
+  const d = s.sports_strong_config;
+  const box = $('elSportsStrong');
+  if (!d || typeof d !== 'object') {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">No strong config data yet</div>';
+    return;
+  }
+
+  // State for NBA toggle
+  if (window._sportsStrongNbaOnly === undefined) window._sportsStrongNbaOnly = false;
+
+  function renderSubset(label, data) {
+    if (!data || !data.settled) return `<div class="shadow-metric"><span class="shadow-metric-label">${label}</span><span class="shadow-metric-val">no data</span></div>`;
+    const wr = (data.win_rate * 100).toFixed(1);
+    const ciLo = (data.wilson_ci_lo * 100).toFixed(1);
+    const ciHi = (data.wilson_ci_hi * 100).toFixed(1);
+    const pnl = (data.sim_pnl_cents / 100).toFixed(2);
+    const pnlColor = data.sim_pnl_cents >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+    const brierRaw = data.brier_raw != null ? data.brier_raw.toFixed(4) : '—';
+    const brierPlatt = data.brier_platt != null ? data.brier_platt.toFixed(4) : '—';
+    const wrColor = data.win_rate >= 0.55 ? 'var(--green-0)' : data.win_rate >= 0.50 ? 'var(--amber-0)' : 'var(--red-0)';
+    return `
+      <div style="margin-bottom:8px;padding:6px;background:var(--bg-2);border-radius:4px">
+        <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">${label}</div>
+        <div class="shadow-metrics">
+          <div class="shadow-metric"><span class="shadow-metric-label">settled</span><span class="shadow-metric-val">${data.wins}W/${data.losses}L (n=${data.settled})</span></div>
+          <div class="shadow-metric"><span class="shadow-metric-label">WR</span><span class="shadow-metric-val" style="color:${wrColor}">${wr}%</span></div>
+          <div class="shadow-metric"><span class="shadow-metric-label">Wilson 95%</span><span class="shadow-metric-val">[${ciLo}%, ${ciHi}%]</span></div>
+          <div class="shadow-metric"><span class="shadow-metric-label">sim PnL</span><span class="shadow-metric-val" style="color:${pnlColor}">$${pnl}</span></div>
+          <div class="shadow-metric"><span class="shadow-metric-label">Brier raw</span><span class="shadow-metric-val">${brierRaw}</span></div>
+          <div class="shadow-metric"><span class="shadow-metric-label">Brier platt</span><span class="shadow-metric-val">${brierPlatt}</span></div>
+        </div>
+      </div>`;
+  }
+
+  const toggleBtn = `<button onclick="window._sportsStrongNbaOnly=!window._sportsStrongNbaOnly;updateSportsStrongConfig(lastSnapshot)" style="font-size:9px;padding:2px 8px;border:1px solid var(--bg-3);border-radius:3px;background:${window._sportsStrongNbaOnly ? 'var(--blue-bg)' : 'var(--bg-2)'};color:${window._sportsStrongNbaOnly ? 'var(--blue-0)' : 'var(--text-3)'};cursor:pointer">${window._sportsStrongNbaOnly ? 'NBA ONLY' : 'ALL SPORTS'}</button>`;
+
+  let html = `<div style="margin-bottom:6px;text-align:right">${toggleBtn}</div>`;
+  if (window._sportsStrongNbaOnly) {
+    html += renderSubset('NBA — Strong Config (pregame≥60%, price≤70c, time>25%)', d.nba);
+  } else {
+    html += renderSubset('All Sports — Strong Config (pregame≥60%, price≤70c, time>25%)', d.all);
+    html += renderSubset('NBA Only — Strong Config', d.nba);
+  }
+
+  // Platt calibrator info
+  if (d.platt) {
+    const p = d.platt;
+    let plattHtml = '<div style="margin-top:4px;font-size:8px;color:var(--text-3)">';
+    if (p.a != null) {
+      plattHtml += `Platt fit: a=${p.a.toFixed(3)}, b=${p.b.toFixed(3)} (${p.n_train} H1 rows)`;
+      if (p.h2_brier_raw != null && p.h2_brier_cal != null) {
+        const delta = p.h2_brier_cal - p.h2_brier_raw;
+        const deltaColor = delta < 0 ? 'var(--green-0)' : 'var(--red-0)';
+        plattHtml += ` · H2 Brier: ${p.h2_brier_raw.toFixed(4)}→<span style="color:${deltaColor}">${p.h2_brier_cal.toFixed(4)}</span>`;
+      }
+      if (p.updated_at) plattHtml += ` · ${p.updated_at.slice(0,16)}`;
+    }
+    if (p.n_rows) {
+      plattHtml += `${p.a != null ? ' · ' : ''}${p.n_rows} shadow rows, avg raw=${p.avg_raw != null ? p.avg_raw.toFixed(3) : '—'} → platt=${p.avg_platt != null ? p.avg_platt.toFixed(3) : '—'}`;
+    }
+    plattHtml += '</div>';
+    html += plattHtml;
+  }
+
+  html += '<div style="font-size:8px;color:var(--text-3);margin-top:4px">Criteria: pregame fav ≥60%, entry ≤70c, time remaining >25%. Tennis excluded.</div>';
+  box.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // CAPITAL ALLOCATION
 // ═══════════════════════════════════════════════════════════════════════
 function updateCapitalAllocation(s) {
@@ -7557,6 +7640,7 @@ function update(s) {
   try { updateSpxObservation(s); } catch (e) { console.error('updateSpxObservation:', e); }
   try { updateWeatherObservation(s); } catch (e) { console.error('updateWeatherObservation:', e); }
   try { updateSportsObservation(s); } catch (e) { console.error('updateSportsObservation:', e); }
+  try { updateSportsStrongConfig(s); } catch (e) { console.error('updateSportsStrongConfig:', e); }
   try { updateCapitalAllocation(s); } catch (e) { console.error('updateCapitalAllocation:', e); }
 
   try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
