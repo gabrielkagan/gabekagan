@@ -2486,10 +2486,10 @@ body::before {
     </div>
   </div>
 
-  <!-- Hourly Config A — Promotion Candidate -->
-  <div class="cell shadow-panel" id="configACell" style="grid-column:span 12">
-    <div class="cell-label">HOURLY CONFIG A <span class="tag" style="background:var(--amber-bg);color:var(--amber-0)">PROMOTION CANDIDATE</span></div>
-    <div id="configABody" style="font-family:var(--mono);font-size:12px">
+  <!-- Hourly Variants — Config A + Config B promotion candidates -->
+  <div class="cell shadow-panel" id="hourlyVariantsCell" style="grid-column:span 12">
+    <div class="cell-label">HOURLY VARIANTS <span class="tag" style="background:var(--amber-bg);color:var(--amber-0)">PROMOTION CANDIDATES</span></div>
+    <div id="hourlyVariantsBody" style="font-family:var(--mono);font-size:12px">
       <div style="text-align:center;color:var(--text-3)">Waiting for data...</div>
     </div>
   </div>
@@ -2510,13 +2510,7 @@ body::before {
     </div>
   </div>
 
-  <!-- Shadow Variants (hourly counterfactual configs) -->
-  <div class="cell shadow-panel" id="svCell" style="grid-column:span 4">
-    <div class="cell-label">Shadow Variants (Hourly)</div>
-    <div id="svBody" style="padding:8px 0">
-      <div style="color:var(--text-3);text-align:center;padding:12px">Waiting for data...</div>
-    </div>
-  </div>
+  <!-- (Shadow Variants sidebar removed — merged into Hourly Variants table above) -->
 
   <!-- Hourly Markets Observation -->
   <div class="cell hourly-obs-cell shadow-panel" style="grid-column:span 4">
@@ -5286,40 +5280,7 @@ function updateCounterfactual(s) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-// SHADOW VARIANTS
-// ═══════════════════════════════════════════════════════════════════════
-function updateShadowVariants(s) {
-  const sv = s.shadow_variants;
-  const body = $('svBody');
-  if (!sv || typeof sv !== 'object' || Object.keys(sv).length === 0) {
-    body.innerHTML = '<div style="color:var(--text-3);text-align:center;padding:12px">No shadow variant data</div>';
-    return;
-  }
-  let html = '<table style="width:100%;font-size:13px;border-collapse:collapse">';
-  html += '<thead><tr style="border-bottom:1px solid var(--border-0)">';
-  html += '<th style="text-align:left;padding:4px 8px">Variant</th>';
-  html += '<th style="text-align:right;padding:4px 8px">N</th>';
-  html += '<th style="text-align:right;padding:4px 8px">W/L</th>';
-  html += '<th style="text-align:right;padding:4px 8px">WR</th>';
-  html += '<th style="text-align:right;padding:4px 8px">Sim P&L</th>';
-  html += '</tr></thead><tbody>';
-  for (const [key, v] of Object.entries(sv)) {
-    const wr = ((v.win_rate ?? 0) * 100).toFixed(1);
-    const pnl = (v.sim_pnl_cents ?? 0) / 100;
-    const pnlColor = pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
-    const wrColor = (v.win_rate ?? 0) >= 0.90 ? 'var(--green-0)' : (v.win_rate ?? 0) >= 0.80 ? 'var(--yellow-0)' : 'var(--red-0)';
-    html += `<tr style="border-bottom:1px solid var(--border-1)">`;
-    html += `<td style="padding:6px 8px"><strong>${escHtml(v.label ?? key)}</strong><br><span style="font-size:11px;color:var(--text-3)">${escHtml(v.description ?? '')}</span></td>`;
-    html += `<td style="text-align:right;padding:6px 8px">${v.n ?? 0}</td>`;
-    html += `<td style="text-align:right;padding:6px 8px">${v.wins ?? 0}W/${v.losses ?? 0}L</td>`;
-    html += `<td style="text-align:right;padding:6px 8px;color:${wrColor};font-weight:600">${wr}%</td>`;
-    html += `<td style="text-align:right;padding:6px 8px;color:${pnlColor};font-weight:600">${pnl >= 0 ? '+$' : '-$'}${Math.abs(pnl).toFixed(2)}</td>`;
-    html += `</tr>`;
-  }
-  html += '</tbody></table>';
-  body.innerHTML = html;
-}
+// (updateShadowVariants removed — merged into updateHourlyVariants below)
 
 // ═══════════════════════════════════════════════════════════════════════
 // ASK PRICE DISTRIBUTION
@@ -5955,29 +5916,17 @@ function updateHourlyObservation(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// HOURLY CONFIG A — PROMOTION CANDIDATE
+// HOURLY VARIANTS — Unified Config A + Config B table
 // ═══════════════════════════════════════════════════════════════════════
-function updateConfigA(s) {
+function updateHourlyVariants(s) {
   const ca = s.hourly_config_a;
+  const cb = s.hourly_config_b;
   const h = s.hourly_observation;
-  const box = $('configABody');
-  if (!ca || typeof ca !== 'object') {
+  const box = $('hourlyVariantsBody');
+  if ((!ca || typeof ca !== 'object') && (!cb || typeof cb !== 'object')) {
     box.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:8px">Waiting for data...</div>';
     return;
   }
-
-  const caSettled = ca.settled ?? 0;
-  const caWins = ca.wins ?? 0;
-  const caWr = ca.wr != null ? (ca.wr * 100).toFixed(1) + '%' : '—';
-  const caWilson = ca.wilson_lower != null ? (ca.wilson_lower * 100).toFixed(1) + '%' : '—';
-  const caBrier = ca.brier != null ? ca.brier.toFixed(3) : '—';
-  const caPnl = ca.sim_pnl_cents != null ? '$' + (ca.sim_pnl_cents / 100).toFixed(2) : '—';
-  const caDays = ca.days ?? 0;
-  const caMinDayWr = ca.min_day_wr != null ? (ca.min_day_wr * 100).toFixed(0) + '%' : '—';
-  const caFilters = ca.filters || {};
-  const caExcl = caFilters.excluded_assets ? caFilters.excluded_assets.join(', ') : '—';
-  const caMaxEdge = caFilters.max_edge != null ? (caFilters.max_edge * 100).toFixed(1) + '%' : '—';
-  const grad = ca.graduation || {};
 
   // Baseline numbers from hourly_observation
   const baseSettled = h ? (h.settled_count ?? 0) : 0;
@@ -5985,72 +5934,138 @@ function updateConfigA(s) {
   const baseWr = baseSettled > 0 ? (baseWins / baseSettled * 100).toFixed(1) + '%' : '—';
   const baseSimPnl = h && h.sim_pnl_cents != null ? '$' + (h.sim_pnl_cents / 100).toFixed(2) : '—';
 
-  // Graduation checks
-  const checks = [];
-  if (caDays >= (grad.days_required || 7)) checks.push({name: 'days', pass: true, val: caDays + 'd'});
-  else checks.push({name: 'days', pass: false, val: caDays + '/' + (grad.days_required || 7)});
+  // Helper: color-code a cell value against a graduation criterion
+  function gradCell(val, display, passFn) {
+    if (val == null) return `<td style="text-align:right;padding:4px 6px;color:var(--text-3)">—</td>`;
+    const pass = passFn(val);
+    const color = pass ? 'var(--green-0)' : 'var(--red-0)';
+    return `<td style="text-align:right;padding:4px 6px;color:${color};font-weight:600">${display}</td>`;
+  }
+  function plainCell(display) {
+    return `<td style="text-align:right;padding:4px 6px">${display}</td>`;
+  }
 
-  if (caSettled > 0 && ca.wr != null && ca.wr >= (grad.min_wr || 0.78)) checks.push({name: 'WR', pass: true, val: caWr});
-  else checks.push({name: 'WR', pass: false, val: caWr + ' (need ' + ((grad.min_wr || 0.78) * 100) + '%)'});
+  // Build variant rows
+  function variantRow(label, desc, cfg) {
+    if (!cfg || typeof cfg !== 'object') return '';
+    const settled = cfg.settled ?? 0;
+    const wins = cfg.wins ?? 0;
+    const wr = cfg.wr;
+    const wilson = cfg.wilson_lower;
+    const brier = cfg.brier;
+    const pnlCents = cfg.sim_pnl_cents ?? 0;
+    const pnl = pnlCents / 100;
+    const grad = cfg.graduation || {};
+    const filters = cfg.filters || {};
 
-  if (ca.wilson_lower != null && ca.wilson_lower >= (grad.min_wilson_lower || 0.72)) checks.push({name: 'Wilson', pass: true, val: caWilson});
-  else checks.push({name: 'Wilson', pass: false, val: caWilson + ' (need ' + ((grad.min_wilson_lower || 0.72) * 100) + '%)'});
+    // Format filter description
+    let filterParts = [];
+    if (filters.excluded_assets) filterParts.push('no ' + filters.excluded_assets.join('/'));
+    if (filters.max_edge != null) filterParts.push('edge≤' + (filters.max_edge * 100).toFixed(1) + '%');
+    if (filters.asset) filterParts.push(filters.asset + ' only');
+    if (filters.min_price != null && filters.max_price != null) filterParts.push(filters.min_price + '-' + filters.max_price + 'c');
+    if (filters.max_per_window != null) filterParts.push('wl' + filters.max_per_window);
+    const filterStr = filterParts.length > 0 ? filterParts.join(' · ') : '';
 
-  if (ca.brier != null && ca.brier < (grad.max_brier || 0.25)) checks.push({name: 'Brier', pass: true, val: caBrier});
-  else checks.push({name: 'Brier', pass: false, val: caBrier + ' (need <' + (grad.max_brier || 0.25) + ')'});
+    // Graduation checks for inline badge
+    let passCount = 0;
+    let totalChecks = 0;
 
-  if (ca.min_day_wr != null && ca.min_day_wr >= (grad.min_day_wr || 0.60)) checks.push({name: 'min day', pass: true, val: caMinDayWr});
-  else checks.push({name: 'min day', pass: false, val: caMinDayWr + ' (need ' + ((grad.min_day_wr || 0.60) * 100) + '%)'});
+    // n check (Config B uses min_n)
+    if (grad.min_n != null) { totalChecks++; if (settled >= grad.min_n) passCount++; }
 
-  if (ca.sim_pnl_cents != null && ca.sim_pnl_cents > 0) checks.push({name: 'PnL+', pass: true, val: caPnl});
-  else checks.push({name: 'PnL+', pass: false, val: caPnl});
+    // WR check
+    if (grad.min_wr != null) { totalChecks++; if (wr != null && wr >= grad.min_wr) passCount++; }
 
-  const passCount = checks.filter(c => c.pass).length;
-  const allPass = passCount === checks.length;
-  const checksHtml = checks.map(c => {
-    const icon = c.pass ? '&#10003;' : '&#10007;';
-    const color = c.pass ? 'var(--green-0)' : 'var(--red-0, var(--text-3))';
-    return `<span style="color:${color};font-size:11px;margin-right:10px">${icon} ${c.name}: ${c.val || '—'}</span>`;
-  }).join('');
+    // Wilson checks — Config A uses min_wilson_lower, Config B uses min_wilson_margin_over_be
+    if (grad.min_wilson_lower != null) { totalChecks++; if (wilson != null && wilson >= grad.min_wilson_lower) passCount++; }
+    if (grad.min_wilson_margin_over_be != null) {
+      totalChecks++;
+      const margin = cfg.wilson_margin_over_be ?? 0;
+      if (margin >= grad.min_wilson_margin_over_be) passCount++;
+    }
 
-  const gradBadgeClass = allPass ? 'ready' : (passCount >= 4 ? 'collecting' : 'not-ready');
-  const gradBadgeText = allPass ? 'READY TO PROMOTE' : passCount + '/' + checks.length + ' graduation checks passed';
+    // Brier check
+    if (grad.max_brier != null) { totalChecks++; if (brier != null && brier < grad.max_brier) passCount++; }
 
+    // Days check
+    if (grad.days_required != null) { totalChecks++; if ((cfg.days ?? 0) >= grad.days_required) passCount++; }
+
+    // Min day WR check
+    if (grad.min_day_wr != null) { totalChecks++; if (cfg.min_day_wr != null && cfg.min_day_wr >= grad.min_day_wr) passCount++; }
+
+    // PnL positive check
+    if (grad.pnl_positive) { totalChecks++; if (pnlCents > 0) passCount++; }
+
+    const allPass = totalChecks > 0 && passCount === totalChecks;
+    const badgeClass = allPass ? 'ready' : (passCount >= Math.ceil(totalChecks * 0.6) ? 'collecting' : 'not-ready');
+    const badgeText = allPass ? 'READY' : passCount + '/' + totalChecks;
+
+    // Color-coded cells
+    const wrDisplay = wr != null ? (wr * 100).toFixed(1) + '%' : '—';
+    const wrCell = gradCell(wr, wrDisplay, v => v >= (grad.min_wr || 0.78));
+
+    // Wilson display — show margin over BE for Config B
+    let wilsonDisplay = wilson != null ? (wilson * 100).toFixed(1) + '%' : '—';
+    let wilsonCell;
+    if (grad.min_wilson_margin_over_be != null) {
+      const margin = cfg.wilson_margin_over_be ?? 0;
+      wilsonDisplay = wilson != null ? (wilson * 100).toFixed(1) + '%' : '—';
+      if (wilson != null) wilsonDisplay += ' (' + (margin >= 0 ? '+' : '') + (margin * 100).toFixed(1) + 'pp)';
+      wilsonCell = gradCell(margin, wilsonDisplay, v => v >= grad.min_wilson_margin_over_be);
+    } else {
+      wilsonCell = gradCell(wilson, wilsonDisplay, v => v >= (grad.min_wilson_lower || 0.72));
+    }
+
+    const brierDisplay = brier != null ? brier.toFixed(3) : '—';
+    const brierCell = grad.max_brier != null ? gradCell(brier, brierDisplay, v => v < grad.max_brier) : plainCell(brierDisplay);
+
+    const pnlDisplay = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toFixed(2);
+    const pnlCell = gradCell(pnlCents, pnlDisplay, v => v > 0);
+
+    return `<tr style="border-top:1px solid var(--bg-3)">
+      <td style="padding:4px 6px">
+        <strong>${escHtml(label)}</strong>
+        <div class="readiness-badge ${badgeClass}" style="display:inline-block;margin-left:6px;font-size:9px;padding:1px 5px;vertical-align:middle">${badgeText}</div>
+        <br><span style="font-size:10px;color:var(--text-3)">${escHtml(filterStr)}</span>
+      </td>
+      ${plainCell(settled)}
+      ${plainCell(wins)}
+      ${wrCell}
+      ${wilsonCell}
+      ${brierCell}
+      ${pnlCell}
+    </tr>`;
+  }
+
+  const thStyle = 'text-align:right;padding:4px 6px;color:var(--text-3);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:0.5px';
   box.innerHTML = `
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap">
-      <span style="font-size:11px;color:var(--text-2)">Filters: no <b>${caExcl}</b> &middot; edge &le; <b>${caMaxEdge}</b></span>
-      <div class="readiness-badge ${gradBadgeClass}" style="margin:0">${gradBadgeText}</div>
-    </div>
-    <table style="width:100%;font-size:11px;border-collapse:collapse;margin-bottom:8px">
-      <tr style="color:var(--text-3);border-bottom:1px solid var(--bg-3)">
-        <th style="text-align:left;padding:3px 6px"></th>
-        <th style="text-align:right;padding:3px 6px">Settled</th>
-        <th style="text-align:right;padding:3px 6px">Wins</th>
-        <th style="text-align:right;padding:3px 6px">WR</th>
-        <th style="text-align:right;padding:3px 6px">Wilson LB</th>
-        <th style="text-align:right;padding:3px 6px">Brier</th>
-        <th style="text-align:right;padding:3px 6px">Sim PnL</th>
-      </tr>
-      <tr style="color:var(--text-2)">
-        <td style="padding:3px 6px">Baseline (all hourly)</td>
-        <td style="text-align:right;padding:3px 6px">${baseSettled}</td>
-        <td style="text-align:right;padding:3px 6px">${baseWins}</td>
-        <td style="text-align:right;padding:3px 6px">${baseWr}</td>
-        <td style="text-align:right;padding:3px 6px">—</td>
-        <td style="text-align:right;padding:3px 6px">—</td>
-        <td style="text-align:right;padding:3px 6px">${baseSimPnl}</td>
-      </tr>
-      <tr style="color:var(--text-1);font-weight:600;border-top:1px solid var(--bg-3)">
-        <td style="padding:3px 6px">Config A</td>
-        <td style="text-align:right;padding:3px 6px">${caSettled}</td>
-        <td style="text-align:right;padding:3px 6px">${caWins}</td>
-        <td style="text-align:right;padding:3px 6px">${caWr}</td>
-        <td style="text-align:right;padding:3px 6px">${caWilson}</td>
-        <td style="text-align:right;padding:3px 6px">${caBrier}</td>
-        <td style="text-align:right;padding:3px 6px">${caPnl}</td>
-      </tr>
-    </table>
-    <div>${checksHtml}</div>`;
+    <table style="width:100%;font-size:12px;border-collapse:collapse">
+      <thead>
+        <tr style="border-bottom:1px solid var(--bg-3)">
+          <th style="text-align:left;padding:4px 6px;${thStyle}">Variant</th>
+          <th style="${thStyle}">Settled</th>
+          <th style="${thStyle}">Wins</th>
+          <th style="${thStyle}">WR</th>
+          <th style="${thStyle}">Wilson LB</th>
+          <th style="${thStyle}">Brier</th>
+          <th style="${thStyle}">Sim PnL</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="color:var(--text-3)">
+          <td style="padding:4px 6px">Baseline (all hourly)</td>
+          ${plainCell(baseSettled)}
+          ${plainCell(baseWins)}
+          ${plainCell(baseWr)}
+          ${plainCell('—')}
+          ${plainCell('—')}
+          ${plainCell(baseSimPnl)}
+        </tr>
+        ${variantRow('Config A', 'No XRP, edge≤0.7%', ca)}
+        ${variantRow('Config B (BTC 70-89c)', 'BTC only, 70-89c, wl2', cb)}
+      </tbody>
+    </table>`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -7628,14 +7643,14 @@ function update(s) {
   try { updateCalibrationGap(s); } catch (e) { console.error('updateCalibrationGap:', e); }
   try { updateCapitalUtilization(s); } catch (e) { console.error('updateCapitalUtilization:', e); }
   try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
-  try { updateShadowVariants(s); } catch (e) { console.error('updateShadowVariants:', e); }
+  // (updateShadowVariants removed — merged into updateHourlyVariants)
   try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
 
   try { updateEGARCHDiagnostics(s); } catch (e) { console.error('updateEGARCHDiagnostics:', e); }
   try { updateEGARCHBlendDiag(s); } catch (e) { console.error('updateEGARCHBlendDiag:', e); }
   try { updateShadowCalPipeline(s); } catch (e) { console.error('updateShadowCalPipeline:', e); }
 
-  try { updateConfigA(s); } catch (e) { console.error('updateConfigA:', e); }
+  try { updateHourlyVariants(s); } catch (e) { console.error('updateHourlyVariants:', e); }
   try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
   try { updateSpxObservation(s); } catch (e) { console.error('updateSpxObservation:', e); }
   try { updateWeatherObservation(s); } catch (e) { console.error('updateWeatherObservation:', e); }
