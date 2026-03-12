@@ -5960,11 +5960,13 @@ function updateHourlyVariants(s) {
 
     // Format filter description
     let filterParts = [];
+    if (filters.included_assets) filterParts.push(filters.included_assets.join('+'));
     if (filters.excluded_assets) filterParts.push('no ' + filters.excluded_assets.join('/'));
     if (filters.max_edge != null) filterParts.push('edge≤' + (filters.max_edge * 100).toFixed(1) + '%');
     if (filters.asset) filterParts.push(filters.asset + ' only');
     if (filters.min_price != null && filters.max_price != null) filterParts.push(filters.min_price + '-' + filters.max_price + 'c');
     if (filters.max_per_window != null) filterParts.push('wl' + filters.max_per_window);
+    if (filters.min_stc != null && filters.max_stc != null) filterParts.push('STC ' + filters.min_stc + '-' + filters.max_stc + 's');
     const filterStr = filterParts.length > 0 ? filterParts.join(' · ') : '';
 
     // Graduation checks for inline badge
@@ -6064,6 +6066,11 @@ function updateHourlyVariants(s) {
         </tr>
         ${variantRow('Config A', 'No XRP, edge≤0.7%', ca)}
         ${variantRow('Config B (BTC 70-89c)', 'BTC only, 70-89c, wl2', cb)}
+        ${variantRow('Config C', '', s.hourly_config_c)}
+        ${variantRow('Config D', '', s.hourly_config_d)}
+        ${variantRow('Config E', '', s.hourly_config_e)}
+        ${variantRow('Config F', '', s.hourly_config_f)}
+        ${variantRow('Config G', '', s.hourly_config_g)}
       </tbody>
     </table>`;
 }
