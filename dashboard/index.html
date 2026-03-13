@@ -5967,6 +5967,10 @@ function updateHourlyVariants(s) {
     if (filters.min_price != null && filters.max_price != null) filterParts.push(filters.min_price + '-' + filters.max_price + 'c');
     if (filters.max_per_window != null) filterParts.push('wl' + filters.max_per_window);
     if (filters.min_stc != null && filters.max_stc != null) filterParts.push('STC ' + filters.min_stc + '-' + filters.max_stc + 's');
+    if (filters.temperature != null) filterParts.push('T=' + filters.temperature);
+    if (filters.blend_w != null) filterParts.push(filters.blend_w === 0 ? 'no blend' : 'blend=' + (filters.blend_w * 100).toFixed(0) + '%');
+    if (filters.max_price != null && filters.min_price == null) filterParts.push('≤' + filters.max_price + '¢');
+    if (filters.max_stc != null && filters.min_stc == null) filterParts.push('STC ≤' + (filters.max_stc / 3600).toFixed(0) + 'h');
     const filterStr = filterParts.length > 0 ? filterParts.join(' · ') : '';
 
     // Graduation checks for inline badge
@@ -6071,6 +6075,8 @@ function updateHourlyVariants(s) {
         ${variantRow('Config E', '', s.hourly_config_e)}
         ${variantRow('Config F', '', s.hourly_config_f)}
         ${variantRow('Config G', '', s.hourly_config_g)}
+        ${variantRow('Config H', '', s.hourly_config_h)}
+        ${variantRow('Config I', '', s.hourly_config_i)}
       </tbody>
     </table>`;
 }
@@ -6227,6 +6233,91 @@ function updateWeatherObservation(s) {
     <div class="readiness-badge ${readyClass}">${readyText}</div>
     <div style="font-size:8px;color:var(--text-3);margin-top:2px;text-align:center">Hypothetical — assumes flat 1-contract sizing, no slippage</div>
   </div>`;
+
+  // Weather YES-side shadow variants (capped30, short_stc, capped30_short_stc)
+  const wxVars = d.shadow_variants || {};
+  const wxVarEntries = Object.entries(wxVars);
+  if (wxVarEntries.length > 0) {
+    const wxVarLabels = {
+      'weather_shadow_capped30': 'Capped ≤30¢',
+      'weather_shadow_short_stc': 'Short STC',
+      'weather_shadow_capped30_short_stc': 'Capped+Short',
+    };
+    let wxVarHtml = '<div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--bg-3)">';
+    wxVarHtml += '<div style="font-size:9px;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">YES-Side Shadow Variants</div>';
+    wxVarHtml += '<table style="width:100%;font-size:10px;border-collapse:collapse">';
+    wxVarHtml += '<tr style="color:var(--text-3);font-size:9px"><th style="text-align:left;padding:2px 4px">Variant</th><th>Settled</th><th>WR</th><th>Sim P&L</th></tr>';
+    wxVarEntries.forEach(([stage, v]) => {
+      const label = wxVarLabels[stage] || stage.replace('weather_shadow_', '');
+      const wr = v.count > 0 ? (v.win_rate * 100).toFixed(1) + '%' : '—';
+      const pnl = v.sim_pnl_cents != null ? (v.sim_pnl_cents >= 0 ? '+' : '') + '$' + (v.sim_pnl_cents / 100).toFixed(2) : '—';
+      const pnlColor = v.sim_pnl_cents > 0 ? 'var(--green-0)' : v.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      wxVarHtml += `<tr><td style="padding:2px 4px">${label}</td><td style="text-align:center">${v.count}</td><td style="text-align:center">${wr}</td><td style="text-align:center;color:${pnlColor}">${pnl}</td></tr>`;
+    });
+    wxVarHtml += '</table></div>';
+    box.innerHTML += wxVarHtml;
+  }
+
+  // Weather NO-side shadow panel
+  const wno = s.weather_no_shadow;
+  if (wno && wno.total_signals > 0) {
+    const noWr = wno.settled > 0 ? (wno.wr * 100).toFixed(1) + '%' : '—';
+    const noWlo = wno.wilson_lower > 0 ? (wno.wilson_lower * 100).toFixed(1) + '%' : '—';
+    const noBrier = wno.brier != null ? wno.brier.toFixed(3) : '—';
+    const noPnl = wno.sim_pnl_cents != null ? (wno.sim_pnl_cents >= 0 ? '+' : '') + '$' + (wno.sim_pnl_cents / 100).toFixed(2) : '—';
+    const noPnlColor = (wno.sim_pnl_cents || 0) > 0 ? 'var(--green-0)' : (wno.sim_pnl_cents || 0) < 0 ? 'var(--red-0)' : 'var(--text-2)';
+
+    let noHtml = '<div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--bg-3)">';
+    noHtml += '<div style="font-size:9px;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">NO-Side Shadow</div>';
+    noHtml += '<div class="shadow-metrics" style="margin-bottom:6px">';
+    noHtml += `<div class="shadow-metric"><span class="shadow-metric-label">signals</span><span class="shadow-metric-val">${wno.total_signals}</span></div>`;
+    noHtml += `<div class="shadow-metric"><span class="shadow-metric-label">settled</span><span class="shadow-metric-val">${wno.settled}</span></div>`;
+    noHtml += `<div class="shadow-metric"><span class="shadow-metric-label">WR</span><span class="shadow-metric-val">${noWr}</span></div>`;
+    noHtml += `<div class="shadow-metric"><span class="shadow-metric-label">Wilson LB</span><span class="shadow-metric-val">${noWlo}</span></div>`;
+    noHtml += `<div class="shadow-metric"><span class="shadow-metric-label">Brier</span><span class="shadow-metric-val">${noBrier}</span></div>`;
+    noHtml += `<div class="shadow-metric"><span class="shadow-metric-label">sim P&L</span><span class="shadow-metric-val" style="color:${noPnlColor}">${noPnl}</span></div>`;
+    noHtml += '</div>';
+
+    // Per YES-bucket breakdown
+    const buckets = wno.by_yes_bucket || {};
+    const bucketEntries = Object.entries(buckets);
+    if (bucketEntries.length > 0) {
+      const bucketLabels = {'55-70pct': '55-70%', '70-85pct': '70-85%', '85pct_plus': '85%+'};
+      noHtml += '<div style="font-size:9px;color:var(--text-3);margin-bottom:2px">By YES Confidence</div>';
+      noHtml += '<table style="width:100%;font-size:10px;border-collapse:collapse">';
+      noHtml += '<tr style="color:var(--text-3);font-size:9px"><th style="text-align:left;padding:2px 4px">Bucket</th><th>Settled</th><th>WR</th><th>Sim P&L</th></tr>';
+      bucketEntries.forEach(([bucket, v]) => {
+        const label = bucketLabels[bucket] || bucket;
+        const bWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+        const bPnl = v.sim_pnl_cents != null ? (v.sim_pnl_cents >= 0 ? '+' : '') + '$' + (v.sim_pnl_cents / 100).toFixed(2) : '—';
+        const bPnlColor = (v.sim_pnl_cents || 0) > 0 ? 'var(--green-0)' : (v.sim_pnl_cents || 0) < 0 ? 'var(--red-0)' : 'var(--text-2)';
+        noHtml += `<tr><td style="padding:2px 4px">${label}</td><td style="text-align:center">${v.settled}</td><td style="text-align:center">${bWr}</td><td style="text-align:center;color:${bPnlColor}">${bPnl}</td></tr>`;
+      });
+      noHtml += '</table>';
+    }
+
+    // Per-city breakdown
+    const cities = wno.by_city || {};
+    const cityEntries = Object.entries(cities);
+    if (cityEntries.length > 0) {
+      const cityLabels = {'KXHIGHNY': 'NYC', 'KXHIGHCHI': 'CHI', 'KXHIGHMIA': 'MIA', 'KXHIGHDEN': 'DEN', 'KXHIGHLAX': 'LAX'};
+      noHtml += '<div style="font-size:9px;color:var(--text-3);margin-bottom:2px;margin-top:4px">By City</div>';
+      noHtml += '<table style="width:100%;font-size:10px;border-collapse:collapse">';
+      noHtml += '<tr style="color:var(--text-3);font-size:9px"><th style="text-align:left;padding:2px 4px">City</th><th>Settled</th><th>WR</th><th>Sim P&L</th></tr>';
+      cityEntries.forEach(([city, v]) => {
+        const label = cityLabels[city] || city;
+        const cWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+        const cPnl = v.sim_pnl_cents != null ? (v.sim_pnl_cents >= 0 ? '+' : '') + '$' + (v.sim_pnl_cents / 100).toFixed(2) : '—';
+        const cPnlColor = (v.sim_pnl_cents || 0) > 0 ? 'var(--green-0)' : (v.sim_pnl_cents || 0) < 0 ? 'var(--red-0)' : 'var(--text-2)';
+        noHtml += `<tr><td style="padding:2px 4px">${label}</td><td style="text-align:center">${v.settled}</td><td style="text-align:center">${cWr}</td><td style="text-align:center;color:${cPnlColor}">${cPnl}</td></tr>`;
+      });
+      noHtml += '</table>';
+    }
+
+    noHtml += '<div style="font-size:8px;color:var(--text-3);margin-top:2px;text-align:center">Fixed 1-contract sizing, NO side</div>';
+    noHtml += '</div>';
+    box.innerHTML += noHtml;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
