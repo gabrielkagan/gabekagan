@@ -2496,7 +2496,7 @@ body::before {
 
   <!-- STC Shadow Counterfactual -->
   <div class="cell shadow-panel" id="stcShadowCell" style="grid-column:span 4">
-    <div class="cell-label">STC SHADOW ZONE (500-900s) <span class="tag" style="background:var(--violet-bg);color:var(--violet-0)">SHADOW</span></div>
+    <div class="cell-label">STC SHADOW ZONE (600-900s) <span class="tag" style="background:var(--violet-bg);color:var(--violet-0)">SHADOW</span></div>
     <div id="stcShadowBody" style="font-family:var(--mono);font-size:12px">
       <div style="text-align:center;color:var(--text-3)">Loading...</div>
     </div>
@@ -7517,7 +7517,7 @@ function updateStcShadow(s) {
       <div style="grid-column:1/-1"><div style="color:var(--text-3);font-size:10px">SIMULATED P&L</div><div style="font-size:22px;font-weight:700;color:${pnlColor}">${d.sim_pnl_cents >= 0 ? '+' : ''}$${pnl}</div></div>
     </div>
     <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border-0);font-size:11px;color:var(--text-2)">
-      Money ${d.sim_pnl_cents >= 0 ? 'left on table' : 'saved'} by shadow gating STC 500-900s
+      Money ${d.sim_pnl_cents >= 0 ? 'left on table' : 'saved'} by shadow gating STC 600-900s
     </div>`;
 }
 
