@@ -2545,6 +2545,17 @@ body::before {
     </div>
   </div>
 
+  <!-- Weather NO-side Live Performance -->
+  <div class="cell shadow-panel" style="grid-column:span 4">
+    <div class="cell-label">
+      Weather NO-Side Live
+      <span class="tag" id="weatherNoLiveTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elWeatherNoLive">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Sports Comeback Observation -->
   <div class="cell shadow-panel" style="grid-column:span 4">
     <div class="cell-label">
@@ -6321,6 +6332,117 @@ function updateWeatherObservation(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// WEATHER NO-SIDE LIVE PERFORMANCE
+// ═══════════════════════════════════════════════════════════════════════
+function updateWeatherNoLive(s) {
+  const d = s.weather_no_live;
+  const box = $('elWeatherNoLive');
+  const tag = $('weatherNoLiveTag');
+  if (!d) {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">No data</div>';
+    tag.textContent = '—';
+    return;
+  }
+
+  // Tag
+  const isLive = d.live;
+  if (d.trades > 0) {
+    tag.textContent = d.trades + ' TRADES';
+    tag.style.background = 'var(--green-bg)';
+    tag.style.color = 'var(--green-0)';
+  } else if (isLive) {
+    tag.textContent = 'LIVE';
+    tag.style.background = 'var(--green-bg)';
+    tag.style.color = 'var(--green-0)';
+  } else {
+    tag.textContent = 'ARMED';
+    tag.style.background = 'var(--amber-bg)';
+    tag.style.color = 'var(--amber-0)';
+  }
+
+  const trades = d.trades || 0;
+  const wins = d.wins || 0;
+  const losses = trades - wins;
+  const wr = trades > 0 ? (d.wr * 100).toFixed(1) + '%' : '—';
+  const pnl = (d.pnl_cents / 100).toFixed(2);
+  const wrColor = d.wr >= 0.65 ? 'var(--green-0)' : d.wr >= 0.50 ? 'var(--amber-0)' : trades > 0 ? 'var(--red-0)' : 'var(--text-2)';
+  const pnlColor = d.pnl_cents > 0 ? 'var(--green-0)' : d.pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+
+  let html = '';
+
+  // Status banner
+  if (!isLive) {
+    html += '<div style="padding:6px 8px;margin-bottom:8px;border-radius:var(--radius-sm);background:var(--amber-bg);color:var(--amber-0);font-size:10px;text-align:center">Kill switch OFF &mdash; launches March 20</div>';
+  }
+
+  // Four-column metric cards
+  html += `<div style="display:flex;gap:12px;margin-bottom:8px">
+    <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Trades</div>
+      <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${trades}</div>
+    </div>
+    <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">W / L</div>
+      <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${wins} / ${losses}</div>
+    </div>
+    <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Win Rate</div>
+      <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${wrColor}">${wr}</div>
+    </div>
+    <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Real PnL</div>
+      <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${pnlColor}">${d.pnl_cents >= 0 ? '+' : ''}$${pnl}</div>
+    </div>
+  </div>`;
+
+  // By YES Probability Bucket
+  const buckets = d.by_yes_bucket || {};
+  const bucketEntries = Object.entries(buckets);
+  if (bucketEntries.length > 0) {
+    const bucketLabels = {'55-70pct': '55-70%', '70-85pct': '70-85%', '85pct_plus': '85%+'};
+    html += '<div style="font-size:9px;color:var(--text-3);margin-bottom:2px;text-transform:uppercase;letter-spacing:0.5px">By YES Probability</div>';
+    html += '<table style="width:100%;font-size:10px;border-collapse:collapse;margin-bottom:6px">';
+    html += '<tr style="color:var(--text-3);font-size:9px"><th style="text-align:left;padding:2px 4px">Bucket</th><th>Trades</th><th>WR</th><th>PnL</th></tr>';
+    bucketEntries.forEach(([bucket, v]) => {
+      const label = bucketLabels[bucket] || bucket;
+      const bWr = v.n > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const bPnl = (v.pnl_cents / 100).toFixed(2);
+      const bWrColor = v.wr >= 0.65 ? 'var(--green-0)' : v.wr >= 0.50 ? 'var(--amber-0)' : v.n > 0 ? 'var(--red-0)' : 'var(--text-2)';
+      const bPnlColor = v.pnl_cents > 0 ? 'var(--green-0)' : v.pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      html += `<tr style="border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">${label}</td><td style="text-align:center">${v.n}</td><td style="text-align:center;color:${bWrColor}">${bWr}</td><td style="text-align:center;color:${bPnlColor}">${v.pnl_cents >= 0 ? '+' : ''}$${bPnl}</td></tr>`;
+    });
+    html += '</table>';
+  }
+
+  // By City
+  const cities = d.by_city || {};
+  const cityEntries = Object.entries(cities);
+  if (cityEntries.length > 0) {
+    const cityLabels = {'NYC_TEMP': 'NYC', 'CHI_TEMP': 'CHI', 'MIA_TEMP': 'MIA', 'DEN_TEMP': 'DEN', 'LAX_TEMP': 'LAX'};
+    html += '<div style="font-size:9px;color:var(--text-3);margin-bottom:2px;text-transform:uppercase;letter-spacing:0.5px">By City</div>';
+    html += '<table style="width:100%;font-size:10px;border-collapse:collapse">';
+    html += '<tr style="color:var(--text-3);font-size:9px"><th style="text-align:left;padding:2px 4px">City</th><th>Trades</th><th>WR</th><th>PnL</th></tr>';
+    cityEntries.forEach(([city, v]) => {
+      const label = cityLabels[city] || city;
+      const cWr = v.n > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const cPnl = (v.pnl_cents / 100).toFixed(2);
+      const cWrColor = v.wr >= 0.65 ? 'var(--green-0)' : v.wr >= 0.50 ? 'var(--amber-0)' : v.n > 0 ? 'var(--red-0)' : 'var(--text-2)';
+      const cPnlColor = v.pnl_cents > 0 ? 'var(--green-0)' : v.pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      html += `<tr style="border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">${label}</td><td style="text-align:center">${v.n}</td><td style="text-align:center;color:${cWrColor}">${cWr}</td><td style="text-align:center;color:${cPnlColor}">${v.pnl_cents >= 0 ? '+' : ''}$${cPnl}</td></tr>`;
+    });
+    html += '</table>';
+  }
+
+  if (trades === 0) {
+    html += '<div style="padding:8px;text-align:center;color:var(--text-3);font-size:11px">No trades yet &mdash; populates after March 20 launch</div>';
+  } else {
+    html += '<div style="font-size:8px;color:var(--text-3);margin-top:4px;text-align:center">Fixed 1-contract sizing, real PnL (fees deducted)</div>';
+  }
+
+  box.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // SPORTS COMEBACK OBSERVATION
 // ═══════════════════════════════════════════════════════════════════════
 function updateSportsObservation(s) {
@@ -7752,6 +7874,7 @@ function update(s) {
   try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
   try { updateSpxObservation(s); } catch (e) { console.error('updateSpxObservation:', e); }
   try { updateWeatherObservation(s); } catch (e) { console.error('updateWeatherObservation:', e); }
+  try { updateWeatherNoLive(s); } catch (e) { console.error('updateWeatherNoLive:', e); }
   try { updateSportsObservation(s); } catch (e) { console.error('updateSportsObservation:', e); }
   try { updateSportsStrongConfig(s); } catch (e) { console.error('updateSportsStrongConfig:', e); }
   try { updateCapitalAllocation(s); } catch (e) { console.error('updateCapitalAllocation:', e); }
