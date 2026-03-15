@@ -2545,6 +2545,17 @@ body::before {
     </div>
   </div>
 
+  <!-- Hourly NO-Side Overconfidence -->
+  <div class="cell shadow-panel" style="grid-column:span 4">
+    <div class="cell-label">
+      Hourly NO-Side (Overconfidence)
+      <span class="tag" style="background:var(--bg-2);color:var(--text-3)">SHADOW</span>
+    </div>
+    <div id="elHourlyNoSide">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Weather Observation -->
   <div class="cell shadow-panel" style="grid-column:span 4">
     <div class="cell-label">
@@ -6265,6 +6276,76 @@ function updateSpxVariants(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// HOURLY NO-SIDE OVERCONFIDENCE
+// ═══════════════════════════════════════════════════════════════════════
+function updateHourlyNoSide(s) {
+  const d = s.hourly_no_side;
+  const box = $('elHourlyNoSide');
+  if (!d || typeof d !== 'object' || Object.keys(d).length === 0) {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">No hourly NO-side data yet</div>';
+    return;
+  }
+
+  let html = '';
+  for (const asset of ['XRP', 'SOL']) {
+    const a = d[asset];
+    if (!a) continue;
+    const settled = a.settled ?? 0;
+    const wr = settled > 0 ? (a.wr * 100).toFixed(1) + '%' : '—';
+    const wLo = a.wilson_lower != null ? (a.wilson_lower * 100).toFixed(1) + '%' : '—';
+    const beWr = a.be_wr != null ? (a.be_wr * 100).toFixed(1) + '%' : '—';
+    const margin = settled > 0 && a.be_wr != null ? ((a.wr - a.be_wr) * 100).toFixed(1) : '—';
+    const marginColor = margin !== '—' && parseFloat(margin) > 5 ? 'var(--green)' : margin !== '—' && parseFloat(margin) > 0 ? '#e2b93d' : 'var(--red)';
+    const pnl = (a.sim_pnl_cents ?? 0) / 100;
+    const pnlColor = pnl > 0 ? 'var(--green)' : pnl < 0 ? 'var(--red)' : 'var(--text-2)';
+    const minPred = a.min_yes_pred ? (a.min_yes_pred * 100).toFixed(0) + '%+' : '';
+
+    html += `<div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+        <span style="font-weight:700;font-size:12px">${asset}</span>
+        <span style="font-size:9px;color:var(--text-3)">YES pred ≥ ${minPred}</span>
+      </div>
+      <div class="shadow-metrics" style="margin-bottom:6px">
+        <div class="shadow-metric"><span class="shadow-metric-label">settled</span><span class="shadow-metric-val">${settled}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">NO WR</span><span class="shadow-metric-val">${wr}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">Wilson LB</span><span class="shadow-metric-val">${wLo}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">BE WR</span><span class="shadow-metric-val">${beWr}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">margin</span><span class="shadow-metric-val" style="color:${marginColor}">${margin}pp</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">sim PnL</span><span class="shadow-metric-val" style="color:${pnlColor}">$${pnl.toFixed(2)}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">pending</span><span class="shadow-metric-val">${a.pending ?? 0}</span></div>
+      </div>`;
+
+    // Bucket breakdown
+    const bk = a.buckets;
+    if (bk && bk.length > 0) {
+      html += `<table style="width:100%;font-size:10px;border-collapse:collapse;margin-top:2px">
+        <thead><tr style="color:var(--text-3);font-size:8px;text-transform:uppercase;letter-spacing:0.4px">
+          <th style="text-align:left;padding:2px 4px">YES Pred</th>
+          <th style="text-align:right;padding:2px 4px">n</th>
+          <th style="text-align:right;padding:2px 4px">NO WR</th>
+          <th style="text-align:right;padding:2px 4px">Avg NO ¢</th>
+        </tr></thead><tbody>`;
+      for (const b of bk) {
+        const bwr = b.n > 0 ? (b.wr * 100).toFixed(1) + '%' : '—';
+        html += `<tr>
+          <td style="padding:2px 4px">${b.label}</td>
+          <td style="text-align:right;padding:2px 4px">${b.n}</td>
+          <td style="text-align:right;padding:2px 4px">${bwr}</td>
+          <td style="text-align:right;padding:2px 4px">${b.avg_no_price}c</td>
+        </tr>`;
+      }
+      html += '</tbody></table>';
+    }
+    html += '</div>';
+  }
+
+  html += '<div style="font-size:8px;color:var(--text-3);margin-top:4px;text-align:center">';
+  html += 'Model overconfidence on YES → actual NO rate far exceeds breakeven. Flat 1-contract sim.';
+  html += '</div>';
+  box.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // WEATHER OBSERVATION
 // ═══════════════════════════════════════════════════════════════════════
 function updateWeatherObservation(s) {
@@ -8042,6 +8123,7 @@ function update(s) {
   try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
   try { updateSpxObservation(s); } catch (e) { console.error('updateSpxObservation:', e); }
   try { updateSpxVariants(s); } catch (e) { console.error('updateSpxVariants:', e); }
+  try { updateHourlyNoSide(s); } catch (e) { console.error('updateHourlyNoSide:', e); }
   try { updateWeatherObservation(s); } catch (e) { console.error('updateWeatherObservation:', e); }
   try { updateWeatherNoLive(s); } catch (e) { console.error('updateWeatherNoLive:', e); }
   try { updateSportsObservation(s); } catch (e) { console.error('updateSportsObservation:', e); }
