@@ -2578,6 +2578,17 @@ body::before {
     </div>
   </div>
 
+  <!-- Sports NBA Variants (Core + Wide) -->
+  <div class="cell shadow-panel" style="grid-column:span 4">
+    <div class="cell-label">
+      Sports NBA Variants
+      <span class="tag" id="sportsVariantsTag" style="background:var(--amber-bg);color:var(--amber-0);border:1px solid var(--amber-border)">SHADOW</span>
+    </div>
+    <div id="elSportsVariants">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Hourly Alt Shadow Strategies (ETH/SOL/XRP) -->
   <div class="cell shadow-panel" id="altShadowCell" style="grid-column:span 4">
     <div class="shadow-badge">SHADOW</div>
@@ -6586,6 +6597,83 @@ function updateSportsStrongConfig(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// SPORTS NBA VARIANTS (CORE + WIDE)
+// ═══════════════════════════════════════════════════════════════════════
+function updateSportsVariants(s) {
+  const d = s.sports_variants;
+  const box = $('elSportsVariants');
+  if (!d || typeof d !== 'object') {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">No variant data yet — nba_variant column needs deploy</div>';
+    return;
+  }
+
+  // State for expanded game log
+  if (window._sportsVarExpanded === undefined) window._sportsVarExpanded = {};
+
+  function wilsonColor(ciLo) {
+    if (ciLo >= 0.65) return 'var(--green-0)';
+    if (ciLo >= 0.50) return 'var(--amber-0)';
+    return 'var(--red-0)';
+  }
+
+  function renderVariant(label, vkey, data, criteria) {
+    if (!data || !data.games) {
+      return `<div style="margin-bottom:8px;padding:6px;background:var(--bg-2);border-radius:4px">
+        <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">${label}</div>
+        <div class="shadow-metric"><span class="shadow-metric-label">no settled games yet</span></div>
+      </div>`;
+    }
+    const wr = (data.win_rate * 100).toFixed(1);
+    const ciLo = (data.wilson_ci_lo * 100).toFixed(1);
+    const ciHi = (data.wilson_ci_hi * 100).toFixed(1);
+    const pnl = (data.sim_pnl_cents / 100).toFixed(2);
+    const pnlColor = data.sim_pnl_cents >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+    const wrColor = data.win_rate >= 0.70 ? 'var(--green-0)' : data.win_rate >= 0.55 ? 'var(--amber-0)' : 'var(--red-0)';
+    const pending = data.pending || 0;
+
+    const expanded = window._sportsVarExpanded[vkey] || false;
+    const toggleId = 'sportsVar_' + vkey;
+
+    let html = `<div style="margin-bottom:8px;padding:6px;background:var(--bg-2);border-radius:4px">
+      <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">${label}</div>
+      <div style="font-size:7px;color:var(--text-3);margin-bottom:4px">${criteria}</div>
+      <div class="shadow-metrics">
+        <div class="shadow-metric"><span class="shadow-metric-label">games</span><span class="shadow-metric-val">${data.games}${pending ? ' (+' + pending + ' pending)' : ''}</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">record</span><span class="shadow-metric-val">${data.wins}W/${data.losses}L</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">WR</span><span class="shadow-metric-val" style="color:${wrColor}">${wr}%</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">Wilson 95%</span><span class="shadow-metric-val" style="color:${wilsonColor(data.wilson_ci_lo)}">[${ciLo}%, ${ciHi}%]</span></div>
+        <div class="shadow-metric"><span class="shadow-metric-label">sim PnL</span><span class="shadow-metric-val" style="color:${pnlColor}">$${pnl}</span></div>
+      </div>`;
+
+    // Game log toggle
+    if (data.game_log && data.game_log.length > 0) {
+      html += `<div style="margin-top:4px"><button onclick="window._sportsVarExpanded['${vkey}']=!window._sportsVarExpanded['${vkey}'];updateSportsVariants(lastSnapshot)" style="font-size:8px;padding:1px 6px;border:1px solid var(--bg-3);border-radius:3px;background:var(--bg-2);color:var(--text-3);cursor:pointer">${expanded ? 'hide games' : 'show ' + data.game_log.length + ' games'}</button></div>`;
+      if (expanded) {
+        html += '<div style="margin-top:4px;max-height:300px;overflow-y:auto"><table style="width:100%;font-size:8px;border-collapse:collapse">';
+        html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--bg-3)"><th style="text-align:left;padding:2px 4px">Date</th><th style="text-align:left;padding:2px 4px">Teams</th><th style="padding:2px 4px">Preg</th><th style="padding:2px 4px">Def</th><th style="padding:2px 4px">Ask</th><th style="padding:2px 4px">TRP</th><th style="padding:2px 4px">Result</th><th style="padding:2px 4px;text-align:right">PnL</th></tr>';
+        data.game_log.forEach(g => {
+          const res = g.won ? 'W' : 'L';
+          const resColor = g.won ? 'var(--green-0)' : 'var(--red-0)';
+          const pnlG = (g.pnl / 100).toFixed(2);
+          const teams = g.teams.length > 34 ? g.teams.substring(0, 34) + '…' : g.teams;
+          html += `<tr style="border-bottom:1px solid var(--bg-3)"><td style="padding:2px 4px">${g.date.slice(5)}</td><td style="padding:2px 4px">${teams}</td><td style="padding:2px 4px;text-align:center">${g.pregame}%</td><td style="padding:2px 4px;text-align:center">${g.deficit}</td><td style="padding:2px 4px;text-align:center">${g.ask}c</td><td style="padding:2px 4px;text-align:center">${g.trp}%</td><td style="padding:2px 4px;text-align:center;color:${resColor};font-weight:600">${res}</td><td style="padding:2px 4px;text-align:right;color:${resColor}">$${pnlG}</td></tr>`;
+        });
+        html += '</table></div>';
+      }
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  let html = '';
+  html += renderVariant('NBA Core', 'core', d.core, 'pregame ≥65%, deficit ≤1, Q1 only (TRP >75%), price ≤70c');
+  html += renderVariant('NBA Wide', 'wide', d.wide, 'pregame ≥65%, deficit ≤3, TRP >25%');
+  html += '<div style="font-size:8px;color:var(--text-3);margin-top:4px">Promotion gate: Core ≥40 games with WR >80%. Tennis, hockey, soccer excluded.</div>';
+  box.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // CAPITAL ALLOCATION
 // ═══════════════════════════════════════════════════════════════════════
 function updateCapitalAllocation(s) {
@@ -7881,6 +7969,7 @@ function update(s) {
   try { updateWeatherNoLive(s); } catch (e) { console.error('updateWeatherNoLive:', e); }
   try { updateSportsObservation(s); } catch (e) { console.error('updateSportsObservation:', e); }
   try { updateSportsStrongConfig(s); } catch (e) { console.error('updateSportsStrongConfig:', e); }
+  try { updateSportsVariants(s); } catch (e) { console.error('updateSportsVariants:', e); }
   try { updateCapitalAllocation(s); } catch (e) { console.error('updateCapitalAllocation:', e); }
 
   try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
