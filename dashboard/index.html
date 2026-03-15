@@ -2534,6 +2534,17 @@ body::before {
     </div>
   </div>
 
+  <!-- SPX Shadow Variants -->
+  <div class="cell shadow-panel" style="grid-column:span 4">
+    <div class="cell-label">
+      SPX Calibration Variants
+      <span class="tag" style="background:var(--bg-2);color:var(--text-3)">SHADOW</span>
+    </div>
+    <div id="elSpxVariants">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Weather Observation -->
   <div class="cell shadow-panel" style="grid-column:span 4">
     <div class="cell-label">
@@ -6189,6 +6200,71 @@ function updateSpxObservation(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// SPX CALIBRATION VARIANTS
+// ═══════════════════════════════════════════════════════════════════════
+function updateSpxVariants(s) {
+  const v = s.spx_variants;
+  const box = $('elSpxVariants');
+  if (!v || typeof v !== 'object' || Object.keys(v).length === 0) {
+    box.innerHTML = '<div class="empty" style="padding:12px;color:var(--text-3)">No SPX variant data yet</div>';
+    return;
+  }
+
+  const order = ['spx_a','spx_b','spx_c','spx_d','spx_e'];
+  let rows = '';
+  let bestPnl = -Infinity, bestId = '';
+  for (const id of order) {
+    const d = v[id];
+    if (!d) continue;
+    const pnl = d.sim_pnl_cents ?? 0;
+    if (pnl > bestPnl) { bestPnl = pnl; bestId = id; }
+  }
+
+  for (const id of order) {
+    const d = v[id];
+    if (!d) continue;
+    const settled = d.settled ?? 0;
+    const wr = settled > 0 ? (d.wr * 100).toFixed(1) + '%' : '—';
+    const wilsonLb = d.wilson_ci_lower != null ? (d.wilson_ci_lower * 100).toFixed(1) + '%' : '—';
+    const brier = d.brier != null ? d.brier.toFixed(3) : '—';
+    const pnlCents = d.sim_pnl_cents ?? 0;
+    const pnl = '$' + (pnlCents / 100).toFixed(2);
+    const pnlColor = pnlCents > 0 ? 'var(--green)' : pnlCents < 0 ? 'var(--red)' : 'var(--text-2)';
+    const pending = d.pending ?? 0;
+    const isBest = id === bestId && settled >= 10;
+    const highlight = isBest ? 'background:rgba(46,204,113,0.08);' : '';
+    rows += `<tr style="${highlight}">
+      <td style="font-weight:600">${id.replace('spx_','').toUpperCase()}</td>
+      <td style="font-size:9px;color:var(--text-3)">${d.label ?? ''}</td>
+      <td>${settled}</td>
+      <td>${wr}</td>
+      <td>${wilsonLb}</td>
+      <td>${brier}</td>
+      <td style="color:${pnlColor}">${pnl}${isBest ? ' ★' : ''}</td>
+      <td style="color:var(--text-3)">${pending}</td>
+    </tr>`;
+  }
+
+  box.innerHTML = `
+    <table style="width:100%;font-size:11px;border-collapse:collapse">
+      <thead><tr style="color:var(--text-3);font-size:9px;text-transform:uppercase;letter-spacing:0.5px">
+        <th style="text-align:left;padding:4px">ID</th>
+        <th style="text-align:left;padding:4px">Config</th>
+        <th style="text-align:right;padding:4px">Settled</th>
+        <th style="text-align:right;padding:4px">WR</th>
+        <th style="text-align:right;padding:4px">Wilson LB</th>
+        <th style="text-align:right;padding:4px">Brier</th>
+        <th style="text-align:right;padding:4px">Sim PnL</th>
+        <th style="text-align:right;padding:4px">Pending</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="font-size:8px;color:var(--text-3);margin-top:4px;text-align:center">
+      Flat 1-contract sim with SPX finance fees (3.5% taker). ★ = best PnL (n≥10).
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // WEATHER OBSERVATION
 // ═══════════════════════════════════════════════════════════════════════
 function updateWeatherObservation(s) {
@@ -7965,6 +8041,7 @@ function update(s) {
   try { updateHourlyVariants(s); } catch (e) { console.error('updateHourlyVariants:', e); }
   try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
   try { updateSpxObservation(s); } catch (e) { console.error('updateSpxObservation:', e); }
+  try { updateSpxVariants(s); } catch (e) { console.error('updateSpxVariants:', e); }
   try { updateWeatherObservation(s); } catch (e) { console.error('updateWeatherObservation:', e); }
   try { updateWeatherNoLive(s); } catch (e) { console.error('updateWeatherNoLive:', e); }
   try { updateSportsObservation(s); } catch (e) { console.error('updateSportsObservation:', e); }
