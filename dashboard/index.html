@@ -2010,8 +2010,8 @@ body::before {
     <div class="up-card"><div class="up-label">Balance</div><div class="up-val" id="upBalance">$—</div></div>
     <div class="up-card"><div class="up-label">Today PnL</div><div class="up-val" id="upTodayPnl">$0.00</div></div>
     <div class="up-card"><div class="up-label">Lifetime PnL</div><div class="up-val" id="upLifetimePnl">$0.00</div></div>
-    <div class="up-card"><div class="up-label">Today ROI</div><div class="up-val" id="upTodayRoi">0.0%</div></div>
-    <div class="up-card"><div class="up-label">Today Trades</div><div class="up-val" id="upTodayTrades">0</div></div>
+    <div class="up-card"><div class="up-label">Lifetime ROI</div><div class="up-val" id="upTodayRoi">0.0%</div></div>
+    <div class="up-card"><div class="up-label">Total Trades</div><div class="up-val" id="upTodayTrades">0</div></div>
     <div class="up-card"><div class="up-label">Win Rate</div><div class="up-val" id="upWinRate">—</div></div>
     <div class="strat-bar" id="upStratBar"></div>
   </div>
@@ -8237,11 +8237,11 @@ function update(s) {
 // UNIFIED PERFORMANCE PANEL
 // ═══════════════════════════════════════════════════════════════════════
 function updateUnifiedPerf(s) {
-  // Balance in dollars (already converted by snapshot builder)
+  // Balance in dollars
   const bal = s.current_balance ?? 0;
   $('upBalance').textContent = '$' + bal.toFixed(2);
 
-  // Lifetime PnL from all_products_risk_metrics (settled trades only)
+  // Lifetime PnL — net of fees, all products
   const allRisk = s.all_products_risk_metrics ?? s.risk_metrics ?? {};
   const lifetimePnlCents = allRisk.total_pnl_cents ?? 0;
   const lifetimePnl = lifetimePnlCents / 100;
@@ -8249,18 +8249,19 @@ function updateUnifiedPerf(s) {
   ltEl.textContent = (lifetimePnl >= 0 ? '+$' : '-$') + Math.abs(lifetimePnl).toFixed(2);
   ltEl.className = 'up-val ' + (lifetimePnl >= 0 ? 'positive' : 'negative');
 
-  // Today PnL from daily_pnl_cents (same as main balance panel)
+  // Today PnL
   const todayPnlCents = s.daily_pnl_cents ?? 0;
   const todayPnl = todayPnlCents / 100;
   const tdEl = $('upTodayPnl');
   tdEl.textContent = (todayPnl >= 0 ? '+$' : '-$') + Math.abs(todayPnl).toFixed(2);
   tdEl.className = 'up-val ' + (todayPnl >= 0 ? 'positive' : 'negative');
 
-  // Today ROI
-  const todayRoi = bal > 0 ? (todayPnl / bal * 100).toFixed(2) + '%' : '0.0%';
-  $('upTodayRoi').textContent = todayRoi;
+  // Lifetime ROI
+  const startBal = s.starting_balance ?? bal;
+  const roi = startBal > 0 ? (lifetimePnl / startBal * 100).toFixed(1) + '%' : '0.0%';
+  $('upTodayRoi').textContent = roi;
 
-  // Total trades and WR from all_products (covers 15M + hourly + all)
+  // Total trades and WR
   const totalT = allRisk.total_trades ?? ((s.all_products_win_count ?? 0) + (s.all_products_loss_count ?? 0));
   const wc = s.all_products_win_count ?? s.win_count ?? 0;
   const lc = s.all_products_loss_count ?? s.loss_count ?? 0;
@@ -8268,14 +8269,32 @@ function updateUnifiedPerf(s) {
   $('upTodayTrades').textContent = totalT;
   $('upWinRate').textContent = wrT > 0 ? (wc / wrT * 100).toFixed(1) + '%' : '—';
 
-  // Strategy attribution bar
+  // Strategy attribution bar from by_strategy
+  const rta = s.real_trade_analytics ?? {};
+  const byStrat = rta.by_strategy ?? {};
   const bar = $('upStratBar');
   bar.innerHTML = '';
-  if (lifetimePnl !== 0) {
+  // Group strategies
+  const mainKeys = ['MAKER_PATIENT', 'TAKER_NOW', 'MAKER_AGGRESSIVE', 'PANIC_CAPTURE'];
+  const dcKeys = ['decided_t1', 'decided_t1b', 'decided_t2', 'decided_t2_z2', 'decided_t2_z25'];
+  const discKeys = ['weekend_discount', 'overnight_discount'];
+  function sumPnl(keys) { return keys.reduce((s, k) => s + ((byStrat[k] ?? {}).net_pnl ?? 0), 0); }
+  const mainPnl = sumPnl(mainKeys) / 100;
+  const dcPnl = sumPnl(dcKeys) / 100;
+  const discPnl = sumPnl(discKeys) / 100;
+  const hlPnl = ((s.hourly_live ?? {}).pnl_cents ?? 0) / 100;
+  const segs = [
+    {label: '15M', pnl: mainPnl, color: 'var(--blue-0)'},
+    {label: 'DC', pnl: dcPnl, color: 'var(--violet-0)'},
+    {label: 'Disc', pnl: discPnl, color: 'var(--green-0)'},
+    {label: 'Hourly', pnl: hlPnl, color: 'var(--amber-0)'},
+  ].filter(s => s.pnl !== 0);
+  const absTotal = segs.reduce((s, x) => s + Math.abs(x.pnl), 0) || 1;
+  for (const seg of segs) {
     const d = document.createElement('div');
-    d.style.width = '100%';
-    d.style.background = lifetimePnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
-    d.title = 'Lifetime: ' + (lifetimePnl >= 0 ? '+' : '') + '$' + lifetimePnl.toFixed(2) + ' on ' + totalT + ' trades';
+    d.style.width = (Math.abs(seg.pnl) / absTotal * 100) + '%';
+    d.style.background = seg.color;
+    d.title = seg.label + ': ' + (seg.pnl >= 0 ? '+' : '') + '$' + seg.pnl.toFixed(2);
     bar.appendChild(d);
   }
 }
@@ -8296,27 +8315,19 @@ function updateHourlyLive(s) {
     statusEl.className = 'hlp-status off';
   }
 
-  // Split: new sub-60c strategy (after Mar 23) vs legacy Feb 28 disaster
-  // Legacy: 33 trades at 88-95c, -$101.11 PnL (deprecated, not current strategy)
-  const LEGACY_TRADES = 33;
-  const LEGACY_PNL_CENTS = -10111;
-  const totalTrades = hl.trades || 0;
-  const totalPnlCents = hl.pnl_cents || 0;
+  // Backend now splits new strategy from legacy — read directly
+  const trades = hl.trades || 0;
+  const wins = hl.wins || 0;
+  const pnlCents = hl.pnl_cents || 0;
+  const pnl = pnlCents / 100;
 
-  // New strategy = total minus legacy
-  const newTrades = Math.max(0, totalTrades - LEGACY_TRADES);
-  const newWins = Math.max(0, (hl.wins || 0) - 22); // legacy had 22 wins
-  const newPnlCents = totalPnlCents - LEGACY_PNL_CENTS;
-  const newPnl = newPnlCents / 100;
-  const newWR = newTrades > 0 ? (newWins / newTrades * 100).toFixed(1) + '%' : '—';
-
-  $('hlpTrades').textContent = newTrades;
-  $('hlpWins').textContent = newWins;
-  $('hlpWR').textContent = newWR;
+  $('hlpTrades').textContent = trades;
+  $('hlpWins').textContent = wins;
+  $('hlpWR').textContent = trades > 0 ? (hl.wr * 100).toFixed(1) + '%' : '—';
 
   const pnlEl = $('hlpPnl');
-  pnlEl.textContent = (newPnl >= 0 ? '+$' : '-$') + Math.abs(newPnl).toFixed(2);
-  pnlEl.style.color = newPnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+  pnlEl.textContent = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2);
+  pnlEl.style.color = pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
 
   // Per-asset
   const pa = hl.per_asset || {};
@@ -8325,14 +8336,15 @@ function updateHourlyLive(s) {
   $('hlpBTC').textContent = btc.trades ? btc.trades + 't ' + (btc.wr * 100).toFixed(0) + '%' : '0t';
   $('hlpETH').textContent = eth.trades ? eth.trades + 't ' + (eth.wr * 100).toFixed(0) + '%' : '0t';
 
-  // Config + legacy note
+  // Config line
   const cfg = hl.config || {};
-  const fillNote = newTrades === 0 ? ' | Awaiting fills — sub-60c books are thin' : '';
-  const legacyNote = totalTrades > LEGACY_TRADES ? '' : '';
+  const fillNote = trades === 0 ? ' | Awaiting fills' : '';
+  const legacyT = hl.legacy_trades || 0;
+  const legacyPnl = (hl.legacy_pnl_cents || 0) / 100;
+  const legacyNote = legacyT > 0 ? ' | Legacy: ' + legacyT + 't, ' + (legacyPnl >= 0 ? '+' : '') + '$' + legacyPnl.toFixed(0) + ' (deprecated)' : '';
   $('hlpConfig').textContent = 'sub-' + ((cfg.max_entry_price || 59) + 1) + 'c | BTC+ETH | '
-    + (cfg.fixed_contracts || 10) + ' contracts | taker-only | IOC+1c offset'
-    + fillNote
-    + (LEGACY_TRADES > 0 ? ' | Legacy Feb 28: ' + LEGACY_TRADES + 't, -$' + Math.abs(LEGACY_PNL_CENTS/100).toFixed(2) + ' (deprecated 90c+ strategy)' : '');
+    + (cfg.fixed_contracts || 25) + ' contracts | taker-only | IOC+1c'
+    + fillNote + legacyNote;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
