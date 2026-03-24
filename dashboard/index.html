@@ -1902,6 +1902,29 @@ body::before {
 .hlp-metric .hlp-ml { font-size: 8px; font-weight: 600; letter-spacing: 0.7px; text-transform: uppercase; color: var(--text-3); }
 .hlp-metric .hlp-mv { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--text-0); }
 .hlp-config { margin-top: 8px; font-size: 9px; color: var(--text-3); font-family: var(--mono); }
+
+/* Strategy Breakdown Table */
+.strat-table-wrap { grid-column: 1 / -1; margin-bottom: 4px; }
+.strat-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 11px; }
+.strat-table th { font-size: 8px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase;
+  color: var(--text-3); text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--border-0); }
+.strat-table th:first-child { text-align: left; }
+.strat-table td { padding: 5px 8px; text-align: right; border-bottom: 1px solid var(--border-0); color: var(--text-1); }
+.strat-table td:first-child { text-align: left; color: var(--text-0); font-weight: 500; }
+.strat-table .monitoring { font-size: 7px; padding: 1px 5px; border-radius: 8px;
+  background: var(--amber-bg); color: var(--amber-0); border: 1px solid var(--amber-border);
+  margin-left: 4px; vertical-align: middle; }
+.strat-table .pnl-pos { color: var(--green-0); }
+.strat-table .pnl-neg { color: var(--red-0); }
+.strat-table .top-contrib { font-weight: 700; }
+
+/* PnL Chart Filter Buttons */
+.pnl-filters { display: flex; gap: 4px; margin-bottom: 6px; }
+.pnl-filter-btn { font-family: var(--mono); font-size: 9px; font-weight: 600;
+  padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border-1);
+  background: transparent; color: var(--text-2); cursor: pointer; }
+.pnl-filter-btn.active { background: var(--blue-bg); color: var(--blue-0); border-color: var(--blue-border); }
+.pnl-filter-btn:hover { background: var(--bg-3); }
 </style>
 </head>
 <body>
@@ -2033,6 +2056,14 @@ body::before {
     <div class="hlp-config" id="hlpConfig">Config: sub-60c | BTC+ETH | 10 contracts | taker-only | STC 600-1800s</div>
   </div>
 
+  <!-- ══════════════ STRATEGY BREAKDOWN ══════════════ -->
+  <div class="strat-table-wrap" id="stratTableWrap">
+    <table class="strat-table" id="stratTable">
+      <thead><tr><th>Strategy</th><th>Trades</th><th>WR</th><th>PnL</th><th>% Total</th><th>Avg/Trade</th></tr></thead>
+      <tbody id="stratTableBody"><tr><td colspan="6" style="text-align:center;color:var(--text-3)">Loading...</td></tr></tbody>
+    </table>
+  </div>
+
   <!-- ══════════════ TIER 1: PERFORMANCE ══════════════ -->
 
   <!-- Balance -->
@@ -2104,7 +2135,14 @@ body::before {
 
   <!-- Lifetime P&L -->
   <div class="cell pnl-cell">
-    <div class="cell-label">Lifetime P&L</div>
+    <div class="cell-label">Lifetime P&L <span id="pnlFilterLabel" style="font-weight:400;color:var(--text-2)"></span></div>
+    <div class="pnl-filters">
+      <button class="pnl-filter-btn active" onclick="setPnlFilter('all')">ALL</button>
+      <button class="pnl-filter-btn" onclick="setPnlFilter('15m')">15M</button>
+      <button class="pnl-filter-btn" onclick="setPnlFilter('dc')">DC</button>
+      <button class="pnl-filter-btn" onclick="setPnlFilter('hourly')">HOURLY</button>
+      <button class="pnl-filter-btn" onclick="setPnlFilter('discount')">DISC</button>
+    </div>
     <div class="pnl-summary">
       <div class="pnl-stat">Total: <span id="pnlTotal">--</span></div>
       <div class="pnl-stat">Return: <span id="pnlReturn">--</span></div>
@@ -3447,9 +3485,58 @@ function drawPnlChart(s) {
 
   const rta = s.real_trade_analytics;
   const useAll = _dashboardScope === 'all';
-  // Regime has no separate cumulative PnL — use 15M data (same as default)
-  const data = rta && (useAll ? (rta.all_products_cumulative_pnl || rta.cumulative_pnl) : rta.cumulative_pnl);
-  if (!data || !Array.isArray(data) || data.length < 1) return;
+  let rawData = rta && (useAll ? (rta.all_products_cumulative_pnl || rta.cumulative_pnl) : rta.cumulative_pnl);
+  if (!rawData || !Array.isArray(rawData) || rawData.length < 1) return;
+
+  // Strategy filter — recompute cumulative from filtered trades
+  const dcStrats = ['decided_t1','decided_t1b','decided_t2','decided_t2_z2','decided_t2_z25'];
+  const discStrats = ['weekend_discount','overnight_discount'];
+  const mainStrats = ['MAKER_PATIENT','TAKER_NOW','MAKER_AGGRESSIVE','PANIC_CAPTURE'];
+  let filtered = rawData;
+  let filterLabel = '';
+  if (_pnlFilter === '15m') {
+    filtered = rawData.filter(d => d.pt === '15m' && !dcStrats.includes(d.strat) && !discStrats.includes(d.strat));
+    filterLabel = '— 15M MAIN';
+  } else if (_pnlFilter === 'dc') {
+    filtered = rawData.filter(d => dcStrats.includes(d.strat));
+    filterLabel = '— DECIDED CONTRACTS';
+  } else if (_pnlFilter === 'hourly') {
+    filtered = rawData.filter(d => d.pt === 'hourly');
+    filterLabel = '— HOURLY';
+  } else if (_pnlFilter === 'discount') {
+    filtered = rawData.filter(d => discStrats.includes(d.strat));
+    filterLabel = '— WEEKEND / OVERNIGHT';
+  }
+  const labelEl = $('pnlFilterLabel');
+  if (labelEl) labelEl.textContent = filterLabel;
+
+  // Recompute cumulative from individual trade PnL (each entry has cum_pnl for ALL strategies)
+  // We need per-trade net PnL: diff between consecutive cum_pnl values in the ORIGINAL array
+  let data;
+  if (_pnlFilter === 'all') {
+    data = rawData;
+  } else {
+    // Reconstruct per-trade net from original cumulative, then filter and re-accumulate
+    const perTrade = [];
+    for (let i = 0; i < rawData.length; i++) {
+      const prev = i > 0 ? rawData[i-1].cum_pnl : 0;
+      perTrade.push({...rawData[i], net: rawData[i].cum_pnl - prev});
+    }
+    const filteredTrades = perTrade.filter(d => {
+      if (_pnlFilter === '15m') return d.pt === '15m' && !dcStrats.includes(d.strat) && !discStrats.includes(d.strat);
+      if (_pnlFilter === 'dc') return dcStrats.includes(d.strat);
+      if (_pnlFilter === 'hourly') return d.pt === 'hourly';
+      if (_pnlFilter === 'discount') return discStrats.includes(d.strat);
+      return true;
+    });
+    let cum = 0;
+    data = filteredTrades.map(d => { cum += d.net; return {ts: d.ts, cum_pnl: cum}; });
+  }
+  if (data.length < 1) {
+    const elTotal = $('pnlTotal'); if (elTotal) { elTotal.textContent = '$0.00'; elTotal.style.color = 'var(--text-2)'; }
+    const elTrades = $('pnlTrades'); if (elTrades) elTrades.textContent = '0';
+    return;
+  }
 
   const startBal = (s.starting_balance ?? 100) * 100; // cents
 
@@ -8200,6 +8287,7 @@ function update(s) {
   try { updateShadowCalPipeline(s); } catch (e) { console.error('updateShadowCalPipeline:', e); }
 
   try { updateUnifiedPerf(s); } catch (e) { console.error('updateUnifiedPerf:', e); }
+  try { updateStrategyTable(s); } catch (e) { console.error('updateStrategyTable:', e); }
   try { updateHourlyLive(s); } catch (e) { console.error('updateHourlyLive:', e); }
   try { updateHourlyVariants(s); } catch (e) { console.error('updateHourlyVariants:', e); }
   try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
@@ -8297,6 +8385,65 @@ function updateUnifiedPerf(s) {
     d.title = seg.label + ': ' + (seg.pnl >= 0 ? '+' : '') + '$' + seg.pnl.toFixed(2);
     bar.appendChild(d);
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// STRATEGY BREAKDOWN TABLE
+// ═══════════════════════════════════════════════════════════════════════
+function updateStrategyTable(s) {
+  const rta = s.real_trade_analytics || {};
+  const byStrat = rta.by_strategy || {};
+  const hl = s.hourly_live || {};
+
+  const mainKeys = ['MAKER_PATIENT', 'TAKER_NOW', 'MAKER_AGGRESSIVE', 'PANIC_CAPTURE'];
+  const dcKeys = ['decided_t1', 'decided_t1b', 'decided_t2', 'decided_t2_z2', 'decided_t2_z25'];
+  const discKeys = ['weekend_discount', 'overnight_discount'];
+
+  function agg(keys) {
+    let t=0, w=0, p=0;
+    for (const k of keys) { const v = byStrat[k]; if (!v) continue; t += v.count||0; w += v.wins||0; p += v.net_pnl||0; }
+    return {trades: t, wins: w, pnl: p};
+  }
+
+  const rows = [
+    {name: '15M Main', ...agg(mainKeys)},
+    {name: 'Decided Contracts', ...agg(dcKeys)},
+    {name: 'Weekend / Overnight', ...agg(discKeys)},
+    {name: 'Hourly Sub-60c', trades: hl.trades||0, wins: hl.wins||0, pnl: (hl.pnl_cents||0)},
+  ];
+
+  const totalPnl = rows.reduce((s, r) => s + r.pnl, 0) || 1;
+  const maxPnl = Math.max(...rows.map(r => r.pnl));
+
+  const tbody = $('stratTableBody');
+  tbody.innerHTML = '';
+  for (const r of rows) {
+    if (r.trades === 0) continue;
+    const wr = r.trades > 0 ? (r.wins / r.trades * 100).toFixed(1) + '%' : '—';
+    const pnlD = r.pnl / 100;
+    const pct = Math.abs(totalPnl) > 0 ? Math.round(r.pnl / totalPnl * 100) : 0;
+    const avg = r.trades > 0 ? (pnlD / r.trades).toFixed(2) : '0';
+    const isTop = r.pnl === maxPnl;
+    const monitoring = r.trades < 30 ? '<span class="monitoring">monitoring</span>' : '';
+    const cls = pnlD >= 0 ? 'pnl-pos' : 'pnl-neg';
+    const bold = isTop ? ' top-contrib' : '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.name}${monitoring}</td><td>${r.trades}</td><td>${wr}</td>` +
+      `<td class="${cls}${bold}">${pnlD >= 0 ? '+' : ''}$${Math.abs(pnlD).toFixed(2)}</td>` +
+      `<td>${pct}%</td><td>$${avg}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// PNL CHART STRATEGY FILTER
+// ═══════════════════════════════════════════════════════════════════════
+let _pnlFilter = 'all';
+function setPnlFilter(f) {
+  _pnlFilter = f;
+  document.querySelectorAll('.pnl-filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.pnl-filter-btn[onclick*="${f}"]`).classList.add('active');
+  if (lastSnapshot) drawPnlChart(lastSnapshot);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
