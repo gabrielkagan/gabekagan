@@ -8237,29 +8237,25 @@ function update(s) {
 // UNIFIED PERFORMANCE PANEL
 // ═══════════════════════════════════════════════════════════════════════
 function updateUnifiedPerf(s) {
-  const bal = s.current_balance || s.balance_cents;
-  const balD = typeof bal === 'number' ? bal / 100 : 0;
-  const start = s.starting_balance_cents || s.start_balance || 0;
-  const startD = start / 100;
-  const lifetimePnl = balD - startD;
+  // current_balance and starting_balance are already in DOLLARS (not cents)
+  const bal = s.current_balance ?? 0;
+  const startBal = s.starting_balance ?? bal;
+  const lifetimePnl = bal - startBal;
 
-  // Win/loss from session_stats or win_count
+  // Today's PnL from daily_pnl_cents (same source as main balance panel)
+  const todayPnlCents = s.daily_pnl_cents ?? 0;
+  const todayPnl = todayPnlCents / 100;
+
+  // Win/loss from session or regime data
   const wc = s.win_count || 0;
   const lc = s.loss_count || 0;
   const totalT = wc + lc;
   const wr = totalT > 0 ? (wc / totalT * 100).toFixed(1) + '%' : '—';
 
-  // Hourly PnL
-  const hl = s.hourly_live || {};
-  const hlPnl = (hl.pnl_cents || 0) / 100;
-  const hlTrades = hl.trades || 0;
+  const todayRoi = bal > 0 ? (todayPnl / bal * 100).toFixed(2) + '%' : '0.0%';
 
-  // Today's PnL from daily_pnl if available, else from session
-  const todayPnl = ((s.session_pnl_cents || s.pnl_today_cents || 0) / 100) + hlPnl;
+  $('upBalance').textContent = '$' + bal.toFixed(2);
 
-  const todayRoi = balD > 0 ? (todayPnl / balD * 100).toFixed(2) + '%' : '0.0%';
-
-  $('upBalance').textContent = '$' + balD.toFixed(2);
   const tdEl = $('upTodayPnl');
   tdEl.textContent = (todayPnl >= 0 ? '+$' : '-$') + Math.abs(todayPnl).toFixed(2);
   tdEl.className = 'up-val ' + (todayPnl >= 0 ? 'positive' : 'negative');
@@ -8269,35 +8265,17 @@ function updateUnifiedPerf(s) {
   ltEl.className = 'up-val ' + (lifetimePnl >= 0 ? 'positive' : 'negative');
 
   $('upTodayRoi').textContent = todayRoi;
-  $('upTodayTrades').textContent = totalT + hlTrades;
+  $('upTodayTrades').textContent = totalT;
   $('upWinRate').textContent = wr;
 
-  // Strategy attribution bar
-  const dc = s.decided_contracts || {};
-  const dcPnl = (dc.total_pnl_cents || 0) / 100;
-  const mainPnl = todayPnl - dcPnl - hlPnl;
-  const absTot = Math.abs(mainPnl) + Math.abs(dcPnl) + Math.abs(hlPnl) || 1;
+  // Strategy attribution bar (based on today's PnL breakdown if available)
   const bar = $('upStratBar');
   bar.innerHTML = '';
-  if (mainPnl !== 0) {
+  if (todayPnl !== 0) {
     const d = document.createElement('div');
-    d.style.width = (Math.abs(mainPnl) / absTot * 100) + '%';
-    d.style.background = 'var(--blue-0)';
-    d.title = '15M Main: $' + mainPnl.toFixed(2);
-    bar.appendChild(d);
-  }
-  if (dcPnl !== 0) {
-    const d = document.createElement('div');
-    d.style.width = (Math.abs(dcPnl) / absTot * 100) + '%';
-    d.style.background = 'var(--violet-0)';
-    d.title = 'DC: $' + dcPnl.toFixed(2);
-    bar.appendChild(d);
-  }
-  if (hlPnl !== 0) {
-    const d = document.createElement('div');
-    d.style.width = (Math.abs(hlPnl) / absTot * 100) + '%';
-    d.style.background = 'var(--amber-0)';
-    d.title = 'Hourly: $' + hlPnl.toFixed(2);
+    d.style.width = '100%';
+    d.style.background = todayPnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+    d.title = 'Today: ' + (todayPnl >= 0 ? '+' : '') + '$' + todayPnl.toFixed(2);
     bar.appendChild(d);
   }
 }
@@ -8318,13 +8296,17 @@ function updateHourlyLive(s) {
     statusEl.className = 'hlp-status off';
   }
 
-  $('hlpTrades').textContent = hl.trades || 0;
-  $('hlpWins').textContent = hl.wins || 0;
-  $('hlpWR').textContent = hl.trades > 0 ? (hl.wr * 100).toFixed(1) + '%' : '—';
+  const trades = hl.trades || 0;
+  const wins = hl.wins || 0;
+  $('hlpTrades').textContent = trades;
+  $('hlpWins').textContent = wins;
+  $('hlpWR').textContent = trades > 0 ? (hl.wr * 100).toFixed(1) + '%' : '—';
 
   const pnlD = (hl.pnl_cents || 0) / 100;
   const pnlEl = $('hlpPnl');
-  pnlEl.textContent = (pnlD >= 0 ? '+$' : '-$') + Math.abs(pnlD).toFixed(2);
+  // Note: pnl_cents includes old Feb 27-28 live trades (-$101). New sub-60c has zero fills yet.
+  const pnlNote = trades > 30 && pnlD < 0 ? ' (incl. old)' : '';
+  pnlEl.textContent = (pnlD >= 0 ? '+$' : '-$') + Math.abs(pnlD).toFixed(2) + pnlNote;
   pnlEl.style.color = pnlD >= 0 ? 'var(--green-0)' : 'var(--red-0)';
 
   // Per-asset
