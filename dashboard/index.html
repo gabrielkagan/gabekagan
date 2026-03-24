@@ -1851,6 +1851,57 @@ body::before {
 .readiness-badge.ready { background: var(--green-bg); color: var(--green-0); border: 1px solid var(--green-border); }
 .readiness-badge.collecting { background: var(--amber-bg); color: var(--amber-0); border: 1px solid var(--amber-border); }
 .readiness-badge.not-ready { background: var(--red-bg); color: var(--red-0); border: 1px solid var(--red-border); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   UNIFIED PERFORMANCE + HOURLY LIVE PANELS
+   ═══════════════════════════════════════════════════════════════════════ */
+.unified-perf {
+  grid-column: 1 / -1;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px; padding: 12px;
+  background: var(--bg-1); border: 1px solid var(--border-1);
+  border-radius: var(--radius-lg); margin-bottom: 4px;
+}
+.unified-perf .up-title {
+  grid-column: 1 / -1;
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-2); margin-bottom: 2px;
+}
+.unified-perf .up-card {
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  background: var(--bg-2); border: 1px solid var(--border-0);
+}
+.unified-perf .up-card .up-label {
+  font-size: 8px; font-weight: 600; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: 3px;
+}
+.unified-perf .up-card .up-val {
+  font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--text-0);
+}
+.unified-perf .up-card .up-val.positive { color: var(--green-0); }
+.unified-perf .up-card .up-val.negative { color: var(--red-0); }
+.strat-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 6px; grid-column: 1 / -1; }
+.strat-bar > div { height: 100%; }
+
+.hourly-live-panel {
+  padding: 12px; background: var(--bg-1); border: 1px solid var(--border-1);
+  border-radius: var(--radius-lg);
+}
+.hourly-live-panel .hlp-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.hourly-live-panel .hlp-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-2);
+}
+.hlp-status { font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+.hlp-status.live { background: var(--green-bg); color: var(--green-0); border: 1px solid var(--green-border); }
+.hlp-status.off { background: var(--red-bg); color: var(--red-0); border: 1px solid var(--red-border); }
+.hlp-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 6px; }
+.hlp-metric { padding: 6px 8px; background: var(--bg-2); border: 1px solid var(--border-0); border-radius: var(--radius-sm); }
+.hlp-metric .hlp-ml { font-size: 8px; font-weight: 600; letter-spacing: 0.7px; text-transform: uppercase; color: var(--text-3); }
+.hlp-metric .hlp-mv { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--text-0); }
+.hlp-config { margin-top: 8px; font-size: 9px; color: var(--text-3); font-family: var(--mono); }
 </style>
 </head>
 <body>
@@ -1951,6 +2002,35 @@ body::before {
   <div class="live-banner" id="liveBanner">
     <div class="live-banner-dot"></div>
     <span class="live-banner-label">LIVE TRADING &mdash; Real Money</span>
+  </div>
+
+  <!-- ══════════════ UNIFIED PERFORMANCE ══════════════ -->
+  <div class="unified-perf" id="unifiedPerf">
+    <div class="up-title">All Strategies Combined</div>
+    <div class="up-card"><div class="up-label">Balance</div><div class="up-val" id="upBalance">$—</div></div>
+    <div class="up-card"><div class="up-label">Today PnL</div><div class="up-val" id="upTodayPnl">$0.00</div></div>
+    <div class="up-card"><div class="up-label">Lifetime PnL</div><div class="up-val" id="upLifetimePnl">$0.00</div></div>
+    <div class="up-card"><div class="up-label">Today ROI</div><div class="up-val" id="upTodayRoi">0.0%</div></div>
+    <div class="up-card"><div class="up-label">Today Trades</div><div class="up-val" id="upTodayTrades">0</div></div>
+    <div class="up-card"><div class="up-label">Win Rate</div><div class="up-val" id="upWinRate">—</div></div>
+    <div class="strat-bar" id="upStratBar"></div>
+  </div>
+
+  <!-- ══════════════ HOURLY LIVE ══════════════ -->
+  <div class="hourly-live-panel" id="hourlyLivePanel" style="grid-column:1/-1">
+    <div class="hlp-header">
+      <div class="hlp-title">Hourly Crypto (Sub-60c)</div>
+      <div class="hlp-status off" id="hlpStatus">OFF</div>
+    </div>
+    <div class="hlp-metrics" id="hlpMetrics">
+      <div class="hlp-metric"><div class="hlp-ml">Trades</div><div class="hlp-mv" id="hlpTrades">0</div></div>
+      <div class="hlp-metric"><div class="hlp-ml">Wins</div><div class="hlp-mv" id="hlpWins">0</div></div>
+      <div class="hlp-metric"><div class="hlp-ml">Win Rate</div><div class="hlp-mv" id="hlpWR">—</div></div>
+      <div class="hlp-metric"><div class="hlp-ml">PnL</div><div class="hlp-mv" id="hlpPnl">$0.00</div></div>
+      <div class="hlp-metric"><div class="hlp-ml">BTC</div><div class="hlp-mv" id="hlpBTC">—</div></div>
+      <div class="hlp-metric"><div class="hlp-ml">ETH</div><div class="hlp-mv" id="hlpETH">—</div></div>
+    </div>
+    <div class="hlp-config" id="hlpConfig">Config: sub-60c | BTC+ETH | 10 contracts | taker-only | STC 600-1800s</div>
   </div>
 
   <!-- ══════════════ TIER 1: PERFORMANCE ══════════════ -->
@@ -8119,6 +8199,8 @@ function update(s) {
   try { updateEGARCHBlendDiag(s); } catch (e) { console.error('updateEGARCHBlendDiag:', e); }
   try { updateShadowCalPipeline(s); } catch (e) { console.error('updateShadowCalPipeline:', e); }
 
+  try { updateUnifiedPerf(s); } catch (e) { console.error('updateUnifiedPerf:', e); }
+  try { updateHourlyLive(s); } catch (e) { console.error('updateHourlyLive:', e); }
   try { updateHourlyVariants(s); } catch (e) { console.error('updateHourlyVariants:', e); }
   try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
   try { updateSpxObservation(s); } catch (e) { console.error('updateSpxObservation:', e); }
@@ -8149,6 +8231,115 @@ function update(s) {
   try { updateStatusStrip(s); } catch (e) { console.error('updateStatusStrip:', e); }
   // Change 6: Last trade card
   try { updateLastTradeCard(s); } catch (e) { console.error('updateLastTradeCard:', e); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// UNIFIED PERFORMANCE PANEL
+// ═══════════════════════════════════════════════════════════════════════
+function updateUnifiedPerf(s) {
+  const bal = s.current_balance || s.balance_cents;
+  const balD = typeof bal === 'number' ? bal / 100 : 0;
+  const start = s.starting_balance_cents || s.start_balance || 0;
+  const startD = start / 100;
+  const lifetimePnl = balD - startD;
+
+  // Win/loss from session_stats or win_count
+  const wc = s.win_count || 0;
+  const lc = s.loss_count || 0;
+  const totalT = wc + lc;
+  const wr = totalT > 0 ? (wc / totalT * 100).toFixed(1) + '%' : '—';
+
+  // Hourly PnL
+  const hl = s.hourly_live || {};
+  const hlPnl = (hl.pnl_cents || 0) / 100;
+  const hlTrades = hl.trades || 0;
+
+  // Today's PnL from daily_pnl if available, else from session
+  const todayPnl = ((s.session_pnl_cents || s.pnl_today_cents || 0) / 100) + hlPnl;
+
+  const todayRoi = balD > 0 ? (todayPnl / balD * 100).toFixed(2) + '%' : '0.0%';
+
+  $('upBalance').textContent = '$' + balD.toFixed(2);
+  const tdEl = $('upTodayPnl');
+  tdEl.textContent = (todayPnl >= 0 ? '+$' : '-$') + Math.abs(todayPnl).toFixed(2);
+  tdEl.className = 'up-val ' + (todayPnl >= 0 ? 'positive' : 'negative');
+
+  const ltEl = $('upLifetimePnl');
+  ltEl.textContent = (lifetimePnl >= 0 ? '+$' : '-$') + Math.abs(lifetimePnl).toFixed(2);
+  ltEl.className = 'up-val ' + (lifetimePnl >= 0 ? 'positive' : 'negative');
+
+  $('upTodayRoi').textContent = todayRoi;
+  $('upTodayTrades').textContent = totalT + hlTrades;
+  $('upWinRate').textContent = wr;
+
+  // Strategy attribution bar
+  const dc = s.decided_contracts || {};
+  const dcPnl = (dc.total_pnl_cents || 0) / 100;
+  const mainPnl = todayPnl - dcPnl - hlPnl;
+  const absTot = Math.abs(mainPnl) + Math.abs(dcPnl) + Math.abs(hlPnl) || 1;
+  const bar = $('upStratBar');
+  bar.innerHTML = '';
+  if (mainPnl !== 0) {
+    const d = document.createElement('div');
+    d.style.width = (Math.abs(mainPnl) / absTot * 100) + '%';
+    d.style.background = 'var(--blue-0)';
+    d.title = '15M Main: $' + mainPnl.toFixed(2);
+    bar.appendChild(d);
+  }
+  if (dcPnl !== 0) {
+    const d = document.createElement('div');
+    d.style.width = (Math.abs(dcPnl) / absTot * 100) + '%';
+    d.style.background = 'var(--violet-0)';
+    d.title = 'DC: $' + dcPnl.toFixed(2);
+    bar.appendChild(d);
+  }
+  if (hlPnl !== 0) {
+    const d = document.createElement('div');
+    d.style.width = (Math.abs(hlPnl) / absTot * 100) + '%';
+    d.style.background = 'var(--amber-0)';
+    d.title = 'Hourly: $' + hlPnl.toFixed(2);
+    bar.appendChild(d);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// HOURLY LIVE PANEL
+// ═══════════════════════════════════════════════════════════════════════
+function updateHourlyLive(s) {
+  const hl = s.hourly_live;
+  if (!hl) return;
+
+  const statusEl = $('hlpStatus');
+  if (hl.enabled) {
+    statusEl.textContent = 'LIVE';
+    statusEl.className = 'hlp-status live';
+  } else {
+    statusEl.textContent = 'OFF';
+    statusEl.className = 'hlp-status off';
+  }
+
+  $('hlpTrades').textContent = hl.trades || 0;
+  $('hlpWins').textContent = hl.wins || 0;
+  $('hlpWR').textContent = hl.trades > 0 ? (hl.wr * 100).toFixed(1) + '%' : '—';
+
+  const pnlD = (hl.pnl_cents || 0) / 100;
+  const pnlEl = $('hlpPnl');
+  pnlEl.textContent = (pnlD >= 0 ? '+$' : '-$') + Math.abs(pnlD).toFixed(2);
+  pnlEl.style.color = pnlD >= 0 ? 'var(--green-0)' : 'var(--red-0)';
+
+  // Per-asset
+  const pa = hl.per_asset || {};
+  const btc = pa.BTC || {};
+  const eth = pa.ETH || {};
+  $('hlpBTC').textContent = btc.trades ? btc.trades + 't ' + (btc.wr * 100).toFixed(0) + '%' : '0t';
+  $('hlpETH').textContent = eth.trades ? eth.trades + 't ' + (eth.wr * 100).toFixed(0) + '%' : '0t';
+
+  // Config line
+  const cfg = hl.config || {};
+  const note = hl.trades === 0 ? ' | Monitoring fill rate — sub-60c books are thin' : '';
+  $('hlpConfig').textContent = 'Config: sub-' + ((cfg.max_entry_price || 59) + 1) + 'c | BTC+ETH | '
+    + (cfg.fixed_contracts || 10) + ' contracts | taker-only | STC '
+    + ((cfg.stc_range || [600,1800])[0]) + '-' + ((cfg.stc_range || [600,1800])[1]) + 's' + note;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
