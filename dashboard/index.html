@@ -2837,6 +2837,18 @@ body::before {
     </div>
   </div>
 
+  <!-- Weather Bracket NO LIVE -->
+  <div class="cell shadow-panel" id="bracketNoCell" style="grid-column:span 4">
+    <div class="shadow-badge" style="background:var(--green-bg);color:var(--green-0)">LIVE</div>
+    <div class="cell-label">
+      Weather Bracket NO (88-96c)
+      <span class="tag" id="bracketNoTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="bracketNoBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Relaxed Edge Shadow -->
   <div class="cell shadow-panel" id="relaxedEdgeCell" style="grid-column:span 4">
     <div class="shadow-badge">SHADOW</div>
@@ -7738,6 +7750,117 @@ function updateTerminalMomentum(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// WEATHER BRACKET NO LIVE
+// ═══════════════════════════════════════════════════════════════════════
+function updateBracketNo(s) {
+  const d = s.bracket_no_live;
+  const tag = $('bracketNoTag');
+  const body = $('bracketNoBody');
+  if (!d) { if (tag) tag.textContent = '—'; return; }
+
+  const trades = d.trades || 0;
+  const wins = d.wins || 0;
+  const losses = d.losses || 0;
+  const wr = trades > 0 ? (d.wr * 100).toFixed(1) + '%' : '—';
+  const pnl = d.pnl_cents != null ? (d.pnl_cents / 100).toFixed(2) : '0.00';
+  const pnlColor = d.pnl_cents > 0 ? 'var(--green-0)' : d.pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+  const wrColor = d.wr >= 0.90 ? 'var(--green-0)' : d.wr >= 0.80 ? 'var(--amber-0)' : 'var(--red-0)';
+
+  tag.textContent = trades > 0 ? trades + ' TRADES' : (d.signals || 0) + ' SIG';
+  tag.style.background = trades > 0 ? 'var(--green-bg)' : 'var(--bg-2)';
+  tag.style.color = trades > 0 ? 'var(--green-0)' : 'var(--text-3)';
+
+  let html = `
+    <div style="display:flex;gap:12px;margin-bottom:8px">
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Trades</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${trades}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">W / L</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${wins} / ${losses}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Win Rate</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${wrColor}">${wr}</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">PnL</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${pnlColor}">${d.pnl_cents >= 0 ? '+' : ''}$${pnl}</div>
+      </div>
+    </div>`;
+
+  // Fill rate + avg NO cost + avg fill size bar
+  const signals = d.signals || 0;
+  const fillPct = signals > 0 ? (trades / signals * 100).toFixed(0) : '—';
+  const avgNoCost = d.avg_no_cost || 0;
+  const avgFill = d.avg_fill_size || 0;
+  const noCostColor = avgNoCost <= 12 ? 'var(--green-0)' : avgNoCost <= 15 ? 'var(--amber-0)' : 'var(--red-0)';
+  html += `<div style="display:flex;gap:8px;margin-bottom:8px">
+    <div style="flex:1;padding:4px 8px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0);font-size:10px">
+      <span style="color:var(--text-3)">Fill Rate:</span>
+      <span style="font-family:var(--mono);font-weight:600;color:var(--text-1)">${trades}/${signals} (${fillPct}%)</span>
+    </div>
+    <div style="flex:1;padding:4px 8px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0);font-size:10px">
+      <span style="color:var(--text-3)">Avg NO Cost:</span>
+      <span style="font-family:var(--mono);font-weight:600;color:${noCostColor}">${avgNoCost}c</span>
+    </div>
+    <div style="flex:1;padding:4px 8px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0);font-size:10px">
+      <span style="color:var(--text-3)">Avg Fill:</span>
+      <span style="font-family:var(--mono);font-weight:600;color:var(--text-1)">${avgFill}/5 ct</span>
+    </div>
+  </div>`;
+
+  // By-price table (keyed on YES price we're betting against)
+  const bp = d.by_price;
+  if (bp && Object.keys(bp).length > 0) {
+    html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By YES Price (Fading)</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">YES</td><td>NO Cost</td><td>Trades</td><td>W/L</td><td>WR</td><td>PnL</td></tr>';
+    for (let yp = 88; yp <= 96; yp++) {
+      const v = bp[String(yp)];
+      if (!v) continue;
+      const noCost = 100 - yp;
+      const pWr = v.trades > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const pPnl = (v.pnl_cents / 100).toFixed(2);
+      const pWrColor = v.wr >= 0.90 ? 'var(--green-0)' : v.wr >= 0.80 ? 'var(--amber-0)' : 'var(--red-0)';
+      const pPnlColor = v.pnl_cents > 0 ? 'var(--green-0)' : v.pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      html += `<tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">${yp}c</td>
+        <td>${noCost}c</td>
+        <td>${v.trades}</td><td>${v.wins}/${v.losses}</td>
+        <td style="color:${pWrColor}">${pWr}</td>
+        <td style="color:${pPnlColor}">${v.pnl_cents >= 0 ? '+' : ''}$${pPnl}</td>
+      </tr>`;
+    }
+    html += '</table>';
+  }
+
+  // By-asset (city) table
+  const ba = d.by_asset;
+  if (ba && Object.keys(ba).length > 0) {
+    html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By City</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">City</td><td>Trades</td><td>W/L</td><td>WR</td><td>PnL</td></tr>';
+    for (const [a, v] of Object.entries(ba)) {
+      const aWr = v.trades > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const aPnl = (v.pnl_cents / 100).toFixed(2);
+      const aWrColor = v.wr >= 0.90 ? 'var(--green-0)' : v.wr >= 0.80 ? 'var(--amber-0)' : 'var(--red-0)';
+      const aPnlColor = v.pnl_cents > 0 ? 'var(--green-0)' : v.pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      html += `<tr style="border-bottom:1px solid var(--border-0)">
+        <td style="padding:2px 4px;font-weight:500">${escHtml(a)}</td>
+        <td>${v.trades}</td><td>${v.wins}/${v.losses}</td>
+        <td style="color:${aWrColor}">${aWr}</td>
+        <td style="color:${aPnlColor}">${v.pnl_cents >= 0 ? '+' : ''}$${aPnl}</td>
+      </tr>`;
+    }
+    html += '</table>';
+  }
+
+  body.innerHTML = html || '<div style="color:var(--text-3)">No bracket NO trades yet</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // RELAXED EDGE SHADOW
 // ═══════════════════════════════════════════════════════════════════════
 function updateRelaxedEdge(s) {
@@ -8391,6 +8514,7 @@ function update(s) {
   try { updateOvernightLp(s); } catch (e) { console.error('updateOvernightLp:', e); }
   try { updateDecidedContract(s); } catch (e) { console.error('updateDecidedContract:', e); }
   try { updateTerminalMomentum(s); } catch (e) { console.error('updateTerminalMomentum:', e); }
+  try { updateBracketNo(s); } catch (e) { console.error('updateBracketNo:', e); }
   try { updateRelaxedEdge(s); } catch (e) { console.error('updateRelaxedEdge:', e); }
   try { updateSolPathcShadow(s); } catch (e) { console.error('updateSolPathcShadow:', e); }
   try { updateEthFilterShadow(s); } catch (e) { console.error('updateEthFilterShadow:', e); }
@@ -8489,11 +8613,13 @@ function updateUnifiedPerf(s) {
   const dcPnl = sumPnl(dcKeys) / 100;
   const discPnl = sumPnl(discKeys) / 100;
   const tmPnl = sumPnl(['terminal_momentum']) / 100;
+  const bnPnl = sumPnl(['bracket_no']) / 100;
   const hlPnl = ((s.hourly_live ?? {}).pnl_cents ?? 0) / 100;
   const segs = [
     {label: '15M', pnl: mainPnl, color: 'var(--blue-0)'},
     {label: 'DC', pnl: dcPnl, color: 'var(--violet-0)'},
     {label: 'TM', pnl: tmPnl, color: 'var(--cyan-0, var(--green-0))'},
+    {label: 'BKT', pnl: bnPnl, color: 'var(--teal-0, #2dd4bf)'},
     {label: 'Disc', pnl: discPnl, color: 'var(--green-0)'},
     {label: 'Hourly', pnl: hlPnl, color: 'var(--amber-0)'},
   ].filter(s => s.pnl !== 0);
@@ -8519,6 +8645,7 @@ function updateStrategyTable(s) {
   const dcKeys = ['decided_t1', 'decided_t1b', 'decided_t2', 'decided_t2_z2', 'decided_t2_z25'];
   const discKeys = ['weekend_discount', 'overnight_discount'];
   const tmKeys = ['terminal_momentum'];
+  const bnKeys = ['bracket_no'];
 
   function agg(keys) {
     let t=0, w=0, p=0;
@@ -8530,6 +8657,7 @@ function updateStrategyTable(s) {
     {name: '15M Main', ...agg(mainKeys)},
     {name: 'Decided Contracts', ...agg(dcKeys)},
     {name: 'Terminal Momentum', ...agg(tmKeys)},
+    {name: 'Bracket NO', ...agg(bnKeys)},
     {name: 'Weekend / Overnight', ...agg(discKeys)},
     {name: 'Hourly Sub-60c', trades: hl.trades||0, wins: hl.wins||0, pnl: (hl.pnl_cents||0)},
   ];
