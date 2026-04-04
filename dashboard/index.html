@@ -2118,7 +2118,7 @@ body::before {
     <div class="cell-label">Risk Metrics <span style="font-size:8px;color:var(--text-3);font-weight:400">(15M only)</span></div>
     <div class="metric-grid" id="riskMetricsGrid">
       <div class="metric-item"><div class="metric-label">Max Drawdown</div><div class="metric-val" id="rmDrawdown">—</div></div>
-      <div class="metric-item"><div class="metric-label">Sharpe <span style="font-size:7px;color:var(--text-3);font-weight:400" title="Daily P&L aggregation, annualized sqrt(252)">(ann.)</span></div><div class="metric-val" id="rmSharpe">—</div></div>
+      <div class="metric-item"><div class="metric-label">Sharpe <span style="font-size:7px;color:var(--text-3);font-weight:400" title="Daily P&L aggregation, annualized sqrt(365)">(ann.)</span></div><div class="metric-val" id="rmSharpe">—</div></div>
       <div class="metric-item"><div class="metric-label">Profit Factor</div><div class="metric-val" id="rmProfitFactor">—</div></div>
       <div class="metric-item"><div class="metric-label">Avg P&amp;L/Trade</div><div class="metric-val" id="rmAvgPnl">—</div></div>
       <div class="metric-item"><div class="metric-label">Total Trades</div><div class="metric-val" id="rmTotalTrades">—</div></div>
@@ -3310,10 +3310,13 @@ function updateStatusStrip(s) {
     ssPnlEl.style.color = pnl > 0 ? 'var(--green-0)' : pnl < 0 ? 'var(--red-0)' : 'var(--text-3)';
   }
 
-  // Win rate (use filtered data from win_rate key, not trade_analytics)
+  // Win rate (use filtered data, respect scope toggle)
   const ssWrEl = $('ssWinRate');
   if (ssWrEl) {
-    const wr = s.win_rate;
+    const rr = s.regime_risk_metrics;
+    const wr = _dashboardScope === 'regime' && rr ? rr.win_rate :
+               _dashboardScope === 'all' ? (s.all_products_win_rate ?? s.win_rate) :
+               s.win_rate;
     ssWrEl.textContent = wr != null ? (wr <= 1 ? (wr * 100).toFixed(1) : wr.toFixed(1)) + '%' : '—';
   }
 
@@ -3323,8 +3326,10 @@ function updateStatusStrip(s) {
   if (ssLastEl && rt && rt.length > 0) {
     const t = rt[0];
     const ago = t.settled_at ? Math.floor((Date.now() - new Date(t.settled_at).getTime()) / 60000) : null;
-    const result = t.market_result === 'yes' ? 'W' : 'L';
-    const color = t.market_result === 'yes' ? 'var(--green-0)' : 'var(--red-0)';
+    const isWin = (t.market_result === 'yes' && t.side !== 'no') ||
+                  (t.market_result === 'no' && t.side === 'no');
+    const result = isWin ? 'W' : 'L';
+    const color = isWin ? 'var(--green-0)' : 'var(--red-0)';
     ssLastEl.innerHTML = `<span style="color:${color}">${result}</span> ${t.asset || '—'} ${ago != null ? ago + 'm ago' : ''}`;
   }
 
@@ -3350,7 +3355,9 @@ function updateLastTradeCard(s) {
   if (!rt || rt.length === 0) { card.style.display = 'none'; return; }
   card.style.display = '';
   const t = rt[0];
-  const result = t.market_result === 'yes' ? 'W' : t.market_result === 'no' ? 'L' : '?';
+  const isWin = (t.market_result === 'yes' && t.side !== 'no') ||
+                (t.market_result === 'no' && t.side === 'no');
+  const result = t.market_result ? (isWin ? 'W' : 'L') : '?';
   const rColor = result === 'W' ? 'var(--green-0)' : result === 'L' ? 'var(--red-0)' : 'var(--text-3)';
   const pnl = t.pnl_cents != null ? ((t.pnl_cents - (t.fee_cents || 0)) / 100) : null;
   const ago = t.settled_at ? Math.floor((Date.now() - new Date(t.settled_at).getTime()) / 60000) : null;
@@ -6311,10 +6318,7 @@ function updateHourlyVariants(s) {
         ${variantRow('Config E', '', s.hourly_config_e)}
         ${variantRow('Config F', '', s.hourly_config_f)}
         ${variantRow('Config G', '', s.hourly_config_g)}
-        ${variantRow('Config H', '', s.hourly_config_h)}
         ${variantRow('Config I', '', s.hourly_config_i)}
-        ${variantRow('Config J', '', s.hourly_config_j)}
-        ${variantRow('Config K', '', s.hourly_config_k)}
         ${variantRow('Config L', '', s.hourly_config_l)}
         ${variantRow('Config M', '', s.hourly_config_m)}
       </tbody>
@@ -8587,7 +8591,7 @@ function updateUnifiedPerf(s) {
   tdEl.className = 'up-val ' + (todayPnl >= 0 ? 'positive' : 'negative');
 
   // Lifetime ROI
-  const startBal = s.starting_balance ?? bal;
+  const startBal = s.initial_deposit ?? s.starting_balance ?? bal;
   const roi = startBal > 0 ? (lifetimePnl / startBal * 100).toFixed(1) + '%' : '0.0%';
   $('upTodayRoi').textContent = roi;
 
@@ -8782,11 +8786,19 @@ function updateHourlyLive(s) {
           }
           if (d && typeof d === 'object') update(d);
         })
-        .subscribe((status) => {
+        .subscribe((status, err) => {
           console.log('Supabase Realtime status:', status);
           if (status === 'SUBSCRIBED') {
             $('pill').className = 'hdr-pill live';
             $('pillText').textContent = 'LIVE';
+          } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            console.warn('Supabase Realtime error:', status, err);
+            $('pill').className = 'hdr-pill off';
+            $('pillText').textContent = 'ERROR';
+          } else if (status === 'CLOSED') {
+            console.warn('Supabase Realtime closed');
+            $('pill').className = 'hdr-pill off';
+            $('pillText').textContent = 'OFFLINE';
           }
         });
 
@@ -9735,7 +9747,9 @@ setInterval(() => {
 // Staleness checker (Change 3: with overlay)
 setInterval(() => {
   if (!lastUpdate) return;
-  const age = Date.now() - lastUpdate;
+  // Use snapshot timestamp if available, fall back to client clock
+  const snapTime = lastSnapshot?.timestamp ? new Date(lastSnapshot.timestamp).getTime() : lastUpdate;
+  const age = Date.now() - Math.max(snapTime, lastUpdate);
   const overlay = $('stale-overlay');
   const staleText = $('staleText');
   const staleSub = $('staleSub');
