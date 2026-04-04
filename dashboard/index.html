@@ -9740,7 +9740,7 @@ setInterval(() => {
   const staleText = $('staleText');
   const staleSub = $('staleSub');
   const ageSec = Math.floor(age / 1000);
-  if (age > 60000) {
+  if (age > 180000) {
     $('pill').className = 'hdr-pill off';
     $('pillText').textContent = 'OFFLINE';
     if (overlay) {
@@ -9749,16 +9749,16 @@ setInterval(() => {
       staleText.textContent = 'OFFLINE';
       staleSub.textContent = 'Last update ' + ageSec + 's ago';
     }
-  } else if (age > 30000) {
+  } else if (age > 120000) {
     $('pill').className = 'hdr-pill off';
-    $('pillText').textContent = 'OFFLINE';
+    $('pillText').textContent = 'STALE';
     if (overlay) {
       overlay.className = 'visible';
       overlay.style.display = 'flex';
       staleText.textContent = 'DATA STALE';
       staleSub.textContent = 'Last update ' + ageSec + 's ago';
     }
-  } else if (age > 12000) {
+  } else if (age > 45000) {
     $('pill').className = 'hdr-pill stale';
     $('pillText').textContent = 'STALE';
     if (overlay) { overlay.className = ''; overlay.style.display = 'none'; }
