@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trading Dashboard — Gabe Kagan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&family=IBM+Plex+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════════════════════
    DESIGN SYSTEM
@@ -21,7 +21,7 @@
   --text-0: #e8ecf4;
   --text-1: #a0aec0;
   --text-2: #64748b;
-  --text-3: #475569;
+  --text-3: #5a6b82;
   --green-0: #10b981;
   --green-1: #059669;
   --green-bg: rgba(16,185,129,0.07);
@@ -41,8 +41,13 @@
   --violet-0: #a78bfa;
   --violet-bg: rgba(167,139,250,0.07);
   --violet-border: rgba(167,139,250,0.15);
+  --gold-0: #C5A855;
+  --gold-1: #B8972E;
+  --gold-bg: rgba(197,168,85,0.07);
+  --gold-border: rgba(197,168,85,0.15);
   --mono: 'IBM Plex Mono', monospace;
   --sans: 'DM Sans', sans-serif;
+  --hebrew: 'Frank Ruhl Libre', 'Noto Serif Hebrew', serif;
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -181,6 +186,7 @@ body::before {
   background: var(--bg-0);
   padding: 18px 22px 6px;
   display: flex; flex-direction: column; gap: 6px;
+  border-left: 3px solid var(--gold-0);
 }
 .divider-top {
   display: flex; align-items: center; gap: 12px;
@@ -197,7 +203,7 @@ body::before {
 }
 .divider-quote {
   font-family: var(--sans); font-size: 11px; font-style: italic;
-  color: var(--text-3); opacity: 0.7;
+  color: var(--gold-0); opacity: 0.7;
 }
 .divider-quote-src {
   font-style: normal; color: var(--violet-0); font-size: 10px;
@@ -1122,7 +1128,7 @@ body::before {
   text-align: center;
 }
 .torah-hebrew {
-  font-family: 'SBL Hebrew', 'Noto Serif Hebrew', 'David Libre', serif;
+  font-family: var(--hebrew);
   font-size: 13px; font-weight: 400;
   color: var(--violet-0);
   direction: rtl; unicode-bidi: isolate;
@@ -1683,7 +1689,12 @@ body::before {
   .ee-status-row { flex-wrap: wrap; }
   .ee-status-indicator { min-width: calc(50% - 4px); }
   .ta-bd-grid { overflow-x: auto; }
-  .trades-scroll, .opps-scroll { font-size: 11px; }
+  .trades-scroll, .opps-scroll { font-size: 11px; overflow-x: auto; }
+  [style*="grid-column"] { grid-column: 1 / -1 !important; }
+  body::before { display: none; }
+  .eq-btn, .funnel-tab, .ta-bd-tab, .pnl-filter-btn, .sa-range-btn, #scopeToggle {
+    min-height: 44px; padding: 10px 14px !important; font-size: 12px !important;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1698,7 +1709,7 @@ body::before {
    SHADOW PANEL DISTINCTION (Change 2)
    ═══════════════════════════════════════════════════════════════════════ */
 .shadow-panel {
-  border-left: 3px solid #6366f1;
+  border-left: 3px solid var(--violet-0);
   opacity: 0.92;
   position: relative;
 }
@@ -1707,7 +1718,7 @@ body::before {
   font-family: var(--mono); font-size: 8px; font-weight: 700;
   letter-spacing: 1px; text-transform: uppercase;
   padding: 2px 6px; border-radius: 3px;
-  background: rgba(99,102,241,0.15); color: #6366f1;
+  background: rgba(99,102,241,0.15); color: var(--violet-0);
   border: 1px solid rgba(99,102,241,0.25);
   z-index: 2;
 }
@@ -1925,6 +1936,39 @@ body::before {
   background: transparent; color: var(--text-2); cursor: pointer; }
 .pnl-filter-btn.active { background: var(--blue-bg); color: var(--blue-0); border-color: var(--blue-border); }
 .pnl-filter-btn:hover { background: var(--bg-3); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TRADE OUTCOME STRIP
+   ═══════════════════════════════════════════════════════════════════════ */
+.trade-strip { display:flex; gap:2px; align-items:center; padding:8px 0; flex-wrap:wrap; }
+.trade-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+.trade-dot.win { background:var(--green-0); }
+.trade-dot.loss { background:var(--red-0); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SKELETON LOADING
+   ═══════════════════════════════════════════════════════════════════════ */
+.skeleton { background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius-sm); height: 14px; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.skeleton-row { display:flex; gap:8px; margin:6px 0; }
+.skeleton-bar { height:14px; border-radius:var(--radius-sm); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ROLLING PERFORMANCE CARD
+   ═══════════════════════════════════════════════════════════════════════ */
+.rolling-card { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border-0); border-radius:var(--radius-md); overflow:hidden; }
+.rolling-card .rc-cell { background:var(--bg-2); padding:12px 14px; }
+.rolling-card .rc-label { font:500 9px/1 var(--mono); color:var(--text-2); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.rolling-card .rc-value { font:700 18px/1 var(--mono); color:var(--text-0); }
+.rolling-card .rc-sub { font:400 10px/1 var(--mono); color:var(--text-2); margin-top:4px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CALENDAR HEATMAP
+   ═══════════════════════════════════════════════════════════════════════ */
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+.cal-cell { aspect-ratio:1; border-radius:3px; position:relative; min-width:0; }
+.cal-cell .cal-day { position:absolute; top:2px; left:3px; font:400 7px/1 var(--mono); color:var(--text-3); }
+.cal-label { font:500 8px/1 var(--mono); color:var(--text-3); text-align:center; text-transform:uppercase; }
 </style>
 </head>
 <body>
@@ -2027,6 +2071,27 @@ body::before {
     <span class="live-banner-label">LIVE TRADING &mdash; Real Money</span>
   </div>
 
+  <!-- Active Order (moved from Tier 2 to top) -->
+  <div class="cell order-cell" id="orderCell" style="display:none">
+    <div class="cell-label">
+      Active Order
+      <span class="tag" id="elOrderTag" style="background:var(--green-bg);color:var(--green-0)">LIVE</span>
+    </div>
+    <div id="elActiveOrder"></div>
+  </div>
+
+  <!-- Active Positions (moved from Tier 2 to top) -->
+  <div class="cell positions-cell">
+    <div class="cell-label">
+      Active Positions
+      <span class="tag" id="elPosCount" style="background:var(--blue-bg);color:var(--blue-0)">0</span>
+    </div>
+    <div class="health-summary" id="elHealthSummary" style="display:none"></div>
+    <div class="pos-list" id="elPositions">
+      <div class="empty">No active positions</div>
+    </div>
+  </div>
+
   <!-- ══════════════ UNIFIED PERFORMANCE ══════════════ -->
   <div class="unified-perf" id="unifiedPerf">
     <div class="up-title">All Strategies Combined</div>
@@ -2066,8 +2131,8 @@ body::before {
 
   <!-- ══════════════ TIER 1: PERFORMANCE ══════════════ -->
 
-  <!-- Balance -->
-  <div class="cell hero">
+  <!-- HIDDEN: duplicate of Unified Performance balance -->
+  <div class="cell hero" style="display:none">
     <div class="cell-label">Balance</div>
     <div class="bal-num" id="elBal">$—</div>
     <div class="pnl-row">
@@ -2113,6 +2178,14 @@ body::before {
     </div>
   </div>
 
+  <!-- Trade Outcome Strip -->
+  <div class="cell" style="grid-column:span 12">
+    <div style="display:flex;align-items:center;gap:12px;padding:2px 0">
+      <span style="font:500 9px/1 var(--mono);color:var(--text-2);text-transform:uppercase;letter-spacing:1px">LAST 40 TRADES</span>
+      <div id="tradeStrip" class="trade-strip"></div>
+    </div>
+  </div>
+
   <!-- Risk Metrics -->
   <div class="cell risk-cell">
     <div class="cell-label">Risk Metrics <span style="font-size:8px;color:var(--text-3);font-weight:400">(15M only)</span></div>
@@ -2122,6 +2195,19 @@ body::before {
       <div class="metric-item"><div class="metric-label">Profit Factor</div><div class="metric-val" id="rmProfitFactor">—</div></div>
       <div class="metric-item"><div class="metric-label">Avg P&amp;L/Trade</div><div class="metric-val" id="rmAvgPnl">—</div></div>
       <div class="metric-item"><div class="metric-label">Total Trades</div><div class="metric-val" id="rmTotalTrades">—</div></div>
+      <div class="metric-item"><div class="metric-label">Sortino <span style="font-size:7px;color:var(--text-3);font-weight:400" title="Downside deviation only, annualized sqrt(365)">(ann.)</span></div><div class="metric-val" id="rmSortino">—</div></div>
+      <div class="metric-item"><div class="metric-label">Calmar <span style="font-size:7px;color:var(--text-3);font-weight:400" title="Annualized return / max drawdown">(ratio)</span></div><div class="metric-val" id="rmCalmar">—</div></div>
+    </div>
+  </div>
+
+  <!-- Rolling Performance -->
+  <div class="cell" style="grid-column:span 6">
+    <div style="font:600 10px/1.2 var(--sans);color:var(--text-2);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px">Rolling Performance</div>
+    <div id="rollingPerf" class="rolling-card">
+      <div class="rc-cell"><div class="rc-label">7-Day PnL</div><div class="rc-value" id="roll7pnl">—</div><div class="rc-sub" id="roll7sub">—</div></div>
+      <div class="rc-cell"><div class="rc-label">7-Day WR</div><div class="rc-value" id="roll7wr">—</div><div class="rc-sub" id="roll7trades">—</div></div>
+      <div class="rc-cell"><div class="rc-label">30-Day PnL</div><div class="rc-value" id="roll30pnl">—</div><div class="rc-sub" id="roll30sub">—</div></div>
+      <div class="rc-cell"><div class="rc-label">30-Day WR</div><div class="rc-value" id="roll30wr">—</div><div class="rc-sub" id="roll30trades">—</div></div>
     </div>
   </div>
 
@@ -2153,6 +2239,27 @@ body::before {
     </div>
   </div>
 
+  <!-- Daily P&L Calendar -->
+  <div class="cell" style="grid-column:span 6">
+    <div style="font:600 10px/1.2 var(--sans);color:var(--text-2);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px">Daily P&L Calendar</div>
+    <div class="cal-grid" style="margin-bottom:4px">
+      <div class="cal-label">S</div><div class="cal-label">M</div><div class="cal-label">T</div>
+      <div class="cal-label">W</div><div class="cal-label">T</div><div class="cal-label">F</div><div class="cal-label">S</div>
+    </div>
+    <div id="calGrid" class="cal-grid"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px;font:400 8px/1 var(--mono);color:var(--text-3)">
+      <span>Loss</span>
+      <div style="display:flex;gap:2px">
+        <div style="width:10px;height:10px;border-radius:2px;background:var(--red-0);opacity:0.7"></div>
+        <div style="width:10px;height:10px;border-radius:2px;background:var(--red-0);opacity:0.3"></div>
+        <div style="width:10px;height:10px;border-radius:2px;background:var(--bg-3)"></div>
+        <div style="width:10px;height:10px;border-radius:2px;background:var(--green-0);opacity:0.3"></div>
+        <div style="width:10px;height:10px;border-radius:2px;background:var(--green-0);opacity:0.7"></div>
+      </div>
+      <span>Profit</span>
+    </div>
+  </div>
+
   <!-- System Health Card -->
   <div class="cell" id="sysHealthCell" style="grid-column:span 4">
     <div class="cell-label">SYSTEM HEALTH <span class="tag" id="sysHealthTag" style="background:var(--green-bg);color:var(--green-0)">ALL OK</span></div>
@@ -2174,26 +2281,7 @@ body::before {
   </div>
   <div class="tier-content" data-tier="2">
 
-  <!-- Active Order -->
-  <div class="cell order-cell" id="orderCell" style="display:none">
-    <div class="cell-label">
-      Active Order
-      <span class="tag" id="elOrderTag" style="background:var(--green-bg);color:var(--green-0)">LIVE</span>
-    </div>
-    <div id="elActiveOrder"></div>
-  </div>
-
-  <!-- Active Positions -->
-  <div class="cell positions-cell">
-    <div class="cell-label">
-      Active Positions
-      <span class="tag" id="elPosCount" style="background:var(--blue-bg);color:var(--blue-0)">0</span>
-    </div>
-    <div class="health-summary" id="elHealthSummary" style="display:none"></div>
-    <div class="pos-list" id="elPositions">
-      <div class="empty">No active positions</div>
-    </div>
-  </div>
+  <!-- Active Order + Active Positions moved to top of grid (above Unified Performance) -->
 
   <!-- Resting Orders -->
   <div class="cell resting-cell">
@@ -2327,8 +2415,8 @@ body::before {
     </div>
   </div>
 
-  <!-- Trade Analytics Overview -->
-  <div class="cell ta-overview-cell" style="grid-column:span 2">
+  <!-- HIDDEN: duplicate of Unified Performance PnL -->
+  <div class="cell ta-overview-cell" style="grid-column:span 2;display:none">
     <div class="cell-label">
       Total P&L
       <span class="tag" id="taCountTag" style="background:var(--green-bg);color:var(--green-0);border:1px solid var(--green-border)">0 trades</span>
@@ -2604,22 +2692,6 @@ body::before {
     </div>
   </div>
 
-  <!-- Hourly Variants — Config A + Config B promotion candidates -->
-  <div class="cell shadow-panel" id="hourlyVariantsCell" style="grid-column:span 12">
-    <div class="cell-label">HOURLY VARIANTS <span class="tag" style="background:var(--amber-bg);color:var(--amber-0)">PROMOTION CANDIDATES</span></div>
-    <div id="hourlyVariantsBody" style="font-family:var(--mono);font-size:12px">
-      <div style="text-align:center;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- STC Shadow Counterfactual -->
-  <div class="cell shadow-panel" id="stcShadowCell" style="grid-column:span 4">
-    <div class="cell-label">STC SHADOW ZONE (600-900s) <span class="tag" style="background:var(--violet-bg);color:var(--violet-0)">SHADOW</span></div>
-    <div id="stcShadowBody" style="font-family:var(--mono);font-size:12px">
-      <div style="text-align:center;color:var(--text-3)">Loading...</div>
-    </div>
-  </div>
-
   <!-- Pipeline Completeness -->
   <div class="cell" id="pipelineCell" style="grid-column:span 4">
     <div class="cell-label">DATA PIPELINE HEALTH <span class="tag" id="pipelineTag" style="background:var(--green-bg);color:var(--green-0)">OK</span></div>
@@ -2628,202 +2700,8 @@ body::before {
     </div>
   </div>
 
-  <!-- (Shadow Variants sidebar removed — merged into Hourly Variants table above) -->
-
-  <!-- Hourly Markets Observation -->
-  <div class="cell hourly-obs-cell shadow-panel" style="grid-column:span 4">
-    <div class="cell-label">
-      Hourly Markets
-      <span class="tag" id="hourlyObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div class="hourly-obs-grid" id="elHourlyObs">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- S&P 500 Observation -->
-  <div class="cell shadow-panel" style="grid-column:span 4">
-    <div class="cell-label">
-      S&amp;P 500 Hourly
-      <span class="tag" id="spxObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="elSpxObs">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- SPX Shadow Variants -->
-  <div class="cell shadow-panel" style="grid-column:span 4">
-    <div class="cell-label">
-      SPX Calibration Variants
-      <span class="tag" style="background:var(--bg-2);color:var(--text-3)">SHADOW</span>
-    </div>
-    <div id="elSpxVariants">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- Hourly NO-Side Overconfidence -->
-  <div class="cell shadow-panel" style="grid-column:span 4">
-    <div class="cell-label">
-      Hourly NO-Side (Overconfidence)
-      <span class="tag" style="background:var(--bg-2);color:var(--text-3)">SHADOW</span>
-    </div>
-    <div id="elHourlyNoSide">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- Weather Observation -->
-  <div class="cell shadow-panel" style="grid-column:span 4">
-    <div class="cell-label">
-      Weather Markets
-      <span class="tag" id="weatherObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="elWeatherObs">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- Weather NO-side Live Performance -->
-  <div class="cell shadow-panel" style="grid-column:span 4">
-    <div class="cell-label">
-      Weather NO-Side Live
-      <span class="tag" id="weatherNoLiveTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="elWeatherNoLive">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- Sports Comeback Observation -->
-  <div class="cell shadow-panel" style="grid-column:span 4">
-    <div class="cell-label">
-      Sports Comeback
-      <span class="tag" id="sportsObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="elSportsObs">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- Sports Strong Config Analysis -->
-  <div class="cell shadow-panel" style="grid-column:span 4">
-    <div class="cell-label">
-      Sports Strong Config
-      <span class="tag" id="sportsStrongTag" style="background:var(--amber-bg);color:var(--amber-0);border:1px solid var(--amber-border)">SHADOW</span>
-    </div>
-    <div id="elSportsStrong">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- Sports NBA Variants (Core + Wide) -->
-  <div class="cell shadow-panel" style="grid-column:span 4">
-    <div class="cell-label">
-      Sports NBA Variants
-      <span class="tag" id="sportsVariantsTag" style="background:var(--amber-bg);color:var(--amber-0);border:1px solid var(--amber-border)">SHADOW</span>
-    </div>
-    <div id="elSportsVariants">
-      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- Hourly Alt Shadow Strategies (ETH/SOL/XRP) -->
-  <div class="cell shadow-panel" id="altShadowCell" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      Hourly Alt Shadow
-      <span class="tag" id="altShadowTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
-    </div>
-    <div id="altShadowBody" style="font-size:11px;color:var(--text-2)">
-      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- SPX HAR-RV Shadow -->
-  <div class="cell shadow-panel" id="spxHarvCell" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      SPX HAR-RV Shadow
-      <span class="tag" id="spxHarvTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
-    </div>
-    <div id="spxHarvBody" style="font-size:11px;color:var(--text-2)">
-      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- 15M Shadow (Recalibrated EGARCH + LightGBM) -->
-  <div class="cell shadow-panel" id="fifteenmShadowCell" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      15M Shadow
-      <span class="tag" id="fifteenmShadowTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
-    </div>
-    <div id="fifteenmShadowBody" style="font-size:11px;color:var(--text-2)">
-      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- NO-Side Shadow -->
-  <div class="cell shadow-panel" id="noSideShadowCell" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      NO-Side Shadow
-      <span class="tag" id="noSideShadowTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="noSideShadowBody" style="font-size:11px;color:var(--text-2)">
-      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- Weekend Edge Discount Shadow -->
-  <div class="cell shadow-panel" id="weekendDiscountCell" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      Weekend Edge Discount (0.6x)
-      <span class="tag" id="weekendDiscountTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="weekendDiscountBody" style="font-size:11px;color:var(--text-2)">
-      <div style="color:var(--text-3);font-style:italic">Waiting for weekend data...</div>
-    </div>
-  </div>
-
-  <!-- Overnight Edge Discount Shadow -->
-  <div class="cell shadow-panel" id="overnightDiscountCell" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      Overnight Edge Discount (0.6x)
-      <span class="tag" id="overnightDiscountTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="overnightDiscountBody" style="font-size:11px;color:var(--text-2)">
-      <div style="color:var(--text-3);font-style:italic">Waiting for overnight data...</div>
-    </div>
-  </div>
-
-  <!-- Overnight LP Shadow -->
-  <div class="cell shadow-panel" id="overnightLpCell" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      Overnight LP Shadow (50-85c)
-      <span class="tag" id="overnightLpTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="overnightLpBody" style="font-size:11px;color:var(--text-2)">
-      <div style="color:var(--text-3);font-style:italic">Waiting for overnight LP data...</div>
-    </div>
-  </div>
-
-  <!-- Decided Contract Shadow -->
-  <div class="cell shadow-panel" id="decidedContractCell" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      Decided Contract Shadow
-      <span class="tag" id="decidedContractTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="decidedContractBody" style="font-size:11px;color:var(--text-2)">
-      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
-    </div>
-  </div>
+  <!-- ─── LIVE SUB-STRATEGIES ─── -->
+  <div style="grid-column:1/-1;padding:8px 22px 4px;font:600 9px/1 var(--sans);color:var(--gold-0);text-transform:uppercase;letter-spacing:1.5px">&#9654; Live Sub-Strategies</div>
 
   <!-- Terminal Momentum LIVE -->
   <div class="cell shadow-panel" id="terminalMomentumCell" style="grid-column:span 4">
@@ -2849,26 +2727,92 @@ body::before {
     </div>
   </div>
 
-  <!-- Relaxed Edge Shadow -->
-  <div class="cell shadow-panel" id="relaxedEdgeCell" style="grid-column:span 4">
+  <!-- Weekend Edge Discount -->
+  <div class="cell shadow-panel" id="weekendDiscountCell" style="grid-column:span 4">
     <div class="shadow-badge">SHADOW</div>
     <div class="cell-label">
-      Relaxed Edge Shadow
-      <span class="tag" id="relaxedEdgeTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+      Weekend Edge Discount (0.6x)
+      <span class="tag" id="weekendDiscountTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
     </div>
-    <div id="relaxedEdgeBody" style="font-size:11px;color:var(--text-2)">
+    <div id="weekendDiscountBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for weekend data...</div>
+    </div>
+  </div>
+
+  <!-- Overnight Edge Discount -->
+  <div class="cell shadow-panel" id="overnightDiscountCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Overnight Edge Discount (0.6x)
+      <span class="tag" id="overnightDiscountTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="overnightDiscountBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for overnight data...</div>
+    </div>
+  </div>
+
+  <!-- Weather NO-side Live Performance -->
+  <div class="cell shadow-panel" style="grid-column:span 4">
+    <div class="cell-label">
+      Weather NO-Side Live
+      <span class="tag" id="weatherNoLiveTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elWeatherNoLive">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- ─── PROMOTION PIPELINE ─── -->
+  <div style="grid-column:1/-1;padding:8px 22px 4px;font:600 9px/1 var(--sans);color:var(--violet-0);text-transform:uppercase;letter-spacing:1.5px">&#9654; Promotion Pipeline</div>
+
+  <!-- Hourly Variants — Config A + Config B promotion candidates -->
+  <div class="cell shadow-panel" id="hourlyVariantsCell" style="grid-column:span 12">
+    <div class="cell-label">HOURLY VARIANTS <span class="tag" style="background:var(--amber-bg);color:var(--amber-0)">PROMOTION CANDIDATES</span></div>
+    <div id="hourlyVariantsBody" style="font-family:var(--mono);font-size:12px">
+      <div style="text-align:center;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- STC Shadow Counterfactual -->
+  <div class="cell shadow-panel" id="stcShadowCell" style="grid-column:span 4">
+    <div class="cell-label">STC SHADOW ZONE (600-900s) <span class="tag" style="background:var(--violet-bg);color:var(--violet-0)">SHADOW</span></div>
+    <div id="stcShadowBody" style="font-family:var(--mono);font-size:12px">
+      <div style="text-align:center;color:var(--text-3)">Loading...</div>
+    </div>
+  </div>
+
+  <!-- 15M Shadow (Recalibrated EGARCH + LightGBM) -->
+  <div class="cell shadow-panel" id="fifteenmShadowCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      15M Shadow
+      <span class="tag" id="fifteenmShadowTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
+    </div>
+    <div id="fifteenmShadowBody" style="font-size:11px;color:var(--text-2)">
       <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
     </div>
   </div>
 
-  <!-- Calibration Gap -->
-  <div class="cell shadow-panel" id="calibrationGapCell" style="grid-column:span 4">
+  <!-- Decided Contract Shadow -->
+  <div class="cell shadow-panel" id="decidedContractCell" style="grid-column:span 4">
     <div class="shadow-badge">SHADOW</div>
     <div class="cell-label">
-      Calibration Gap
-      <span class="tag" id="calibrationGapTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+      Decided Contract Shadow
+      <span class="tag" id="decidedContractTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
     </div>
-    <div id="calibrationGapBody" style="font-size:11px;color:var(--text-2)">
+    <div id="decidedContractBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- NO-Side Shadow -->
+  <div class="cell shadow-panel" id="noSideShadowCell" style="grid-column:span 4">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      NO-Side Shadow
+      <span class="tag" id="noSideShadowTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="noSideShadowBody" style="font-size:11px;color:var(--text-2)">
       <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
     </div>
   </div>
@@ -2885,8 +2829,11 @@ body::before {
     </div>
   </div>
 
+  <!-- ─── RESEARCH / DATA COLLECTION ─── -->
+  <div id="researchToggle" onclick="document.querySelectorAll('.research-panel').forEach(function(el){el.style.display=el.style.display==='none'?'':'none'})" style="grid-column:1/-1;padding:8px 22px 4px;font:600 9px/1 var(--sans);color:var(--text-3);text-transform:uppercase;letter-spacing:1.5px;cursor:pointer">&#9654; Research / Data Collection (click to expand)</div>
+
   <!-- SOL Path C Shadow -->
-  <div class="cell shadow-panel" id="solPathcCell" style="grid-column:span 4">
+  <div class="cell shadow-panel research-panel" id="solPathcCell" style="grid-column:span 4;display:none">
     <div class="shadow-badge">SHADOW</div>
     <div class="cell-label">
       SOL Path C (Maker vs Taker)
@@ -2898,7 +2845,7 @@ body::before {
   </div>
 
   <!-- ETH Filter Shadow -->
-  <div class="cell shadow-panel" id="ethFilterCell" style="grid-column:span 4">
+  <div class="cell shadow-panel research-panel" id="ethFilterCell" style="grid-column:span 4;display:none">
     <div class="shadow-badge">SHADOW</div>
     <div class="cell-label">
       ETH Entry Filter
@@ -2909,8 +2856,156 @@ body::before {
     </div>
   </div>
 
+  <!-- Calibration Gap -->
+  <div class="cell shadow-panel research-panel" id="calibrationGapCell" style="grid-column:span 4;display:none">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Calibration Gap
+      <span class="tag" id="calibrationGapTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="calibrationGapBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Relaxed Edge Shadow -->
+  <div class="cell shadow-panel research-panel" id="relaxedEdgeCell" style="grid-column:span 4;display:none">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Relaxed Edge Shadow
+      <span class="tag" id="relaxedEdgeTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="relaxedEdgeBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Sports NBA Variants (Core + Wide) -->
+  <div class="cell shadow-panel research-panel" style="grid-column:span 4;display:none">
+    <div class="cell-label">
+      Sports NBA Variants
+      <span class="tag" id="sportsVariantsTag" style="background:var(--amber-bg);color:var(--amber-0);border:1px solid var(--amber-border)">SHADOW</span>
+    </div>
+    <div id="elSportsVariants">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- SPX HAR-RV Shadow -->
+  <div class="cell shadow-panel research-panel" id="spxHarvCell" style="grid-column:span 4;display:none">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      SPX HAR-RV Shadow
+      <span class="tag" id="spxHarvTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
+    </div>
+    <div id="spxHarvBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Hourly Alt Shadow Strategies (ETH/SOL/XRP) -->
+  <div class="cell shadow-panel research-panel" id="altShadowCell" style="grid-column:span 4;display:none">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Hourly Alt Shadow
+      <span class="tag" id="altShadowTag" style="background:var(--bg-2);color:var(--text-3)">OFF</span>
+    </div>
+    <div id="altShadowBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Overnight LP Shadow -->
+  <div class="cell shadow-panel research-panel" id="overnightLpCell" style="grid-column:span 4;display:none">
+    <div class="shadow-badge">SHADOW</div>
+    <div class="cell-label">
+      Overnight LP Shadow (50-85c)
+      <span class="tag" id="overnightLpTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="overnightLpBody" style="font-size:11px;color:var(--text-2)">
+      <div style="color:var(--text-3);font-style:italic">Waiting for overnight LP data...</div>
+    </div>
+  </div>
+
+  <!-- Sports Strong Config Analysis -->
+  <div class="cell shadow-panel research-panel" style="grid-column:span 4;display:none">
+    <div class="cell-label">
+      Sports Strong Config
+      <span class="tag" id="sportsStrongTag" style="background:var(--amber-bg);color:var(--amber-0);border:1px solid var(--amber-border)">SHADOW</span>
+    </div>
+    <div id="elSportsStrong">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Hourly Markets Observation -->
+  <div class="cell hourly-obs-cell shadow-panel research-panel" style="grid-column:span 4;display:none">
+    <div class="cell-label">
+      Hourly Markets
+      <span class="tag" id="hourlyObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div class="hourly-obs-grid" id="elHourlyObs">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- S&P 500 Observation -->
+  <div class="cell shadow-panel research-panel" style="grid-column:span 4;display:none">
+    <div class="cell-label">
+      S&amp;P 500 Hourly
+      <span class="tag" id="spxObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elSpxObs">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- SPX Shadow Variants -->
+  <div class="cell shadow-panel research-panel" style="grid-column:span 4;display:none">
+    <div class="cell-label">
+      SPX Calibration Variants
+      <span class="tag" style="background:var(--bg-2);color:var(--text-3)">SHADOW</span>
+    </div>
+    <div id="elSpxVariants">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Hourly NO-Side Overconfidence -->
+  <div class="cell shadow-panel research-panel" style="grid-column:span 4;display:none">
+    <div class="cell-label">
+      Hourly NO-Side (Overconfidence)
+      <span class="tag" style="background:var(--bg-2);color:var(--text-3)">SHADOW</span>
+    </div>
+    <div id="elHourlyNoSide">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Weather Observation -->
+  <div class="cell shadow-panel research-panel" style="grid-column:span 4;display:none">
+    <div class="cell-label">
+      Weather Markets
+      <span class="tag" id="weatherObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elWeatherObs">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Sports Comeback Observation -->
+  <div class="cell shadow-panel research-panel" style="grid-column:span 4;display:none">
+    <div class="cell-label">
+      Sports Comeback
+      <span class="tag" id="sportsObsTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+    </div>
+    <div id="elSportsObs">
+      <div class="empty" style="padding:12px;color:var(--text-3)">Waiting for data...</div>
+    </div>
+  </div>
+
   <!-- Shadow Cal Pipeline -->
-  <div class="cell shadow-cal-cell shadow-panel" style="grid-column:span 4">
+  <div class="cell shadow-cal-cell shadow-panel research-panel" style="grid-column:span 4;display:none">
     <div class="shadow-badge">SHADOW</div>
     <div class="cell-label">
       Shadow Cal Pipeline
@@ -2946,8 +3041,8 @@ body::before {
     </div>
   </div>
 
-  <!-- Cross-Exchange Data (Binance geo-blocked on VPS — Coinbase is primary feed) -->
-  <div class="cell xchg-cell">
+  <!-- HIDDEN: Cross-Exchange dead — Binance geo-blocked -->
+  <div class="cell xchg-cell" style="display:none">
     <div class="cell-label">Cross-Exchange Prices <span class="tag" style="background:var(--bg-2);color:var(--text-3);font-size:8px">LIMITED</span></div>
     <div class="xchg-grid" id="elXchgGrid">
       <div class="empty" style="font-size:10px;color:var(--text-3);padding:12px">Binance geo-blocked on VPS. Coinbase provides primary pricing. Cross-exchange arb data unavailable.</div>
@@ -3267,8 +3362,8 @@ function initCollapsibleTiers() {
     const tier = div.dataset.tier;
     const content = div.nextElementSibling;
     if (!content || !content.classList.contains('tier-content')) return;
-    // Restore from localStorage or use default (4-6 collapsed)
-    const shouldCollapse = saved[tier] != null ? saved[tier] : parseInt(tier) >= 4;
+    // Restore from localStorage or use default (shadow + 4-6 collapsed)
+    const shouldCollapse = saved[tier] != null ? saved[tier] : (parseInt(tier) >= 4 || tier === 'shadow');
     if (shouldCollapse) {
       div.classList.add('collapsed');
       content.classList.add('collapsed');
@@ -3289,8 +3384,18 @@ window.toggleTier = function(divider) {
   const saved = JSON.parse(localStorage.getItem('tierCollapseState') || '{}');
   saved[tier] = isCollapsed;
   localStorage.setItem('tierCollapseState', JSON.stringify(saved));
+  // Re-render newly expanded tier with latest data
+  if (!isCollapsed && lastSnapshot) {
+    try { update(lastSnapshot); } catch(e) { console.error('tier re-render:', e); }
+  }
 };
 initCollapsibleTiers();
+
+// Check if a tier's content is currently visible (not collapsed)
+function isTierVisible(tierKey) {
+  const el = document.querySelector(`.tier-content[data-tier="${tierKey}"]`);
+  return el && !el.classList.contains('collapsed');
+}
 
 // ═══════════════════════════════════════════════════════════════════════
 // STATUS STRIP (Change 5)
@@ -3331,6 +3436,12 @@ function updateStatusStrip(s) {
     const result = isWin ? 'W' : 'L';
     const color = isWin ? 'var(--green-0)' : 'var(--red-0)';
     ssLastEl.innerHTML = `<span style="color:${color}">${result}</span> ${t.asset || '—'} ${ago != null ? ago + 'm ago' : ''}`;
+    // Color escalation based on minutes since last trade
+    if (ago != null) {
+      if (ago < 30) ssLastEl.style.color = 'var(--green-0)';
+      else if (ago < 120) ssLastEl.style.color = 'var(--amber-0)';
+      else ssLastEl.style.color = 'var(--red-0)';
+    }
   }
 
   // Bot status dot
@@ -3482,6 +3593,28 @@ function drawEquityCurve(s) {
   }
   ctx.fillStyle = grad;
   ctx.fill();
+
+  // Drawdown shading: shade area between running peak and current value
+  ctx.save();
+  ctx.globalAlpha = 0.15;
+  ctx.fillStyle = '#f43f5e';
+  ctx.beginPath();
+  let runningPeak = bals[0];
+  for (let i = 0; i < bals.length; i++) {
+    runningPeak = Math.max(runningPeak, bals[i]);
+    const x = toX(i);
+    const peakY = toY(runningPeak);
+    if (i === 0) ctx.moveTo(x, peakY);
+    else ctx.lineTo(x, peakY);
+  }
+  for (let i = bals.length - 1; i >= 0; i--) {
+    const x = toX(i);
+    const curY = toY(bals[i]);
+    ctx.lineTo(x, curY);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
 
   // Y-axis labels
   ctx.fillStyle = '#64748b';
@@ -3754,6 +3887,38 @@ function updateRiskMetrics(s) {
   if (tt) {
     const ttVal = r.total_trades ?? '—';
     tt.textContent = scope === 'regime' ? ttVal + ' (regime)' : ttVal;
+  }
+
+  // Sortino and Calmar ratios (computed client-side from daily_pnl_history)
+  const hist = s.daily_pnl_history;
+  if (hist && hist.length > 1) {
+    const dailyReturns = hist.map(d => (d.net_pnl_cents || 0) / 100);
+    const avgReturn = dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length;
+    // Sortino: downside deviation only
+    const negReturns = dailyReturns.filter(x => x < 0);
+    const downDev = negReturns.length > 1 ? Math.sqrt(negReturns.reduce((s, x) => s + x * x, 0) / negReturns.length) : 0;
+    const sortino = downDev > 0 ? (avgReturn / downDev * Math.sqrt(365)).toFixed(2) : (avgReturn > 0 ? '\u221e' : '—');
+    const sortinoEl = $('rmSortino');
+    if (sortinoEl) {
+      sortinoEl.textContent = sortino;
+      const sv = parseFloat(sortino);
+      sortinoEl.style.color = isNaN(sv) ? 'var(--green-0)' : sv > 1 ? 'var(--green-0)' : sv > 0 ? 'var(--text-0)' : 'var(--red-0)';
+    }
+    // Calmar: annualized return / max drawdown
+    const ddPct = r.true_max_drawdown_pct ?? r.max_drawdown_pct;
+    const calmarEl = $('rmCalmar');
+    if (calmarEl && ddPct && ddPct > 0) {
+      const annReturn = avgReturn * 365;
+      const startBal = s.initial_deposit ?? s.starting_balance ?? s.current_balance ?? 100;
+      const annReturnPct = startBal > 0 ? (annReturn / startBal * 100) : 0;
+      const calmar = (annReturnPct / ddPct).toFixed(2);
+      calmarEl.textContent = calmar;
+      const cv = parseFloat(calmar);
+      calmarEl.style.color = cv > 1 ? 'var(--green-0)' : cv > 0 ? 'var(--text-0)' : 'var(--red-0)';
+    } else if (calmarEl) {
+      calmarEl.textContent = '—';
+      calmarEl.style.color = 'var(--text-3)';
+    }
   }
 }
 
@@ -8462,6 +8627,86 @@ function updatePipelineCompleteness(s) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// TRADE OUTCOME STRIP
+// ═══════════════════════════════════════════════════════════════════════
+function updateTradeStrip(s) {
+  const el = $('tradeStrip');
+  if (!el || !s.recent_trades) return;
+  const trades = s.recent_trades.slice(0, 40);
+  el.innerHTML = trades.map(t => {
+    const isWin = (t.market_result === 'yes' && t.side !== 'no') ||
+                  (t.market_result === 'no' && t.side === 'no');
+    return `<div class="trade-dot ${isWin ? 'win' : 'loss'}" title="${escHtml(t.asset || '')} ${escHtml(t.ticker || '')}"></div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ROLLING PERFORMANCE CARD
+// ═══════════════════════════════════════════════════════════════════════
+function updateRollingPerf(s) {
+  const hist = s.daily_pnl_history;
+  if (!hist || !hist.length) return;
+
+  function computeRolling(days) {
+    const recent = hist.slice(-days);
+    const pnl = recent.reduce((sum, d) => sum + (d.net_pnl_cents || 0), 0);
+    const trades = recent.reduce((sum, d) => sum + (d.trades || 0), 0);
+    const wins = recent.reduce((sum, d) => sum + (d.wins || 0), 0);
+    const wr = trades > 0 ? (wins / trades * 100).toFixed(1) : '\u2014';
+    return { pnl: pnl / 100, trades, wr };
+  }
+
+  const r7 = computeRolling(7);
+  const r30 = computeRolling(30);
+
+  const fmt = v => v >= 0 ? `<span style="color:var(--green-0)">+$${v.toFixed(2)}</span>` : `<span style="color:var(--red-0)">-$${Math.abs(v).toFixed(2)}</span>`;
+
+  const e = id => $(id);
+  if (e('roll7pnl')) e('roll7pnl').innerHTML = fmt(r7.pnl);
+  if (e('roll7wr')) e('roll7wr').textContent = r7.wr + '%';
+  if (e('roll7trades')) e('roll7trades').textContent = r7.trades + ' trades';
+  if (e('roll7sub')) e('roll7sub').textContent = (r7.pnl / Math.max(r7.trades, 1)).toFixed(2) + '$/trade';
+  if (e('roll30pnl')) e('roll30pnl').innerHTML = fmt(r30.pnl);
+  if (e('roll30wr')) e('roll30wr').textContent = r30.wr + '%';
+  if (e('roll30trades')) e('roll30trades').textContent = r30.trades + ' trades';
+  if (e('roll30sub')) e('roll30sub').textContent = (r30.pnl / Math.max(r30.trades, 1)).toFixed(2) + '$/trade';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CALENDAR PnL HEATMAP
+// ═══════════════════════════════════════════════════════════════════════
+function updateCalendar(s) {
+  const el = $('calGrid');
+  if (!el || !s.daily_pnl_history || !s.daily_pnl_history.length) return;
+
+  const hist = s.daily_pnl_history.slice(-35);
+  const maxPnl = Math.max(...hist.map(d => Math.abs(d.net_pnl_cents || 0)), 1);
+
+  const dateMap = {};
+  hist.forEach(d => { dateMap[d.trade_date] = d.net_pnl_cents || 0; });
+
+  const endDate = new Date(hist[hist.length - 1].trade_date);
+  const startDate = new Date(endDate);
+  startDate.setDate(startDate.getDate() - 34);
+  startDate.setDate(startDate.getDate() - startDate.getDay());
+
+  let html = '';
+  const d = new Date(startDate);
+  while (d <= endDate) {
+    const key = d.toISOString().slice(0, 10);
+    const pnl = dateMap[key] || 0;
+    const intensity = Math.min(Math.abs(pnl) / maxPnl, 1);
+    const color = pnl > 0 ? `rgba(16,185,129,${0.15 + intensity * 0.65})` :
+                  pnl < 0 ? `rgba(244,63,94,${0.15 + intensity * 0.65})` :
+                  'var(--bg-3)';
+    const dayNum = d.getDate();
+    html += `<div class="cal-cell" style="background:${color}" title="${key}: ${(pnl/100).toFixed(2)}$"><span class="cal-day">${dayNum}</span></div>`;
+    d.setDate(d.getDate() + 1);
+  }
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // MAIN UPDATE
 // ═══════════════════════════════════════════════════════════════════════
 function update(s) {
@@ -8478,6 +8723,7 @@ function update(s) {
   const overlay = $('stale-overlay');
   if (overlay) { overlay.className = ''; overlay.style.display = 'none'; }
 
+  // ── Always-visible panels (Tier 1-3) ──
   try { updateSpotPrices(s); } catch (e) { console.error('updateSpotPrices:', e); }
   try { drawEquityCurve(s); } catch (e) { console.error('drawEquityCurve:', e); }
   try { drawPnlChart(s); } catch (e) { console.error('drawPnlChart:', e); }
@@ -8485,75 +8731,18 @@ function update(s) {
   try { updateBalance(s); } catch (e) { console.error('updateBalance:', e); }
   try { updateBotStatus(s); } catch (e) { console.error('updateBotStatus:', e); }
   try { updateWinLoss(s); } catch (e) { console.error('updateWinLoss:', e); }
-  try { updateVolatility(s); } catch (e) { console.error('updateVolatility:', e); }
   try { updateMarketTiming(s); } catch (e) { console.error('updateMarketTiming:', e); }
   try { updateFilterFunnel(s); } catch (e) { console.error('updateFilterFunnel:', e); }
   try { updateActiveOrder(s); } catch (e) { console.error('updateActiveOrder:', e); }
   try { updatePositions(s); } catch (e) { console.error('updatePositions:', e); }
   try { updateRestingOrders(s); } catch (e) { console.error('updateRestingOrders:', e); }
-  try { updateCrossExchange(s); } catch (e) { console.error('updateCrossExchange:', e); }
-  try { updateOrderFlow(s); } catch (e) { console.error('updateOrderFlow:', e); }
-  try { updateKalshiOrderFlow(s); } catch (e) { console.error('updateKalshiOrderFlow:', e); }
-  try { updateOrderbookViz(s); } catch (e) { console.error('updateOrderbookViz:', e); }
-  try { updateFundingRates(s); } catch (e) { console.error('updateFundingRates:', e); }
-  try { updateFeedHealth(s); } catch (e) { console.error('updateFeedHealth:', e); }
   try { updateTradeAnalytics(s); } catch (e) { console.error('updateTradeAnalytics:', e); }
-  try { updateNIGDistribution(s); } catch (e) { console.error('updateNIGDistribution:', e); }
-
   try { checkTradeAlert(s); } catch (e) { console.error('checkTradeAlert:', e); }
-  try { updateSessionStats(s); } catch (e) { console.error('updateSessionStats:', e); }
-  try { updateRateLimits(s); } catch (e) { console.error('updateRateLimits:', e); }
-  try { updateRecentTrades(s); } catch (e) { console.error('updateRecentTrades:', e); }
-  try { updateRecentOpportunities(s); } catch (e) { console.error('updateRecentOpportunities:', e); }
   try { updateObservationMode(s); } catch (e) { console.error('updateObservationMode:', e); }
-  try { updateTradingConfig(s); } catch (e) { console.error('updateTradingConfig:', e); }
-  try { updateCalibration(s); } catch (e) { console.error('updateCalibration:', e); }
-  try { updateCalRegistry(s); } catch (e) { console.error('updateCalRegistry:', e); }
-  try { updateAltShadow(s); } catch (e) { console.error('updateAltShadow:', e); }
-  try { updateSpxHarv(s); } catch (e) { console.error('updateSpxHarv:', e); }
-  try { update15mShadow(s); } catch (e) { console.error('update15mShadow:', e); }
-  try { updateNoSideShadow(s); } catch (e) { console.error('updateNoSideShadow:', e); }
-  try { updateWeekendDiscount(s); } catch (e) { console.error('updateWeekendDiscount:', e); }
-  try { updateOvernightDiscount(s); } catch (e) { console.error('updateOvernightDiscount:', e); }
-  try { updateOvernightLp(s); } catch (e) { console.error('updateOvernightLp:', e); }
-  try { updateDecidedContract(s); } catch (e) { console.error('updateDecidedContract:', e); }
-  try { updateTerminalMomentum(s); } catch (e) { console.error('updateTerminalMomentum:', e); }
-  try { updateBracketNo(s); } catch (e) { console.error('updateBracketNo:', e); }
-  try { updateRelaxedEdge(s); } catch (e) { console.error('updateRelaxedEdge:', e); }
-  try { updateSolPathcShadow(s); } catch (e) { console.error('updateSolPathcShadow:', e); }
-  try { updateEthFilterShadow(s); } catch (e) { console.error('updateEthFilterShadow:', e); }
-  try { updateCalibrationGap(s); } catch (e) { console.error('updateCalibrationGap:', e); }
-  try { updateCapitalUtilization(s); } catch (e) { console.error('updateCapitalUtilization:', e); }
-  try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
-  // (updateShadowVariants removed — merged into updateHourlyVariants)
-  try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
-
-  try { updateEGARCHDiagnostics(s); } catch (e) { console.error('updateEGARCHDiagnostics:', e); }
-  try { updateEGARCHBlendDiag(s); } catch (e) { console.error('updateEGARCHBlendDiag:', e); }
-  try { updateShadowCalPipeline(s); } catch (e) { console.error('updateShadowCalPipeline:', e); }
-
   try { updateUnifiedPerf(s); } catch (e) { console.error('updateUnifiedPerf:', e); }
   try { updateStrategyTable(s); } catch (e) { console.error('updateStrategyTable:', e); }
   try { updateHourlyLive(s); } catch (e) { console.error('updateHourlyLive:', e); }
-  try { updateHourlyVariants(s); } catch (e) { console.error('updateHourlyVariants:', e); }
-  try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
-  try { updateSpxObservation(s); } catch (e) { console.error('updateSpxObservation:', e); }
-  try { updateSpxVariants(s); } catch (e) { console.error('updateSpxVariants:', e); }
-  try { updateHourlyNoSide(s); } catch (e) { console.error('updateHourlyNoSide:', e); }
-  try { updateWeatherObservation(s); } catch (e) { console.error('updateWeatherObservation:', e); }
-  try { updateWeatherNoLive(s); } catch (e) { console.error('updateWeatherNoLive:', e); }
-  try { updateSportsObservation(s); } catch (e) { console.error('updateSportsObservation:', e); }
-  try { updateSportsStrongConfig(s); } catch (e) { console.error('updateSportsStrongConfig:', e); }
-  try { updateSportsVariants(s); } catch (e) { console.error('updateSportsVariants:', e); }
-  try { updateCapitalAllocation(s); } catch (e) { console.error('updateCapitalAllocation:', e); }
-
-  try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
-  try { updateExecutionQuality(s); } catch (e) { console.error('updateExecutionQuality:', e); }
-  try { updateActiveOrderExecFields(s); } catch (e) { console.error('updateActiveOrderExecFields:', e); }
-
-  // New panels
   try { updateSystemHealth(s); } catch (e) { console.error('updateSystemHealth:', e); }
-  try { updateShadowComparison(s); } catch (e) { console.error('updateShadowComparison:', e); }
   try { updateStcPerformance(s); } catch (e) { console.error('updateStcPerformance:', e); }
   try { updateStcShadow(s); } catch (e) { console.error('updateStcShadow:', e); }
   try { updateCalibrationHealth(s); } catch (e) { console.error('updateCalibrationHealth:', e); }
@@ -8561,10 +8750,81 @@ function update(s) {
   try { updateLossClustering(s); } catch (e) { console.error('updateLossClustering:', e); }
   try { updatePipelineCompleteness(s); } catch (e) { console.error('updatePipelineCompleteness:', e); }
 
+  // New panels: trade strip, rolling perf, calendar
+  try { updateTradeStrip(s); } catch (e) { console.error('updateTradeStrip:', e); }
+  try { updateRollingPerf(s); } catch (e) { console.error('updateRollingPerf:', e); }
+  try { updateCalendar(s); } catch (e) { console.error('updateCalendar:', e); }
+
   // Change 5: Status strip
   try { updateStatusStrip(s); } catch (e) { console.error('updateStatusStrip:', e); }
   // Change 6: Last trade card
   try { updateLastTradeCard(s); } catch (e) { console.error('updateLastTradeCard:', e); }
+
+  // ── Shadow tier (skip DOM updates when collapsed) ──
+  if (isTierVisible('shadow')) {
+    try { updateAltShadow(s); } catch (e) { console.error('updateAltShadow:', e); }
+    try { updateSpxHarv(s); } catch (e) { console.error('updateSpxHarv:', e); }
+    try { update15mShadow(s); } catch (e) { console.error('update15mShadow:', e); }
+    try { updateNoSideShadow(s); } catch (e) { console.error('updateNoSideShadow:', e); }
+    try { updateWeekendDiscount(s); } catch (e) { console.error('updateWeekendDiscount:', e); }
+    try { updateOvernightDiscount(s); } catch (e) { console.error('updateOvernightDiscount:', e); }
+    try { updateOvernightLp(s); } catch (e) { console.error('updateOvernightLp:', e); }
+    try { updateDecidedContract(s); } catch (e) { console.error('updateDecidedContract:', e); }
+    try { updateTerminalMomentum(s); } catch (e) { console.error('updateTerminalMomentum:', e); }
+    try { updateBracketNo(s); } catch (e) { console.error('updateBracketNo:', e); }
+    try { updateRelaxedEdge(s); } catch (e) { console.error('updateRelaxedEdge:', e); }
+    try { updateSolPathcShadow(s); } catch (e) { console.error('updateSolPathcShadow:', e); }
+    try { updateEthFilterShadow(s); } catch (e) { console.error('updateEthFilterShadow:', e); }
+    try { updateCalibrationGap(s); } catch (e) { console.error('updateCalibrationGap:', e); }
+    try { updateCapitalUtilization(s); } catch (e) { console.error('updateCapitalUtilization:', e); }
+    try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
+    try { updateShadowComparison(s); } catch (e) { console.error('updateShadowComparison:', e); }
+    try { updateShadowCalPipeline(s); } catch (e) { console.error('updateShadowCalPipeline:', e); }
+  }
+
+  // ── Tier 4: Market Intelligence (skip when collapsed) ──
+  if (isTierVisible('4')) {
+    try { updateVolatility(s); } catch (e) { console.error('updateVolatility:', e); }
+    try { updateCrossExchange(s); } catch (e) { console.error('updateCrossExchange:', e); }
+    try { updateOrderFlow(s); } catch (e) { console.error('updateOrderFlow:', e); }
+    try { updateKalshiOrderFlow(s); } catch (e) { console.error('updateKalshiOrderFlow:', e); }
+    try { updateOrderbookViz(s); } catch (e) { console.error('updateOrderbookViz:', e); }
+    try { updateFundingRates(s); } catch (e) { console.error('updateFundingRates:', e); }
+    try { updateFeedHealth(s); } catch (e) { console.error('updateFeedHealth:', e); }
+    try { updateExecutionEngine(s); } catch (e) { console.error('updateExecutionEngine:', e); }
+    try { updateExecutionQuality(s); } catch (e) { console.error('updateExecutionQuality:', e); }
+    try { updateActiveOrderExecFields(s); } catch (e) { console.error('updateActiveOrderExecFields:', e); }
+  }
+
+  // ── Tier 5: Models & Calibration (skip when collapsed) ──
+  if (isTierVisible('5')) {
+    try { updateCalibration(s); } catch (e) { console.error('updateCalibration:', e); }
+    try { updateCalRegistry(s); } catch (e) { console.error('updateCalRegistry:', e); }
+    try { updateNIGDistribution(s); } catch (e) { console.error('updateNIGDistribution:', e); }
+    try { updateTradingConfig(s); } catch (e) { console.error('updateTradingConfig:', e); }
+    try { updateEGARCHDiagnostics(s); } catch (e) { console.error('updateEGARCHDiagnostics:', e); }
+    try { updateEGARCHBlendDiag(s); } catch (e) { console.error('updateEGARCHBlendDiag:', e); }
+    try { updateAskDistribution(s); } catch (e) { console.error('updateAskDistribution:', e); }
+    try { updateHourlyVariants(s); } catch (e) { console.error('updateHourlyVariants:', e); }
+    try { updateHourlyObservation(s); } catch (e) { console.error('updateHourlyObservation:', e); }
+    try { updateSpxObservation(s); } catch (e) { console.error('updateSpxObservation:', e); }
+    try { updateSpxVariants(s); } catch (e) { console.error('updateSpxVariants:', e); }
+    try { updateHourlyNoSide(s); } catch (e) { console.error('updateHourlyNoSide:', e); }
+    try { updateWeatherObservation(s); } catch (e) { console.error('updateWeatherObservation:', e); }
+    try { updateWeatherNoLive(s); } catch (e) { console.error('updateWeatherNoLive:', e); }
+    try { updateSportsObservation(s); } catch (e) { console.error('updateSportsObservation:', e); }
+    try { updateSportsStrongConfig(s); } catch (e) { console.error('updateSportsStrongConfig:', e); }
+    try { updateSportsVariants(s); } catch (e) { console.error('updateSportsVariants:', e); }
+    try { updateCapitalAllocation(s); } catch (e) { console.error('updateCapitalAllocation:', e); }
+  }
+
+  // ── Tier 6: Trade History (skip when collapsed) ──
+  if (isTierVisible('6')) {
+    try { updateSessionStats(s); } catch (e) { console.error('updateSessionStats:', e); }
+    try { updateRateLimits(s); } catch (e) { console.error('updateRateLimits:', e); }
+    try { updateRecentTrades(s); } catch (e) { console.error('updateRecentTrades:', e); }
+    try { updateRecentOpportunities(s); } catch (e) { console.error('updateRecentOpportunities:', e); }
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -10006,6 +10266,21 @@ function loadSectionQuotes() {
   }
 }
 loadSectionQuotes();
+
+// ═══════════════════════════════════════════════════════════════════════
+// RESEARCH PANEL TOGGLE
+// ═══════════════════════════════════════════════════════════════════════
+window.toggleResearch = function() {
+  document.querySelectorAll('.research-panel').forEach(el => {
+    el.style.display = el.style.display === 'none' ? '' : 'none';
+  });
+  const btn = $('researchToggle');
+  if (btn) btn.textContent = btn.textContent.includes('expand') ?
+    '\u25be Research / Data Collection (click to collapse)' :
+    '\u25b8 Research / Data Collection (click to expand)';
+};
+// Default: hide research panels
+document.querySelectorAll('.research-panel').forEach(el => el.style.display = 'none');
 </script>
 </body>
 </html>
