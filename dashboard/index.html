@@ -3647,8 +3647,9 @@ function drawPnlChart(s) {
   if (!canvas) return;
 
   const rta = s.real_trade_analytics;
-  const useAll = _dashboardScope === 'all';
-  let rawData = rta && (useAll ? (rta.all_products_cumulative_pnl || rta.cumulative_pnl) : rta.cumulative_pnl);
+  // Always use all-products data so strategy filters (15M/DC/HOURLY/DISC) work
+  // (15M-only cumulative_pnl lacks pt/strat fields, breaking all filter buttons)
+  let rawData = rta && (rta.all_products_cumulative_pnl || rta.cumulative_pnl);
   if (!rawData || !Array.isArray(rawData) || rawData.length < 1) return;
 
   // Strategy filter — recompute cumulative from filtered trades
@@ -3719,7 +3720,11 @@ function drawPnlChart(s) {
     elReturn.textContent = (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%';
     elReturn.style.color = pnlPct >= 0 ? 'var(--green-0)' : 'var(--red-0)';
   }
-  if (elTrades) elTrades.textContent = data.length;
+  // Use actual trade count, not thinned data point count
+  const actualTradeCount = _pnlFilter === 'all'
+    ? (s.all_products_win_count ?? 0) + (s.all_products_loss_count ?? 0)
+    : data.length;  // filtered views already have correct count
+  if (elTrades) elTrades.textContent = actualTradeCount;
 
   // Prepend a zero point at first trade time minus a tiny offset
   const pts = [{ts: data[0].ts, pnl: 0, pct: 0}];
