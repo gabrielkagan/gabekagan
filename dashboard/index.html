@@ -1210,6 +1210,9 @@ body::before {
 .pos-mtm .up { color: var(--green-0); }
 .pos-mtm .down { color: var(--red-0); }
 .pos-mtm .flat { color: var(--text-2); }
+.pos-mtm .buf-watch { color: var(--amber-0); }
+.pos-mtm .buf-danger { color: var(--red-0); font-weight: 700; }
+.pos-buffer { border-top: 1px solid var(--border-0); padding-top: 4px; margin-top: 2px; }
 .spark { display: inline-flex; align-items: flex-end; gap: 1px; height: 16px; vertical-align: middle; }
 .spark-bar { width: 3px; border-radius: 1px; min-height: 2px; }
 .spark-bar.up { background: var(--green-0); }
@@ -4521,6 +4524,7 @@ function updatePositions(s) {
     // Mark-to-market row
     let mtmHtml = '';
     if (h) {
+      const hasOb = h.has_ob !== false && h.mid_price != null;
       const pnlClass = h.unrealized_cents > 0 ? 'up' : h.unrealized_cents < 0 ? 'down' : 'flat';
       const pnlSign = h.unrealized_cents > 0 ? '+' : '';
       const pctSign = h.unrealized_pct > 0 ? '+' : '';
@@ -4541,14 +4545,37 @@ function updatePositions(s) {
         }).join('') + '</span>';
       }
 
-      mtmHtml = `<div class="pos-mtm">
+      // Spot buffer row
+      let bufHtml = '';
+      const buf = h.buffer;
+      if (buf && buf.current != null) {
+        const bufClass = buf.current > 10 ? 'up' : buf.current > 3 ? 'buf-watch' : buf.current > 0 ? 'down' : 'buf-danger';
+        const trendIcon = buf.trend === 'rising' ? '↑' : buf.trend === 'falling' ? '↓' : '→';
+        const trendClass = buf.trend === 'rising' ? 'up' : buf.trend === 'falling' ? 'down' : 'flat';
+        const spotStr = buf.spot != null ? buf.spot.toLocaleString(undefined, {maximumFractionDigits: 2}) : '—';
+        const threshStr = buf.threshold != null ? buf.threshold.toLocaleString(undefined, {maximumFractionDigits: 2}) : '—';
+        const rangeStr = (buf.min != null && buf.max != null) ? `(${buf.min}% · ${buf.max}%)` : '';
+        bufHtml = `<div class="pos-mtm pos-buffer">
+          <span class="${bufClass}"><span class="dim">buffer</span>${buf.current > 0 ? '+' : ''}${buf.current}%</span>
+          <span class="${trendClass}" title="Buffer trend">${trendIcon}</span>
+          <span><span class="dim">spot</span>$${spotStr}</span>
+          <span><span class="dim">thresh</span>$${threshStr}</span>
+          ${rangeStr ? `<span class="flat"><span class="dim">range</span>${rangeStr}</span>` : ''}
+        </div>`;
+      }
+
+      const obRow = hasOb ? `<div class="pos-mtm">
         <span><span class="dim">mid</span>${h.mid_price}¢</span>
         <span><span class="dim">bid</span>${h.best_bid}¢</span>
         <span><span class="dim">spd</span>${h.spread}¢</span>
         <span class="${pnlClass}"><span class="dim">P&L</span>${pnlSign}${h.unrealized_cents}¢ (${pctSign}${h.unrealized_pct}%)</span>
         ${stcStr ? `<span><span class="dim">stc</span>${stcStr}</span>` : ''}
         ${sparkHtml}
+      </div>` : `<div class="pos-mtm">
+        <span class="flat">no orderbook</span>
+        ${stcStr ? `<span><span class="dim">stc</span>${stcStr}</span>` : ''}
       </div>`;
+      mtmHtml = obRow + bufHtml;
     }
 
     return `<div class="pos-item">
