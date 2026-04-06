@@ -3708,10 +3708,11 @@ function drawPnlChart(s) {
   const startBal = (s.starting_balance ?? 100) * 100; // cents
   const returnBase = (s.initial_deposit ?? s.starting_balance ?? 100) * 100; // cents — true initial deposit for return %
 
-  // Update summary stats
+  // Update summary stats — prefer balance-derived actual PnL (avoids fee overcounting)
   const lastPnl = data[data.length - 1].cum_pnl;
-  const pnlDollars = lastPnl / 100;
-  const pnlPct = returnBase > 0 ? (lastPnl / returnBase * 100) : 0;
+  const actualPnl = (_pnlFilter === 'all' && s.actual_pnl_cents != null) ? s.actual_pnl_cents : lastPnl;
+  const pnlDollars = actualPnl / 100;
+  const pnlPct = returnBase > 0 ? (actualPnl / returnBase * 100) : 0;
   const elTotal = $('pnlTotal');
   const elReturn = $('pnlReturn');
   const elTrades = $('pnlTrades');
