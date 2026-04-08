@@ -3689,8 +3689,11 @@ function drawPnlChart(s) {
       const prev = i > 0 ? rawData[i-1].cum_pnl : 0;
       perTrade.push({...rawData[i], net: rawData[i].cum_pnl - prev});
     }
+    const _isTm = (strat) => strat && strat.startsWith('terminal_momentum');
+    const _isBn = (strat) => strat === 'bracket_no';
+    const _isLpne = (strat) => strat === 'low_price_near_expiry';
     const filteredTrades = perTrade.filter(d => {
-      if (_pnlFilter === '15m') return d.pt === '15m' && !dcStrats.includes(d.strat) && !discStrats.includes(d.strat);
+      if (_pnlFilter === '15m') return d.pt === '15m' && !dcStrats.includes(d.strat) && !discStrats.includes(d.strat) && !_isTm(d.strat) && !_isBn(d.strat) && !_isLpne(d.strat);
       if (_pnlFilter === 'dc') return dcStrats.includes(d.strat);
       if (_pnlFilter === 'hourly') return d.pt === 'hourly';
       if (_pnlFilter === 'discount') return discStrats.includes(d.strat);
@@ -7899,7 +7902,7 @@ function updateTerminalMomentum(s) {
     </div>
     <div style="flex:1;padding:4px 8px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0);font-size:10px">
       <span style="color:var(--text-3)">Avg Fill:</span>
-      <span style="font-family:var(--mono);font-weight:600;color:${avgFillColor}">${avgFill} / 50 target</span>
+      <span style="font-family:var(--mono);font-weight:600;color:${avgFillColor}">${avgFill}ct avg</span>
     </div>
   </div>`;
 
@@ -7909,7 +7912,7 @@ function updateTerminalMomentum(s) {
     html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By Price</div>';
     html += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px">';
     html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Price</td><td>Trades</td><td>W/L</td><td>WR</td><td>PnL</td></tr>';
-    for (const price of ['95', '96', '98', '99']) {
+    for (const price of ['95', '96', '97', '98', '99']) {
       const v = bp[price];
       if (!v) continue;
       const pWr = v.trades > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
@@ -8905,10 +8908,11 @@ function updateUnifiedPerf(s) {
   const dcKeys = ['decided_t1', 'decided_t1b', 'decided_t2', 'decided_t2_z2', 'decided_t2_z25'];
   const discKeys = ['weekend_discount', 'overnight_discount'];
   function sumPnl(keys) { return keys.reduce((s, k) => s + ((byStrat[k] ?? {}).net_pnl ?? 0), 0); }
+  function sumPnlPrefix(prefix) { return Object.keys(byStrat).filter(k => k.startsWith(prefix)).reduce((s, k) => s + (byStrat[k].net_pnl ?? 0), 0); }
   const mainPnl = sumPnl(mainKeys) / 100;
   const dcPnl = sumPnl(dcKeys) / 100;
   const discPnl = sumPnl(discKeys) / 100;
-  const tmPnl = sumPnl(['terminal_momentum']) / 100;
+  const tmPnl = sumPnlPrefix('terminal_momentum') / 100;
   const bnPnl = sumPnl(['bracket_no']) / 100;
   const hlPnl = ((s.hourly_live ?? {}).pnl_cents ?? 0) / 100;
   const segs = [
@@ -8940,7 +8944,7 @@ function updateStrategyTable(s) {
   const mainKeys = ['MAKER_PATIENT', 'TAKER_NOW', 'MAKER_AGGRESSIVE', 'PANIC_CAPTURE'];
   const dcKeys = ['decided_t1', 'decided_t1b', 'decided_t2', 'decided_t2_z2', 'decided_t2_z25'];
   const discKeys = ['weekend_discount', 'overnight_discount'];
-  const tmKeys = ['terminal_momentum'];
+  const tmKeys = Object.keys(byStrat).filter(k => k.startsWith('terminal_momentum'));
   const bnKeys = ['bracket_no'];
 
   function agg(keys) {
