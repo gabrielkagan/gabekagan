@@ -2768,12 +2768,11 @@ body.public-view #publicBanner { display: block; }
     </div>
   </div>
 
-  <!-- Weekend Edge Discount -->
-  <div class="cell shadow-panel" id="weekendDiscountCell" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
+  <!-- Weekend Edge Discount (LIVE) -->
+  <div class="cell" id="weekendDiscountCell" style="grid-column:span 4">
     <div class="cell-label">
-      Weekend Edge Discount (0.6x)
-      <span class="tag" id="weekendDiscountTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+      Weekend Edge Discount (LIVE)
+      <span class="tag" id="weekendDiscountTag" style="background:var(--green-bg);color:var(--green-0)">LIVE</span>
     </div>
     <div id="weekendDiscountBody" style="font-size:11px;color:var(--text-2)">
       <div style="color:var(--text-3);font-style:italic">Waiting for weekend data...</div>
@@ -2834,12 +2833,11 @@ body.public-view #publicBanner { display: block; }
     </div>
   </div>
 
-  <!-- Decided Contract Shadow -->
-  <div class="cell shadow-panel" id="decidedContractCell" style="grid-column:span 4">
-    <div class="shadow-badge">SHADOW</div>
+  <!-- Decided Contract LIVE (was Shadow — promoted) -->
+  <div class="cell" id="decidedContractCell" style="grid-column:span 4">
     <div class="cell-label">
-      Decided Contract Shadow
-      <span class="tag" id="decidedContractTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
+      Decided Contracts (LIVE)
+      <span class="tag" id="decidedContractTag" style="background:var(--green-bg);color:var(--green-0)">LIVE</span>
     </div>
     <div id="decidedContractBody" style="font-size:11px;color:var(--text-2)">
       <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
@@ -2872,30 +2870,6 @@ body.public-view #publicBanner { display: block; }
 
   <!-- ─── RESEARCH / DATA COLLECTION ─── -->
   <div id="researchToggle" onclick="document.querySelectorAll('.research-panel').forEach(function(el){el.style.display=el.style.display==='none'?'':'none'})" style="grid-column:1/-1;padding:8px 22px 4px;font:600 9px/1 var(--sans);color:var(--text-3);text-transform:uppercase;letter-spacing:1.5px;cursor:pointer">&#9654; Research / Data Collection (click to expand)</div>
-
-  <!-- SOL Path C Shadow -->
-  <div class="cell shadow-panel research-panel" id="solPathcCell" style="grid-column:span 4;display:none">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      SOL Path C (Maker vs Taker)
-      <span class="tag" id="solPathcTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="solPathcBody" style="font-size:11px;color:var(--text-2)">
-      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
-    </div>
-  </div>
-
-  <!-- ETH Filter Shadow -->
-  <div class="cell shadow-panel research-panel" id="ethFilterCell" style="grid-column:span 4;display:none">
-    <div class="shadow-badge">SHADOW</div>
-    <div class="cell-label">
-      ETH Entry Filter
-      <span class="tag" id="ethFilterTag" style="background:var(--bg-2);color:var(--text-3)">—</span>
-    </div>
-    <div id="ethFilterBody" style="font-size:11px;color:var(--text-2)">
-      <div style="color:var(--text-3);font-style:italic">Waiting for data...</div>
-    </div>
-  </div>
 
   <!-- Calibration Gap -->
   <div class="cell shadow-panel research-panel" id="calibrationGapCell" style="grid-column:span 4;display:none">
@@ -5045,7 +5019,7 @@ function updateTradeAnalytics(s) {
   $('elTaWins').textContent = wins;
   $('elTaLosses').textContent = losses;
   const avgEl = $('elTaAvg');
-  avgEl.textContent = (avgPnl >= 0 ? '+' : '') + (avgPnl / 100).toFixed(2) + '\u00a2';
+  avgEl.textContent = (avgPnl >= 0 ? '+$' : '-$') + Math.abs(avgPnl / 100).toFixed(2);
   avgEl.className = 'meta-val ' + (avgPnl >= 0 ? 'up' : 'dn');
   const dailyEl = $('elTaDaily');
   const dailyPnl = dailyPnlCents / 100;
@@ -6979,7 +6953,7 @@ function updateWeatherNoLive(s) {
 
   // Status banner
   if (!isLive) {
-    html += '<div style="padding:6px 8px;margin-bottom:8px;border-radius:var(--radius-sm);background:var(--amber-bg);color:var(--amber-0);font-size:10px;text-align:center">Kill switch OFF &mdash; launches March 20</div>';
+    html += '<div style="padding:6px 8px;margin-bottom:8px;border-radius:var(--radius-sm);background:var(--amber-bg);color:var(--amber-0);font-size:10px;text-align:center">Kill switch OFF</div>';
   }
 
   // Four-column metric cards
@@ -7041,7 +7015,7 @@ function updateWeatherNoLive(s) {
   }
 
   if (trades === 0) {
-    html += '<div style="padding:8px;text-align:center;color:var(--text-3);font-size:11px">No trades yet &mdash; populates after March 20 launch</div>';
+    html += '<div style="padding:8px;text-align:center;color:var(--text-3);font-size:11px">No trades yet</div>';
   } else {
     html += '<div style="font-size:8px;color:var(--text-3);margin-top:4px;text-align:center">Fixed 1-contract sizing, real PnL (fees deducted)</div>';
   }
@@ -7485,104 +7459,67 @@ function updateNoSideShadow(s) {
 // WEEKEND EDGE DISCOUNT SHADOW
 // ═══════════════════════════════════════════════════════════════════════
 function updateWeekendDiscount(s) {
-  const d = s.weekend_discount_shadow;
+  const d = s.weekend_discount_live;
   const tag = $('weekendDiscountTag');
   const body = $('weekendDiscountBody');
   if (!d) { if (tag) tag.textContent = '—'; return; }
 
-  const settled = d.settled || 0;
+  const trades = d.trades || 0;
   const wins = d.wins || 0;
-  const wr = settled > 0 ? (d.wr * 100).toFixed(1) + '%' : '—';
-  const pnl = d.sim_pnl_cents != null ? (d.sim_pnl_cents / 100).toFixed(2) : '0.00';
-  const pnlColor = d.sim_pnl_cents > 0 ? 'var(--green-0)' : d.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
-  const wrColor = d.wr >= 0.85 ? 'var(--green-0)' : d.wr >= 0.75 ? 'var(--amber-0)' : 'var(--red-0)';
+  const losses = d.losses || 0;
+  const wr = trades > 0 ? (d.wr * 100).toFixed(1) + '%' : '—';
+  const pnlCents = d.pnl_cents || 0;
+  const pnl = (pnlCents / 100).toFixed(2);
+  const pnlColor = pnlCents > 0 ? 'var(--green-0)' : pnlCents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+  const wrColor = d.wr >= 0.85 ? 'var(--green-0)' : d.wr >= 0.75 ? 'var(--amber-0)' : trades > 0 ? 'var(--red-0)' : 'var(--text-2)';
 
-  // Graduation status
-  const gradTarget = 60;
-  const gradPct = Math.min(100, Math.round(settled / gradTarget * 100));
-  const gradStatus = settled >= gradTarget
-    ? (d.wr >= 0.85 ? 'READY TO PROMOTE' : 'NOT PASSING')
-    : `${settled}/${gradTarget} settled`;
-
-  tag.textContent = d.total_signals + ' SIG';
-  tag.style.background = settled > 0 ? 'var(--amber-bg)' : 'var(--bg-2)';
-  tag.style.color = settled > 0 ? 'var(--amber-0)' : 'var(--text-3)';
+  tag.textContent = trades > 0 ? trades + ' LIVE' : 'LIVE';
+  tag.style.background = 'var(--green-bg)';
+  tag.style.color = 'var(--green-0)';
 
   let html = `
     <div style="display:flex;gap:12px;margin-bottom:8px">
       <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
-        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Signals</div>
-        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${d.total_signals}</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Trades</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${trades}</div>
       </div>
       <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
-        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Settled</div>
-        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${settled}</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">W / L</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${wins} / ${losses}</div>
       </div>
       <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
         <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Win Rate</div>
         <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${wrColor}">${wr}</div>
       </div>
       <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
-        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Sim PnL</div>
-        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${pnlColor}">${d.sim_pnl_cents >= 0 ? '+' : ''}$${pnl}</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Real PnL</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${pnlColor}">${pnlCents >= 0 ? '+' : ''}$${pnl}</div>
       </div>
     </div>`;
-
-  // Graduation progress bar
-  const gradColor = settled >= gradTarget ? (d.wr >= 0.85 ? 'var(--green-0)' : 'var(--red-0)') : 'var(--amber-0)';
-  html += `<div style="margin-bottom:8px;padding:4px 8px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
-    <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">
-      <span style="color:var(--text-3)">Graduation</span>
-      <span style="color:${gradColor};font-weight:600">${gradStatus}</span>
-    </div>
-    <div style="height:4px;background:var(--bg-0);border-radius:2px;overflow:hidden">
-      <div style="width:${gradPct}%;height:100%;background:${gradColor};border-radius:2px"></div>
-    </div>
-  </div>`;
 
   // Per-asset table
   const ba = d.by_asset;
   if (ba && Object.keys(ba).length > 0) {
     html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By Asset</div>';
-    html += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px">';
-    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Asset</td><td>Sig</td><td>Settled</td><td>WR</td><td>PnL</td></tr>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Asset</td><td>Trades</td><td>W / L</td><td>WR</td><td>PnL</td></tr>';
     for (const [a, v] of Object.entries(ba)) {
-      const aWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
-      const aPnl = (v.sim_pnl_cents / 100).toFixed(2);
-      const aWrColor = v.wr >= 0.85 ? 'var(--green-0)' : v.wr >= 0.75 ? 'var(--amber-0)' : 'var(--red-0)';
-      const aPnlColor = v.sim_pnl_cents > 0 ? 'var(--green-0)' : v.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      const aTrades = v.trades || 0;
+      const aWr = aTrades > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const aPnl = ((v.pnl_cents || 0) / 100).toFixed(2);
+      const aWrColor = v.wr >= 0.85 ? 'var(--green-0)' : v.wr >= 0.75 ? 'var(--amber-0)' : aTrades > 0 ? 'var(--red-0)' : 'var(--text-2)';
+      const aPnlColor = (v.pnl_cents || 0) > 0 ? 'var(--green-0)' : (v.pnl_cents || 0) < 0 ? 'var(--red-0)' : 'var(--text-2)';
       html += `<tr style="border-bottom:1px solid var(--border-0)">
         <td style="padding:2px 4px;font-weight:500">${escHtml(a)}</td>
-        <td>${v.n}</td><td>${v.settled}</td>
+        <td>${aTrades}</td><td>${v.wins || 0} / ${v.losses || 0}</td>
         <td style="color:${aWrColor}">${aWr}</td>
-        <td style="color:${aPnlColor}">${v.sim_pnl_cents >= 0 ? '+' : ''}$${aPnl}</td>
+        <td style="color:${aPnlColor}">${(v.pnl_cents || 0) >= 0 ? '+' : ''}$${aPnl}</td>
       </tr>`;
     }
     html += '</table>';
   }
 
-  // Per-price-tier table
-  const bt = d.by_price_tier;
-  if (bt && Object.keys(bt).length > 0) {
-    html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By Price Tier</div>';
-    html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
-    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Tier</td><td>Sig</td><td>Settled</td><td>WR</td><td>PnL</td></tr>';
-    for (const [t, v] of Object.entries(bt)) {
-      const tWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
-      const tPnl = (v.sim_pnl_cents / 100).toFixed(2);
-      const tWrColor = v.wr >= 0.85 ? 'var(--green-0)' : v.wr >= 0.75 ? 'var(--amber-0)' : 'var(--red-0)';
-      const tPnlColor = v.sim_pnl_cents > 0 ? 'var(--green-0)' : v.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
-      html += `<tr style="border-bottom:1px solid var(--border-0)">
-        <td style="padding:2px 4px;font-weight:500">${escHtml(t)}</td>
-        <td>${v.n}</td><td>${v.settled}</td>
-        <td style="color:${tWrColor}">${tWr}</td>
-        <td style="color:${tPnlColor}">${v.sim_pnl_cents >= 0 ? '+' : ''}$${tPnl}</td>
-      </tr>`;
-    }
-    html += '</table>';
-  }
-
-  body.innerHTML = html || '<div style="color:var(--text-3)">No weekend discount signals yet (active Sat/Sun only)</div>';
+  body.innerHTML = trades > 0 ? html : '<div style="color:var(--text-3)">No weekend discount fills yet (active Sat/Sun only)</div>';
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -7808,57 +7745,61 @@ function updateOvernightLp(s) {
 // DECIDED CONTRACT SHADOW
 // ═══════════════════════════════════════════════════════════════════════
 function updateDecidedContract(s) {
-  const d = s.decided_contract_shadow;
+  const d = s.decided_contract_live;
   const tag = $('decidedContractTag');
   const body = $('decidedContractBody');
   if (!d) { if (tag) tag.textContent = '—'; return; }
 
-  const settled = d.settled || 0;
-  const wr = settled > 0 ? (d.wr * 100).toFixed(1) + '%' : '—';
-  const pnl = d.sim_pnl_cents != null ? (d.sim_pnl_cents / 100).toFixed(2) : '0.00';
-  const pnlColor = d.sim_pnl_cents > 0 ? 'var(--green-0)' : d.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
-  const wrColor = d.wr >= 0.95 ? 'var(--green-0)' : d.wr >= 0.85 ? 'var(--amber-0)' : 'var(--red-0)';
+  const trades = d.trades || 0;
+  const wins = d.wins || 0;
+  const losses = d.losses || 0;
+  const wr = trades > 0 ? (d.wr * 100).toFixed(1) + '%' : '—';
+  const pnlCents = d.pnl_cents || 0;
+  const pnl = (pnlCents / 100).toFixed(2);
+  const pnlColor = pnlCents > 0 ? 'var(--green-0)' : pnlCents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+  const wrColor = d.wr >= 0.95 ? 'var(--green-0)' : d.wr >= 0.85 ? 'var(--amber-0)' : trades > 0 ? 'var(--red-0)' : 'var(--text-2)';
 
-  tag.textContent = d.total_signals + ' SIG';
-  tag.style.background = settled > 0 ? 'var(--amber-bg)' : 'var(--bg-2)';
-  tag.style.color = settled > 0 ? 'var(--amber-0)' : 'var(--text-3)';
+  tag.textContent = trades > 0 ? trades + ' LIVE' : 'LIVE';
+  tag.style.background = 'var(--green-bg)';
+  tag.style.color = 'var(--green-0)';
 
   let html = `
     <div style="display:flex;gap:12px;margin-bottom:8px">
       <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
-        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Signals</div>
-        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${d.total_signals}</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Trades</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${trades}</div>
       </div>
       <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
-        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Settled</div>
-        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${settled}</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">W / L</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-1)">${wins} / ${losses}</div>
       </div>
       <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
         <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Win Rate</div>
         <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${wrColor}">${wr}</div>
       </div>
       <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
-        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Sim PnL</div>
-        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${pnlColor}">${d.sim_pnl_cents >= 0 ? '+' : ''}$${pnl}</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">Real PnL</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:${pnlColor}">${pnlCents >= 0 ? '+' : ''}$${pnl}</div>
       </div>
     </div>`;
 
-  // By-tier table (decided_contract_t1 vs decided_contract_t2)
+  // By-tier table
   const bt = d.by_tier;
   if (bt && Object.keys(bt).length > 0) {
     html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By Tier</div>';
     html += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px">';
-    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Tier</td><td>N</td><td>Settled</td><td>WR</td><td>PnL</td></tr>';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Tier</td><td>Trades</td><td>W / L</td><td>WR</td><td>PnL</td></tr>';
     for (const [t, v] of Object.entries(bt)) {
-      const tWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
-      const tPnl = (v.sim_pnl_cents / 100).toFixed(2);
-      const tWrColor = v.wr >= 0.95 ? 'var(--green-0)' : v.wr >= 0.85 ? 'var(--amber-0)' : 'var(--red-0)';
-      const tPnlColor = v.sim_pnl_cents > 0 ? 'var(--green-0)' : v.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      const tTrades = v.trades || 0;
+      const tWr = tTrades > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const tPnl = ((v.pnl_cents || 0) / 100).toFixed(2);
+      const tWrColor = v.wr >= 0.95 ? 'var(--green-0)' : v.wr >= 0.85 ? 'var(--amber-0)' : tTrades > 0 ? 'var(--red-0)' : 'var(--text-2)';
+      const tPnlColor = (v.pnl_cents || 0) > 0 ? 'var(--green-0)' : (v.pnl_cents || 0) < 0 ? 'var(--red-0)' : 'var(--text-2)';
       html += `<tr style="border-bottom:1px solid var(--border-0)">
         <td style="padding:2px 4px;font-weight:500">${escHtml(t)}</td>
-        <td>${v.n}</td><td>${v.settled}</td>
+        <td>${tTrades}</td><td>${v.wins || 0} / ${v.losses || 0}</td>
         <td style="color:${tWrColor}">${tWr}</td>
-        <td style="color:${tPnlColor}">${v.sim_pnl_cents >= 0 ? '+' : ''}$${tPnl}</td>
+        <td style="color:${tPnlColor}">${(v.pnl_cents || 0) >= 0 ? '+' : ''}$${tPnl}</td>
       </tr>`;
     }
     html += '</table>';
@@ -7869,23 +7810,24 @@ function updateDecidedContract(s) {
   if (ba && Object.keys(ba).length > 0) {
     html += '<div style="margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px">By Asset</div>';
     html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
-    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Asset</td><td>N</td><td>Settled</td><td>WR</td><td>PnL</td></tr>';
+    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)"><td style="padding:2px 4px">Asset</td><td>Trades</td><td>W / L</td><td>WR</td><td>PnL</td></tr>';
     for (const [a, v] of Object.entries(ba)) {
-      const aWr = v.settled > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
-      const aPnl = (v.sim_pnl_cents / 100).toFixed(2);
-      const aWrColor = v.wr >= 0.95 ? 'var(--green-0)' : v.wr >= 0.85 ? 'var(--amber-0)' : 'var(--red-0)';
-      const aPnlColor = v.sim_pnl_cents > 0 ? 'var(--green-0)' : v.sim_pnl_cents < 0 ? 'var(--red-0)' : 'var(--text-2)';
+      const aTrades = v.trades || 0;
+      const aWr = aTrades > 0 ? (v.wr * 100).toFixed(1) + '%' : '—';
+      const aPnl = ((v.pnl_cents || 0) / 100).toFixed(2);
+      const aWrColor = v.wr >= 0.95 ? 'var(--green-0)' : v.wr >= 0.85 ? 'var(--amber-0)' : aTrades > 0 ? 'var(--red-0)' : 'var(--text-2)';
+      const aPnlColor = (v.pnl_cents || 0) > 0 ? 'var(--green-0)' : (v.pnl_cents || 0) < 0 ? 'var(--red-0)' : 'var(--text-2)';
       html += `<tr style="border-bottom:1px solid var(--border-0)">
         <td style="padding:2px 4px;font-weight:500">${escHtml(a)}</td>
-        <td>${v.n}</td><td>${v.settled}</td>
+        <td>${aTrades}</td><td>${v.wins || 0} / ${v.losses || 0}</td>
         <td style="color:${aWrColor}">${aWr}</td>
-        <td style="color:${aPnlColor}">${v.sim_pnl_cents >= 0 ? '+' : ''}$${aPnl}</td>
+        <td style="color:${aPnlColor}">${(v.pnl_cents || 0) >= 0 ? '+' : ''}$${aPnl}</td>
       </tr>`;
     }
     html += '</table>';
   }
 
-  body.innerHTML = html || '<div style="color:var(--text-3)">No decided contract signals yet</div>';
+  body.innerHTML = trades > 0 ? html : '<div style="color:var(--text-3)">No decided contract fills yet</div>';
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -8187,116 +8129,6 @@ function updateRelaxedEdge(s) {
   body.innerHTML = html || '<div style="color:var(--text-3)">No relaxed edge signals yet</div>';
 }
 
-function updateSolPathcShadow(s) {
-  const d = s.sol_pathc_shadow;
-  const tag = $('solPathcTag');
-  const body = $('solPathcBody');
-  if (!d || !tag) return;
-  if (!d.total_signals) { tag.textContent = '—'; return; }
-
-  const settled = d.settled || 0;
-  const wr = settled > 0 ? ((d.wins / settled) * 100).toFixed(1) + '%' : '—';
-  const livePnl = (d.live_pnl_cents || 0) / 100;
-  const bestPnl = (d.pathc_best_pnl_cents || 0) / 100;
-  const delta = (d.pnl_delta_cents || 0) / 100;
-  const deltaColor = delta > 0 ? 'var(--green-0)' : delta < 0 ? 'var(--red-0)' : 'var(--text-2)';
-  const touchRate = d.maker_touch_rate != null ? (d.maker_touch_rate * 100).toFixed(1) + '%' : '—';
-
-  tag.textContent = d.total_signals + ' SIG';
-  tag.style.background = settled > 0 ? 'var(--amber-bg)' : 'var(--bg-2)';
-  tag.style.color = settled > 0 ? 'var(--amber-0)' : 'var(--text-3)';
-
-  const box = (label, value, color) => `
-    <div style="flex:1;text-align:center;padding:6px;border-radius:var(--radius-sm);background:var(--bg-1);border:1px solid var(--border-0)">
-      <div style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-3)">${label}</div>
-      <div style="font-family:var(--mono);font-size:14px;font-weight:600;color:${color || 'var(--text-1)'}">${value}</div>
-    </div>`;
-
-  let html = `<div style="display:flex;gap:8px;margin-bottom:8px">
-    ${box('Signals', d.total_signals)}
-    ${box('Settled', settled)}
-    ${box('WR', wr, settled > 0 && d.wins/settled >= 0.85 ? 'var(--green-0)' : 'var(--amber-0)')}
-    ${box('Touch Rate', touchRate)}
-  </div>`;
-
-  html += `<div style="display:flex;gap:8px;margin-bottom:8px">
-    ${box('Live PnL', (livePnl >= 0 ? '+' : '') + '$' + livePnl.toFixed(2), livePnl >= 0 ? 'var(--green-0)' : 'var(--red-0)')}
-    ${box('PathC Best', (bestPnl >= 0 ? '+' : '') + '$' + bestPnl.toFixed(2), bestPnl >= 0 ? 'var(--green-0)' : 'var(--red-0)')}
-    ${box('Δ PnL', (delta >= 0 ? '+' : '') + '$' + delta.toFixed(2), deltaColor)}
-  </div>`;
-
-  if (settled > 0) {
-    const makerPnl = ((d.pathc_maker_pnl_cents || 0) / 100).toFixed(2);
-    const escPnl = ((d.pathc_esc_pnl_cents || 0) / 100).toFixed(2);
-    html += `<table style="width:100%;border-collapse:collapse;font-size:11px">
-      <tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)">
-        <td style="padding:2px 4px">Path</td><td>PnL</td><td>Note</td></tr>
-      <tr style="border-bottom:1px solid var(--border-0)">
-        <td style="padding:2px 4px;font-weight:500">Live Taker</td>
-        <td style="color:${livePnl >= 0 ? 'var(--green-0)' : 'var(--red-0)'}">${livePnl >= 0 ? '+' : ''}$${livePnl.toFixed(2)}</td>
-        <td style="color:var(--text-3)">${d.wins}W/${d.losses}L</td></tr>
-      <tr style="border-bottom:1px solid var(--border-0)">
-        <td style="padding:2px 4px;font-weight:500">PathC Maker</td>
-        <td style="color:${makerPnl >= 0 ? 'var(--green-0)' : 'var(--red-0)'}">$${makerPnl}</td>
-        <td style="color:var(--text-3)">Touch: ${touchRate}</td></tr>
-      <tr>
-        <td style="padding:2px 4px;font-weight:500">PathC Esc</td>
-        <td style="color:${escPnl >= 0 ? 'var(--green-0)' : 'var(--red-0)'}">$${escPnl}</td>
-        <td style="color:var(--text-3)">15s escalation</td></tr>
-    </table>`;
-  }
-
-  body.innerHTML = html;
-}
-
-function updateEthFilterShadow(s) {
-  const d = s.eth_filter_shadow;
-  const tag = $('ethFilterTag');
-  const body = $('ethFilterBody');
-  if (!d || !tag) return;
-  if (!d.total_trades) { tag.textContent = '—'; return; }
-
-  const wr = (d.wr * 100).toFixed(1) + '%';
-  const pnl = (d.total_pnl_cents || 0) / 100;
-  const pnlColor = pnl >= 0 ? 'var(--green-0)' : 'var(--red-0)';
-
-  tag.textContent = d.total_trades + ' TRD';
-  tag.style.background = d.total_trades > 0 ? 'var(--amber-bg)' : 'var(--bg-2)';
-  tag.style.color = d.total_trades > 0 ? 'var(--amber-0)' : 'var(--text-3)';
-
-  let html = `<div style="margin-bottom:8px;color:var(--text-2)">
-    ETH 14d: ${d.total_trades} trades, ${d.wins}W/${d.losses}L (${wr}),
-    <span style="color:${pnlColor}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</span>
-  </div>`;
-
-  const filters = d.filters;
-  if (filters && Object.keys(filters).length > 0) {
-    html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
-    html += '<tr style="color:var(--text-3);border-bottom:1px solid var(--border-0)">' +
-      '<td style="padding:2px 4px">Filter</td><td>Kept</td><td>Blocked</td><td>Kept WR</td><td>Impact</td></tr>';
-    const labels = {
-      price_89: '≥89¢', price_90: '≥90¢', price_91: '≥91¢', price_92: '≥92¢', price_93: '≥93¢',
-      edge_1pct: 'Edge≥1%', edge_3pct: 'Edge≥3%', edge_4pct: 'Edge≥4%', edge_5pct: 'Edge≥5%',
-      price_90_and_edge_1pct: '≥90¢+Edge≥1%', price_92_and_edge_1pct: '≥92¢+Edge≥1%',
-      price_90_and_edge_3pct: '≥90¢+Edge≥3%',
-    };
-    for (const [k, v] of Object.entries(filters)) {
-      const impact = (v.net_impact_cents || 0) / 100;
-      const impactColor = impact > 0 ? 'var(--green-0)' : impact < 0 ? 'var(--red-0)' : 'var(--text-2)';
-      const keptWr = v.kept > 0 ? (v.kept_wr * 100).toFixed(1) + '%' : '—';
-      html += `<tr style="border-bottom:1px solid var(--border-0)">
-        <td style="padding:2px 4px;font-weight:500">${labels[k] || k}</td>
-        <td>${v.kept}</td><td>${v.blocked}</td>
-        <td>${keptWr}</td>
-        <td style="color:${impactColor}">${impact >= 0 ? '+' : ''}$${impact.toFixed(2)}</td>
-      </tr>`;
-    }
-    html += '</table>';
-  }
-
-  body.innerHTML = html;
-}
-
 // ═══════════════════════════════════════════════════════════════════════
 // CALIBRATION GAP
 // ═══════════════════════════════════════════════════════════════════════
@@ -8358,9 +8190,9 @@ function updateCapitalUtilization(s) {
   tag.style.background = pct >= 0.20 ? 'var(--green-bg)' : pct >= 0.10 ? 'var(--amber-bg)' : 'var(--red-bg)';
   tag.style.color = gaugeColor;
 
-  const deployed = d.deployed_dollars != null ? '$' + d.deployed_dollars.toFixed(2) : '—';
-  const available = d.available_dollars != null ? '$' + d.available_dollars.toFixed(2) : '—';
-  const tradesDay = d.trades_per_day != null ? d.trades_per_day.toFixed(1) : '—';
+  const deployed = d.deployed_cents != null ? '$' + (d.deployed_cents / 100).toFixed(2) : '—';
+  const available = d.available_cents != null ? '$' + (d.available_cents / 100).toFixed(2) : '—';
+  const tradesDay = d.avg_trades_per_day != null ? d.avg_trades_per_day.toFixed(1) : '—';
   const avgIdle = d.avg_idle_hours != null ? d.avg_idle_hours.toFixed(1) + 'h' : '—';
 
   let html = `
@@ -8723,7 +8555,7 @@ function updateRollingPerf(s) {
 
   function computeRolling(days) {
     const recent = hist.slice(-days);
-    const pnl = recent.reduce((sum, d) => sum + (d.net_pnl_cents || 0), 0);
+    const pnl = recent.reduce((sum, d) => sum + (d.pnl_cents || 0), 0);
     const trades = recent.reduce((sum, d) => sum + (d.trades || 0), 0);
     const wins = recent.reduce((sum, d) => sum + (d.wins || 0), 0);
     const wr = trades > 0 ? (wins / trades * 100).toFixed(1) : '\u2014';
@@ -8754,12 +8586,12 @@ function updateCalendar(s) {
   if (!el || !s.daily_pnl_history || !s.daily_pnl_history.length) return;
 
   const hist = s.daily_pnl_history.slice(-35);
-  const maxPnl = Math.max(...hist.map(d => Math.abs(d.net_pnl_cents || 0)), 1);
+  const maxPnl = Math.max(...hist.map(d => Math.abs(d.pnl_cents || 0)), 1);
 
   const dateMap = {};
-  hist.forEach(d => { dateMap[d.trade_date] = d.net_pnl_cents || 0; });
+  hist.forEach(d => { dateMap[d.date] = d.pnl_cents || 0; });
 
-  const endDate = new Date(hist[hist.length - 1].trade_date);
+  const endDate = new Date(hist[hist.length - 1].date);
   const startDate = new Date(endDate);
   startDate.setDate(startDate.getDate() - 34);
   startDate.setDate(startDate.getDate() - startDate.getDay());
@@ -8847,10 +8679,6 @@ function update(s) {
     try { updateTerminalMomentum(s); } catch (e) { console.error('updateTerminalMomentum:', e); }
     try { updateBracketNo(s); } catch (e) { console.error('updateBracketNo:', e); }
     try { updateRelaxedEdge(s); } catch (e) { console.error('updateRelaxedEdge:', e); }
-    // updateSolPathcShadow / updateEthFilterShadow — removed 2026-04-18 (Phase A-final).
-    // Shadow strategies were retired; their snapshot keys (sol_pathc_shadow, eth_filter_shadow)
-    // still render harmlessly but produce empty/stale visuals. Skipping the calls kills the
-    // clutter without touching the HTML blocks (which can be removed in a later pass).
     try { updateCalibrationGap(s); } catch (e) { console.error('updateCalibrationGap:', e); }
     try { updateCapitalUtilization(s); } catch (e) { console.error('updateCapitalUtilization:', e); }
     try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }
@@ -9076,13 +8904,17 @@ function updateHourlyLive(s) {
 
   // Config line
   const cfg = hl.config || {};
-  const fillNote = trades === 0 ? ' | Awaiting fills' : '';
   const legacyT = hl.legacy_trades || 0;
   const legacyPnl = (hl.legacy_pnl_cents || 0) / 100;
   const legacyNote = legacyT > 0 ? ' | Legacy: ' + legacyT + 't, ' + (legacyPnl >= 0 ? '+' : '') + '$' + legacyPnl.toFixed(0) + ' (deprecated)' : '';
-  $('hlpConfig').textContent = 'sub-' + ((cfg.max_entry_price || 59) + 1) + 'c | BTC+ETH | '
-    + (cfg.fixed_contracts || 25) + ' contracts | taker-only | IOC+1c'
-    + fillNote + legacyNote;
+  if (hl.enabled) {
+    const fillNote = trades === 0 ? ' | Awaiting fills' : '';
+    $('hlpConfig').textContent = 'sub-' + ((cfg.max_entry_price || 59) + 1) + 'c | BTC+ETH | '
+      + (cfg.fixed_contracts || 25) + ' contracts | taker-only | IOC+1c'
+      + fillNote + legacyNote;
+  } else {
+    $('hlpConfig').textContent = 'Kill switch OFF — YES and NO both disabled (Apr 18)' + legacyNote;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
