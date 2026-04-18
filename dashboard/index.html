@@ -1969,7 +1969,7 @@ body::before {
    CALENDAR HEATMAP
    ═══════════════════════════════════════════════════════════════════════ */
 .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
-.cal-day-cell { aspect-ratio:1; border-radius:3px; position:relative; min-width:0; }
+.cal-day-cell { grid-column:auto; height:22px; width:auto; border-radius:3px; position:relative; min-width:0; max-width:100%; }
 .cal-day-cell .cal-day { position:absolute; top:2px; left:3px; font:400 7px/1 var(--mono); color:var(--text-3); }
 .cal-label { font:500 8px/1 var(--mono); color:var(--text-3); text-align:center; text-transform:uppercase; }
 </style>
