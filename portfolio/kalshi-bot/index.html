@@ -333,9 +333,9 @@ footer a:hover { color: var(--text-1); }
     <div class="metric-ci" id="mWrCi">—</div>
   </div>
   <div class="metric">
-    <div class="metric-label">Sharpe ratio</div>
-    <div class="metric-val" id="mSharpe">—</div>
-    <div class="metric-ci">annualized, daily returns</div>
+    <div class="metric-label">All-time peak</div>
+    <div class="metric-val" id="mPeak">—</div>
+    <div class="metric-ci">highest cumulative return</div>
   </div>
   <div class="metric">
     <div class="metric-label">Max drawdown</div>
@@ -343,9 +343,19 @@ footer a:hover { color: var(--text-1); }
     <div class="metric-ci">peak to trough</div>
   </div>
   <div class="metric">
+    <div class="metric-label">Sharpe ratio</div>
+    <div class="metric-val" id="mSharpe">—</div>
+    <div class="metric-ci">annualized, daily returns</div>
+  </div>
+  <div class="metric">
     <div class="metric-label">Profit factor</div>
     <div class="metric-val" id="mPf">—</div>
     <div class="metric-ci">gross wins ÷ gross losses</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Total trades</div>
+    <div class="metric-val" id="mTrades">—</div>
+    <div class="metric-ci" id="mTradesCi">—</div>
   </div>
 </section>
 
@@ -446,11 +456,14 @@ function render(d) {
     $('mWr').textContent = (d.win_rate * 100).toFixed(1) + '%';
     const lo = (d.win_rate_ci_lo * 100).toFixed(1);
     const hi = (d.win_rate_ci_hi * 100).toFixed(1);
-    $('mWrCi').textContent = `95% CI: ${lo}–${hi}% · n=${fmtInt(d.total_trades)}`;
+    $('mWrCi').textContent = `95% CI: ${lo}–${hi}%`;
   }
+  $('mPeak').textContent = d.peak_return_pct != null ? fmtPct(d.peak_return_pct) : '—';
   $('mSharpe').textContent = d.sharpe_ratio != null ? d.sharpe_ratio.toFixed(2) : '—';
   $('mMdd').textContent = d.max_drawdown_pct != null ? d.max_drawdown_pct.toFixed(2) + '%' : '—';
   $('mPf').textContent = d.profit_factor != null && d.profit_factor < 999 ? d.profit_factor.toFixed(2) : '∞';
+  $('mTrades').textContent = d.total_trades != null ? fmtInt(d.total_trades) : '—';
+  $('mTradesCi').textContent = `${fmtInt(d.total_wins || 0)}W / ${fmtInt(d.total_losses || 0)}L`;
 
   drawEquity(d);
   drawCalibration(d);
@@ -471,23 +484,25 @@ function drawEquity(d) {
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, w, h);
 
-  const series = d.daily_return_series || [];
+  // equity_curve is per-trade points [{t, cumulative_pct}]; fallback to
+  // daily_return_series for back-compat during the v1→v2 rollout.
+  const series = d.equity_curve || d.daily_return_series || [];
   if (series.length < 2) return;
 
-  // Filter by range
+  // Filter by range — compares ISO timestamps (per-trade) or date strings (daily fallback)
   let filtered = series;
   if (chartRange !== 'all') {
     const days = chartRange === '1m' ? 30 : 90;
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
-    const cutoffStr = cutoff.toISOString().slice(0, 10);
-    filtered = series.filter(p => p.day >= cutoffStr);
+    const cutoffISO = cutoff.toISOString();
+    filtered = series.filter(p => (p.t || p.day || '') >= cutoffISO.slice(0, (p.t ? 19 : 10)));
   }
   if (filtered.length < 2) filtered = series;
 
-  // Rebaseline to 0 at start of filtered window
+  // Rebaseline so the range starts at 0% (shows relative move within window)
   const base = filtered[0].cumulative_pct;
-  const pts = filtered.map(p => ({ day: p.day, pct: p.cumulative_pct - base }));
+  const pts = filtered.map(p => ({ t: p.t || p.day, pct: p.cumulative_pct - base }));
 
   const padL = 56, padR = 16, padT = 20, padB = 36;
   const plotW = w - padL - padR;
@@ -530,14 +545,16 @@ function drawEquity(d) {
     ctx.setLineDash([]);
   }
 
-  // X-axis date labels (4 evenly spaced)
+  // X-axis date labels (4 evenly spaced) — handles both ISO timestamps (per-trade)
+  // and YYYY-MM-DD (daily fallback)
   ctx.textAlign = 'center';
   for (let i = 0; i <= 3; i++) {
     const idx = Math.round((pts.length - 1) * i / 3);
     const p = pts[idx];
-    if (!p) continue;
+    if (!p || !p.t) continue;
     const x = xScale(idx);
-    const d = new Date(p.day + 'T00:00:00Z');
+    const iso = p.t.length <= 10 ? (p.t + 'T00:00:00Z') : p.t;
+    const d = new Date(iso);
     const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
     ctx.fillText(label, x, h - padB + 18);
   }
