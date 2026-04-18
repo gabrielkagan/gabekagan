@@ -8847,8 +8847,10 @@ function update(s) {
     try { updateTerminalMomentum(s); } catch (e) { console.error('updateTerminalMomentum:', e); }
     try { updateBracketNo(s); } catch (e) { console.error('updateBracketNo:', e); }
     try { updateRelaxedEdge(s); } catch (e) { console.error('updateRelaxedEdge:', e); }
-    try { updateSolPathcShadow(s); } catch (e) { console.error('updateSolPathcShadow:', e); }
-    try { updateEthFilterShadow(s); } catch (e) { console.error('updateEthFilterShadow:', e); }
+    // updateSolPathcShadow / updateEthFilterShadow — removed 2026-04-18 (Phase A-final).
+    // Shadow strategies were retired; their snapshot keys (sol_pathc_shadow, eth_filter_shadow)
+    // still render harmlessly but produce empty/stale visuals. Skipping the calls kills the
+    // clutter without touching the HTML blocks (which can be removed in a later pass).
     try { updateCalibrationGap(s); } catch (e) { console.error('updateCalibrationGap:', e); }
     try { updateCapitalUtilization(s); } catch (e) { console.error('updateCapitalUtilization:', e); }
     try { updateCounterfactual(s); } catch (e) { console.error('updateCounterfactual:', e); }

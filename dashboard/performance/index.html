@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalshi Bot — Live Performance · Gabriel Kagan</title>
+<meta name="description" content="Live performance of a prediction-market trading bot I built. Real capital, real trades, updated from production.">
+
+<!-- Open Graph / social preview -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kalshi Bot — Live Performance">
+<meta property="og:description" content="Live performance of a prediction-market trading bot I built. Real capital, real trades, updated from production.">
+<meta property="og:url" content="https://gabekagan.io/dashboard/performance/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Kalshi Bot — Live Performance">
+<meta name="twitter:description" content="Live performance of a prediction-market trading bot I built. Real capital, real trades.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg-0: #06080d;
+  --bg-1: #0c1018;
+  --bg-2: #121822;
+  --border-1: #243044;
+  --border-2: #2e3d55;
+  --text-0: #ffffff;
+  --text-1: #e2e8f0;
+  --text-2: #9fb3c8;
+  --text-3: #64748b;
+  --accent: #E8A838;
+  --green-0: #10b981;
+  --green-1: #6ee7b7;
+  --red-0: #f43f5e;
+  --blue-0: #60a5fa;
+  --font-display: 'Frank Ruhl Libre', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', Menlo, monospace;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-0);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+}
+
+/* ── HEADER ───────────────────────────────────────────────────────── */
+header {
+  margin-bottom: 80px;
+  border-bottom: 1px solid var(--border-1);
+  padding-bottom: 32px;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-0);
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+.subtitle {
+  font-size: 18px;
+  color: var(--text-2);
+  max-width: 600px;
+}
+
+/* ── HERO NUMBER ──────────────────────────────────────────────────── */
+.hero {
+  margin-bottom: 64px;
+}
+.hero-big {
+  font-family: var(--font-mono);
+  font-size: clamp(64px, 12vw, 128px);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--green-0);
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+.hero-big.neg { color: var(--red-0); }
+.hero-context {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-3);
+  letter-spacing: 0.02em;
+}
+.hero-context .sep {
+  color: var(--border-2);
+  margin: 0 12px;
+}
+
+/* ── CHART ────────────────────────────────────────────────────────── */
+.chart-section {
+  margin-bottom: 80px;
+}
+.chart-wrap {
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 6px;
+  padding: 24px;
+  position: relative;
+}
+.chart-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.chart-canvas-wrap {
+  position: relative;
+  height: 320px;
+}
+canvas { display: block; width: 100%; height: 100%; }
+.chart-controls {
+  display: flex;
+  gap: 4px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border-1);
+  padding-top: 16px;
+}
+.chart-controls button {
+  background: transparent;
+  border: 1px solid var(--border-1);
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chart-controls button:hover { border-color: var(--border-2); color: var(--text-1); }
+.chart-controls button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-0);
+}
+
+/* ── METRICS GRID ─────────────────────────────────────────────────── */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 80px;
+}
+.metric {
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 6px;
+  padding: 20px;
+}
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.metric-val {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--text-0);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.metric-ci {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+  letter-spacing: 0.02em;
+}
+
+/* ── METHODOLOGY / CALIBRATION ────────────────────────────────────── */
+.prose h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-0);
+  margin-bottom: 16px;
+  margin-top: 80px;
+  letter-spacing: -0.01em;
+}
+.prose h2:first-child { margin-top: 0; }
+.prose p {
+  margin-bottom: 16px;
+  max-width: 640px;
+  color: var(--text-1);
+}
+.prose p strong { color: var(--text-0); font-weight: 600; }
+.prose a { color: var(--blue-0); text-decoration: underline; text-decoration-color: var(--border-2); text-underline-offset: 3px; }
+.prose a:hover { text-decoration-color: var(--blue-0); }
+
+.calibration-section { margin-top: 48px; }
+
+/* ── FOOTER ───────────────────────────────────────────────────────── */
+footer {
+  margin-top: 96px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-1);
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.7;
+}
+footer p { margin-bottom: 12px; max-width: 640px; }
+footer a { color: var(--text-2); text-decoration: underline; text-decoration-color: var(--border-2); }
+footer a:hover { color: var(--text-1); }
+.micro {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--border-2);
+  text-transform: uppercase;
+  margin-top: 24px;
+}
+
+/* ── LOADING / ERROR STATES ───────────────────────────────────────── */
+.state-pill {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-1);
+  color: var(--text-3);
+}
+.state-pill.live {
+  border-color: var(--green-0);
+  color: var(--green-0);
+}
+.state-pill.error {
+  border-color: var(--red-0);
+  color: var(--red-0);
+}
+.state-pill::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-3);
+  margin-right: 6px;
+  vertical-align: 1px;
+}
+.state-pill.live::before { background: var(--green-0); }
+.state-pill.error::before { background: var(--red-0); }
+
+/* ── MOBILE ───────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .container { padding: 32px 20px 64px; }
+  h1 { font-size: 32px; }
+  .subtitle { font-size: 16px; }
+  header { margin-bottom: 48px; padding-bottom: 24px; }
+  .hero { margin-bottom: 48px; }
+  .chart-canvas-wrap { height: 240px; }
+  .metric-val { font-size: 22px; }
+  .prose h2 { font-size: 22px; margin-top: 56px; }
+  .chart-section, .metrics { margin-bottom: 56px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="eyebrow">Gabriel Kagan</div>
+  <h1>Kalshi Bot — Live Performance</h1>
+  <p class="subtitle">I built a prediction-market trading bot. Here's how it's doing, updated from production.</p>
+</header>
+
+<section class="hero">
+  <div class="hero-big" id="heroReturn">—</div>
+  <div class="hero-context">
+    <span class="state-pill" id="statePill"><span id="stateText">Loading</span></span>
+    <span class="sep">·</span>
+    <span id="heroTrades">— trades</span>
+    <span class="sep">·</span>
+    <span id="heroDays">— days live</span>
+    <span class="sep">·</span>
+    <span>updated <span id="heroUpdated">—</span></span>
+  </div>
+</section>
+
+<section class="chart-section">
+  <div class="chart-wrap">
+    <div class="chart-title">Cumulative return % since inception</div>
+    <div class="chart-canvas-wrap"><canvas id="equityCanvas"></canvas></div>
+    <div class="chart-controls">
+      <button data-range="1m">1M</button>
+      <button data-range="3m">3M</button>
+      <button data-range="all" class="active">ALL</button>
+    </div>
+  </div>
+</section>
+
+<section class="metrics">
+  <div class="metric">
+    <div class="metric-label">Win rate</div>
+    <div class="metric-val" id="mWr">—</div>
+    <div class="metric-ci" id="mWrCi">—</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Sharpe ratio</div>
+    <div class="metric-val" id="mSharpe">—</div>
+    <div class="metric-ci">annualized, daily returns</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Max drawdown</div>
+    <div class="metric-val" id="mMdd">—</div>
+    <div class="metric-ci">peak to trough</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Profit factor</div>
+    <div class="metric-val" id="mPf">—</div>
+    <div class="metric-ci">gross wins ÷ gross losses</div>
+  </div>
+</section>
+
+<section class="prose">
+  <h2>How it works</h2>
+  <p>I built this bot to trade short-duration prediction markets on <strong>Kalshi</strong> — the first CFTC-regulated event-contract exchange in the US. It's been running on a VPS since February 2026, trading real capital 24/7 with a full audit trail.</p>
+  <p>The edge is simple: Kalshi prices are often wrong by a few cents for a few minutes. I estimate settlement probabilities with an <strong>EGARCH</strong> volatility model — the standard approach for crypto returns — and compare to the market's implied probability. When the gap beats fees, the bot enters. When it doesn't, the bot sits.</p>
+  <p>Position sizing is <strong>Kelly-fraction</strong>, capped so no single trade can blow the account. Execution is maker-first for fee efficiency, escalating to taker when the window's about to close. Every decision is logged.</p>
+  <p>The hard work isn't the signal — it's the calibration. Making sure a "93%" trade actually wins 93% of the time. I train a Beta calibrator per asset, temperature-scale the output, and backtest every pipeline change against live results. The plot below shows predicted vs realized.</p>
+
+  <div class="calibration-section">
+    <h2>Is the model honest?</h2>
+    <p>Each point is a bucket of trades predicted at a given probability. Points on the diagonal mean the model was right — a bucket predicted at 90% actually won 90% of the time. Off-diagonal = systematic bias. I watch this tightly.</p>
+    <div class="chart-wrap" style="margin-top: 16px;">
+      <div class="chart-title">Calibration reliability — predicted vs realized</div>
+      <div class="chart-canvas-wrap" style="height: 320px;"><canvas id="calibCanvas"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>This is a personal trading account. Past performance is not indicative of future results. Nothing on this page is investment advice, a solicitation to invest, or an offer of securities. Kalshi contracts are event contracts regulated by the CFTC, not securities. Methodology and figures are provided for transparency; mistakes are possible.</p>
+  <p>Built by <a href="https://gabekagan.io">Gabriel Kagan</a>. Operator view at <a href="/dashboard/">gabekagan.io/dashboard/</a>. For questions, <a href="mailto:gabrielkagan@gmail.com">email</a>.</p>
+  <p class="micro">Data updates every 30 seconds on the bot. This page re-fetches every 5 minutes.</p>
+</footer>
+
+</div>
+
+<script type="module">
+// ═══════════════════════════════════════════════════════════════════════
+// PUBLIC DASHBOARD — reads sanitized Supabase row (id=2)
+// ═══════════════════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://srbdajecmkjxinmcozxl.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyYmRhamVjbWtqeGlubWNvenhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNDMxOTQsImV4cCI6MjA4NzcxOTE5NH0.8x_ipm0KI9cBoTL7flHqGtDZLseGMIlZp1X2020XpJw';
+const POLL_INTERVAL_MS = 5 * 60 * 1000;  // 5 minutes
+
+const $ = (id) => document.getElementById(id);
+
+let lastData = null;
+let chartRange = 'all';
+
+async function fetchPublic() {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/dashboard_state?id=eq.2&select=data,updated_at`, {
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + SUPABASE_ANON,
+      }
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const rows = await r.json();
+    if (!rows.length) {
+      setState('error', 'No data');
+      return;
+    }
+    const d = typeof rows[0].data === 'string' ? JSON.parse(rows[0].data) : rows[0].data;
+    lastData = d;
+    render(d);
+    setState('live', 'Live');
+  } catch (e) {
+    console.error('fetchPublic:', e);
+    setState('error', 'Offline');
+  }
+}
+
+function setState(cls, text) {
+  const pill = $('statePill');
+  pill.classList.remove('live', 'error');
+  if (cls) pill.classList.add(cls);
+  $('stateText').textContent = text;
+}
+
+function fmtPct(v, showPlus = true) {
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  const sign = v > 0 && showPlus ? '+' : '';
+  return `${sign}${v.toFixed(2)}%`;
+}
+
+function fmtInt(v) {
+  if (v === null || v === undefined) return '—';
+  return v.toLocaleString('en-US');
+}
+
+function render(d) {
+  // Hero
+  const ret = d.cumulative_return_pct;
+  $('heroReturn').textContent = fmtPct(ret);
+  $('heroReturn').classList.toggle('neg', ret < 0);
+  $('heroTrades').textContent = `${fmtInt(d.total_trades)} trades`;
+  $('heroDays').textContent = `${fmtInt(d.days_active)} days live`;
+  try {
+    const ts = new Date(d.updated_at);
+    $('heroUpdated').textContent = ts.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+  } catch (e) { $('heroUpdated').textContent = '—'; }
+
+  // Metrics
+  if (d.win_rate != null) {
+    $('mWr').textContent = (d.win_rate * 100).toFixed(1) + '%';
+    const lo = (d.win_rate_ci_lo * 100).toFixed(1);
+    const hi = (d.win_rate_ci_hi * 100).toFixed(1);
+    $('mWrCi').textContent = `95% CI: ${lo}–${hi}% · n=${fmtInt(d.total_trades)}`;
+  }
+  $('mSharpe').textContent = d.sharpe_ratio != null ? d.sharpe_ratio.toFixed(2) : '—';
+  $('mMdd').textContent = d.max_drawdown_pct != null ? d.max_drawdown_pct.toFixed(2) + '%' : '—';
+  $('mPf').textContent = d.profit_factor != null && d.profit_factor < 999 ? d.profit_factor.toFixed(2) : '∞';
+
+  drawEquity(d);
+  drawCalibration(d);
+}
+
+// ── EQUITY CURVE ─────────────────────────────────────────────────────
+function drawEquity(d) {
+  const canvas = $('equityCanvas');
+  const wrap = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  const series = d.daily_return_series || [];
+  if (series.length < 2) return;
+
+  // Filter by range
+  let filtered = series;
+  if (chartRange !== 'all') {
+    const days = chartRange === '1m' ? 30 : 90;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const cutoffStr = cutoff.toISOString().slice(0, 10);
+    filtered = series.filter(p => p.day >= cutoffStr);
+  }
+  if (filtered.length < 2) filtered = series;
+
+  // Rebaseline to 0 at start of filtered window
+  const base = filtered[0].cumulative_pct;
+  const pts = filtered.map(p => ({ day: p.day, pct: p.cumulative_pct - base }));
+
+  const padL = 56, padR = 16, padT = 20, padB = 36;
+  const plotW = w - padL - padR;
+  const plotH = h - padT - padB;
+
+  const minY = Math.min(0, ...pts.map(p => p.pct));
+  const maxY = Math.max(0, ...pts.map(p => p.pct));
+  const rangeY = maxY - minY || 1;
+  const pad = rangeY * 0.1;
+
+  const yScale = (v) => padT + plotH - ((v - minY + pad) / (rangeY + pad * 2)) * plotH;
+  const xScale = (i) => padL + (i / (pts.length - 1)) * plotW;
+
+  // Grid lines (5 horizontal)
+  ctx.strokeStyle = '#1a2233';
+  ctx.lineWidth = 1;
+  ctx.font = "10px 'IBM Plex Mono', monospace";
+  ctx.fillStyle = '#64748b';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const yVal = minY - pad + (rangeY + pad * 2) * (1 - i / 4);
+    const y = padT + (plotH * i / 4);
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(w - padR, y);
+    ctx.stroke();
+    ctx.fillText((yVal >= 0 ? '+' : '') + yVal.toFixed(0) + '%', padL - 6, y + 3);
+  }
+
+  // Baseline at 0
+  if (minY < 0 && maxY > 0) {
+    const y0 = yScale(0);
+    ctx.strokeStyle = '#2e3d55';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(padL, y0);
+    ctx.lineTo(w - padR, y0);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // X-axis date labels (4 evenly spaced)
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 3; i++) {
+    const idx = Math.round((pts.length - 1) * i / 3);
+    const p = pts[idx];
+    if (!p) continue;
+    const x = xScale(idx);
+    const d = new Date(p.day + 'T00:00:00Z');
+    const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+    ctx.fillText(label, x, h - padB + 18);
+  }
+
+  // Line — gradient fill under
+  const grad = ctx.createLinearGradient(0, padT, 0, padT + plotH);
+  const lastPct = pts[pts.length - 1].pct;
+  const isPositive = lastPct >= 0;
+  grad.addColorStop(0, isPositive ? 'rgba(16,185,129,0.25)' : 'rgba(244,63,94,0.25)');
+  grad.addColorStop(1, isPositive ? 'rgba(16,185,129,0.0)' : 'rgba(244,63,94,0.0)');
+
+  ctx.beginPath();
+  pts.forEach((p, i) => {
+    const x = xScale(i), y = yScale(p.pct);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo(xScale(pts.length - 1), yScale(0));
+  ctx.lineTo(xScale(0), yScale(0));
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line stroke
+  ctx.beginPath();
+  pts.forEach((p, i) => {
+    const x = xScale(i), y = yScale(p.pct);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = isPositive ? '#10b981' : '#f43f5e';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // End dot
+  const lastX = xScale(pts.length - 1);
+  const lastY = yScale(lastPct);
+  ctx.fillStyle = isPositive ? '#10b981' : '#f43f5e';
+  ctx.beginPath();
+  ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// ── CALIBRATION RELIABILITY ──────────────────────────────────────────
+function drawCalibration(d) {
+  const canvas = $('calibCanvas');
+  const wrap = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  const buckets = d.calibration_reliability || [];
+  const padL = 56, padR = 24, padT = 20, padB = 40;
+  const plotW = w - padL - padR;
+  const plotH = h - padT - padB;
+
+  // Plot bounds: 0.5 to 1.0 on both axes (Kalshi is binary prediction market; we trade mostly 80c+)
+  const xMin = 0.5, xMax = 1.0, yMin = 0.5, yMax = 1.0;
+  const xScale = (v) => padL + ((v - xMin) / (xMax - xMin)) * plotW;
+  const yScale = (v) => padT + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
+
+  // Grid
+  ctx.strokeStyle = '#1a2233';
+  ctx.lineWidth = 1;
+  ctx.font = "10px 'IBM Plex Mono', monospace";
+  ctx.fillStyle = '#64748b';
+  for (let v = 0.5; v <= 1.001; v += 0.1) {
+    // Horizontal
+    const y = yScale(v);
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke();
+    ctx.textAlign = 'right';
+    ctx.fillText((v * 100).toFixed(0) + '%', padL - 6, y + 3);
+    // Vertical
+    const x = xScale(v);
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+    ctx.textAlign = 'center';
+    ctx.fillText((v * 100).toFixed(0) + '%', x, h - padB + 18);
+  }
+
+  // Diagonal (perfect calibration line)
+  ctx.strokeStyle = '#2e3d55';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(xScale(xMin), yScale(xMin));
+  ctx.lineTo(xScale(xMax), yScale(xMax));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Axis labels
+  ctx.fillStyle = '#9fb3c8';
+  ctx.font = "10px 'IBM Plex Mono', monospace";
+  ctx.textAlign = 'center';
+  ctx.fillText('PREDICTED →', padL + plotW / 2, h - 6);
+  ctx.save();
+  ctx.translate(16, padT + plotH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('REALIZED →', 0, 0);
+  ctx.restore();
+
+  // Points — radius scaled by n
+  if (buckets.length === 0) {
+    ctx.fillStyle = '#64748b';
+    ctx.textAlign = 'center';
+    ctx.fillText('not enough data in buckets yet', padL + plotW / 2, padT + plotH / 2);
+    return;
+  }
+  const maxN = Math.max(...buckets.map(b => b.n));
+  buckets.forEach(b => {
+    const x = xScale(b.predicted);
+    const y = yScale(b.actual);
+    const r = 4 + (b.n / maxN) * 10;
+    // Color by distance from diagonal
+    const dist = Math.abs(b.actual - b.predicted);
+    const color = dist < 0.02 ? '#10b981' : (dist < 0.05 ? '#E8A838' : '#f43f5e');
+    ctx.fillStyle = color;
+    ctx.strokeStyle = '#06080d';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  });
+}
+
+// ── CHART RANGE CONTROLS ─────────────────────────────────────────────
+document.querySelectorAll('.chart-controls button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.chart-controls button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    chartRange = btn.dataset.range;
+    if (lastData) drawEquity(lastData);
+  });
+});
+
+// ── RESIZE HANDLER ──────────────────────────────────────────────────
+let resizeT;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeT);
+  resizeT = setTimeout(() => {
+    if (lastData) {
+      drawEquity(lastData);
+      drawCalibration(lastData);
+    }
+  }, 150);
+});
+
+// ── INIT ────────────────────────────────────────────────────────────
+fetchPublic();
+setInterval(fetchPublic, POLL_INTERVAL_MS);
+
+</script>
+</body>
+</html>
