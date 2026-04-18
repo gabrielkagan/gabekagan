@@ -1973,8 +1973,47 @@ body::before {
 .cal-cell .cal-day { position:absolute; top:2px; left:3px; font:400 7px/1 var(--mono); color:var(--text-3); }
 .cal-label { font:500 8px/1 var(--mono); color:var(--text-3); text-align:center; text-transform:uppercase; }
 </style>
+<style>
+/* ?view=public — operator-only panels hidden. NOTE: this is CSS-only; raw data
+   still flows to the client via Supabase Realtime. True privacy comes with the
+   Phase B sanitized public row. See kb/decisions/dashboard-overhaul-plan.md. */
+/* Operator-only panels hidden in public view. Two selectors: class tags for
+   broad sweeps (shadows, research) + specific IDs for known operator panels.
+   Add more below as needed — safer to over-hide than under-hide for MVP. */
+body.public-view .operator-only,
+body.public-view .shadow-panel,
+body.public-view .research-panel,
+body.public-view #orderCell,
+body.public-view #calRegistryCell,
+body.public-view [id^="exec"],
+body.public-view [id$="ShadowBody"],
+body.public-view [id$="ShadowPanel"]
+  { display: none !important; }
+body.public-view #publicBanner { display: block; }
+#publicBanner {
+  display: none;
+  background: #1a2233;
+  border-bottom: 1px solid #2e3d55;
+  color: #9fb3c8;
+  font: 500 12px/1.4 'IBM Plex Mono', monospace;
+  padding: 8px 16px;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+</style>
 </head>
 <body>
+<div id="publicBanner">PUBLIC VIEW — Operator panels hidden. Performance data only. Not investment advice.</div>
+<script>
+/* ?view=public URL flag. Adds body.public-view, which the CSS above uses to
+   hide .operator-only panels. */
+(function () {
+  try {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('view') === 'public') document.body.classList.add('public-view');
+  } catch (e) { /* no-op */ }
+})();
+</script>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
      HEADER BAR
