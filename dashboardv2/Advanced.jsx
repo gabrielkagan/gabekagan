@@ -55,10 +55,10 @@ function OrderFlow({ order }) {
         <div>
           <div style={{display:'flex', justifyContent:'space-between', fontFamily:'var(--mono)', fontSize:10, color:'var(--text-2)', marginBottom:6}}>
             <span>BUY {order.total} @ {order.price}¢</span>
-            <span style={{color:'#10b981', fontWeight:700}}>{Math.round(order.filled/order.total*100)}% filled</span>
+            <span style={{color:'#10b981', fontWeight:700}}>{order.total > 0 ? Math.round(order.filled/order.total*100) : 0}% filled</span>
           </div>
           <div style={{height:8, borderRadius:4, background:'var(--bg-3)', overflow:'hidden'}}>
-            <div style={{height:'100%', width:`${order.filled/order.total*100}%`, background:'linear-gradient(90deg,#10b981,#fbbf24)'}}/>
+            <div style={{height:'100%', width:`${order.total > 0 ? (order.filled/order.total*100) : 0}%`, background:'linear-gradient(90deg,#10b981,#fbbf24)'}}/>
           </div>
         </div>
         <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:6, fontFamily:'var(--mono)'}}>

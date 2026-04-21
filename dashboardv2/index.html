@@ -618,16 +618,27 @@ function App() {
     let cancelled = false;
     (async () => {
       try {
+        console.log('[v2] importing supabase client...');
         const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+        console.log('[v2] supabase imported, creating client...');
         const sb = createClient(
           'https://srbdajecmkjxinmcozxl.supabase.co',
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyYmRhamVjbWtqeGlubWNvenhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNDMxOTQsImV4cCI6MjA4NzcxOTE5NH0.8x_ipm0KI9cBoTL7flHqGtDZLseGMIlZp1X2020XpJw'
         );
+        console.log('[v2] fetching initial row...');
         const { data: row, error } = await sb.from('dashboard_state').select('data').eq('id', 1).single();
-        if (!cancelled && !error && row?.data) {
+        if (error) {
+          console.error('[v2] initial fetch error:', error);
+          if (!cancelled) setStatus('FETCH_ERR');
+        } else if (!row?.data) {
+          console.warn('[v2] initial fetch empty row:', row);
+          if (!cancelled) setStatus('NO_ROW');
+        } else {
+          console.log('[v2] initial row received, keys:', Object.keys(typeof row.data === 'string' ? JSON.parse(row.data) : row.data).length);
           const parsed = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
-          setS(adaptSnapshot(parsed));
+          if (!cancelled) { setS(adaptSnapshot(parsed)); setStatus('LOADED'); }
         }
+        console.log('[v2] subscribing to realtime...');
         sb.channel('dashboard-live-v2')
           .on('postgres_changes', {
             event: 'UPDATE', schema: 'public', table: 'dashboard_state', filter: 'id=eq.1'
@@ -637,27 +648,29 @@ function App() {
             if (typeof d === 'string') { try { d = JSON.parse(d); } catch { return; } }
             if (!cancelled) setS(adaptSnapshot(d));
           })
-          .subscribe((st) => {
+          .subscribe((st, err) => {
+            console.log('[v2] channel status:', st, err || '');
             if (cancelled) return;
             if (st === 'SUBSCRIBED') setStatus('LIVE');
-            else if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') setStatus('ERROR');
-            else if (st === 'CLOSED') setStatus('OFFLINE');
+            else if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') setStatus('RT_ERR');
+            else if (st === 'CLOSED') setStatus('CLOSED');
           });
       } catch (e) {
-        console.error('v2 Supabase init failed:', e);
-        if (!cancelled) setStatus('ERROR');
+        console.error('[v2] Supabase init failed:', e);
+        if (!cancelled) setStatus('EXCEPTION');
       }
     })();
     return () => { cancelled = true; };
   }, []);
 
-  const running = S._running && status === 'LIVE';
+  const running = S._running && (status === 'LIVE' || status === 'LOADED');
   const dd = S.peak > S.balance ? ((S.peak - S.balance) / S.peak) * 100 : 0;
 
   return (
     <>
       <Header balance={S.balance} dailyPnl={S.daily} dailyPct={S.dailyPct} running={running}/>
       <StatusStrip items={[
+        {label:'FEED', value:status, dot:true, dotColor: (status==='LIVE'||status==='LOADED')?'#10b981':(status==='CONNECTING'?'#fbbf24':'#f43f5e')},
         {label:'UPTIME', value:S.status.uptime},
         {label:'NEXT',   value:S.status.next},
         {label:'REGIME', value:S.status.regime, dot:true, dotColor: S.status.regime.startsWith('LOW') ? '#10b981' : '#fbbf24'},
