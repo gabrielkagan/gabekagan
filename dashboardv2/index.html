@@ -413,9 +413,12 @@ function adaptSnapshot(d) {
   };
   S.util = num(d.capital_utilization, 0);
 
-  // Balance history → compact {ts, bal}
-  S.bhist = Array.isArray(d.balance_history) && d.balance_history.length
-    ? d.balance_history.slice(-24).map(h => ({
+  // Balance history → compact {ts, bal} — prefer 4h view for sparkline
+  const bh = Array.isArray(d.balance_history_4h) && d.balance_history_4h.length >= 2
+    ? d.balance_history_4h
+    : (Array.isArray(d.balance_history) ? d.balance_history : []);
+  S.bhist = bh.length
+    ? bh.slice(-48).map(h => ({
         ts: (h.ts ? new Date(h.ts).toISOString().slice(11,16) : ''),
         bal: num(h.bal, S.balance),
       }))
@@ -429,17 +432,36 @@ function adaptSnapshot(d) {
       }))
     : ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(day => ({day, pnl_cents: 0}));
 
-  // Counterfactual
+  // Counterfactual — real shape: {by_bucket:[{bucket, win_rate, total, breakeven_wr, above_breakeven}],
+  //                               money_left_on_table_cents, bullets_dodged_cents, net_filter_value_cents}
   const cf = d.counterfactual_analysis || {};
+  const cfBucketArr = Array.isArray(cf.by_bucket) ? cf.by_bucket : [];
+  const bucketBEFallback = {'80-84':.82,'85-89':.88,'86-89':.88,'90-94':.93,'90-92':.91,'93-95':.94,'95-99':.97,'96-99':.97};
+  const cfBucketMap = {};
+  cfBucketArr.forEach(b => { cfBucketMap[b.bucket] = b; });
+  const orderedBuckets = ['80-84','85-89','86-89','90-94','95-99'];
   S.cf = {
-    missed: num(cf.missed, num(cf.missed_pnl_cents, 0)),
-    avoided: num(cf.avoided, num(cf.avoided_pnl_cents, 0)),
-    net: num(cf.net, num(cf.net_pnl_cents, 0)),
-    buckets: Array.isArray(cf.buckets) && cf.buckets.length ? cf.buckets : [
-      {range:'75-84¢',wr:0,be:.82},{range:'85-89¢',wr:0,be:.88},
-      {range:'90-94¢',wr:0,be:.93},{range:'95-99¢',wr:0,be:.97},
-    ],
+    missed:  num(cf.money_left_on_table_cents, 0),
+    avoided: num(cf.bullets_dodged_cents, 0),
+    net:     num(cf.net_filter_value_cents, 0),
+    buckets: orderedBuckets
+      .filter(k => cfBucketMap[k] || ['80-84','85-89','90-94','95-99'].includes(k))
+      .map(k => {
+        const b = cfBucketMap[k] || {};
+        return {
+          range: k + '¢',
+          wr: num(b.win_rate, 0),
+          be: num(b.breakeven_wr, bucketBEFallback[k] || 0.9),
+        };
+      }),
   };
+  // Deduplicate overlapping bucket variants (86-89 vs 85-89)
+  const seen = new Set();
+  S.cf.buckets = S.cf.buckets.filter(b => {
+    const key = b.range.replace(/[67]/g,'5'); // coarse dedup
+    if (seen.has(key)) return false;
+    seen.add(key); return true;
+  });
 
   // Decided contract tiers
   const dc = d.decided_contracts_by_tier || d.decided_contract_live || {};
@@ -488,33 +510,61 @@ function adaptSnapshot(d) {
     rows_today: num(weather.rows_today, 0),
   };
 
-  // Ask distribution
+  // Ask distribution — real shape: {buckets:{"<80":n,"80-84":n,...,"100+":n}, sample_size, sweet_spot_pct}
   const ad = d.ask_distribution || {};
-  S.askdist = Array.isArray(ad.buckets) && ad.buckets.length ? ad.buckets : [
-    {range:'55-59',n:0,pct:0,sweet:false},
-    {range:'60-64',n:0,pct:0,sweet:false},
-    {range:'65-69',n:0,pct:0,sweet:true},
-    {range:'70-74',n:0,pct:0,sweet:true},
-    {range:'75-79',n:0,pct:0,sweet:false},
-  ];
+  const adBuckets = (ad.buckets && typeof ad.buckets === 'object' && !Array.isArray(ad.buckets)) ? ad.buckets : null;
+  const adSweet = new Set(['80-84','85-89','90-92']); // matches v1
+  const sampleTotal = num(ad.sample_size, 0);
+  if (adBuckets) {
+    const order = ['<80','80-84','85-89','90-92','93-96','97-99','100+'];
+    S.askdist = order.map(range => {
+      const n = num(adBuckets[range], 0);
+      return { range, n, pct: sampleTotal > 0 ? (n / sampleTotal) * 100 : 0, sweet: adSweet.has(range) };
+    });
+  } else {
+    S.askdist = [
+      {range:'<80',n:0,pct:0,sweet:false},
+      {range:'80-84',n:0,pct:0,sweet:true},
+      {range:'85-89',n:0,pct:0,sweet:true},
+      {range:'90-92',n:0,pct:0,sweet:true},
+      {range:'93-96',n:0,pct:0,sweet:false},
+      {range:'97-99',n:0,pct:0,sweet:false},
+      {range:'100+',n:0,pct:0,sweet:false},
+    ];
+  }
 
-  // Per-asset 15M performance — pull from risk_metrics or regime_trade_analytics if present
+  // Per-asset 15M performance — real shape: regime_trade_analytics.by_asset = {BTC:{count,wins,net_pnl}}
+  // Backend doesn't emit per-asset signals/avg_edge/avg_hold_s/best_tier; compute from recent_trades where possible.
   const rta = d.regime_trade_analytics || d.real_trade_analytics || {};
-  const perAsset = rta.per_asset || rta.by_asset || {};
+  const perAsset = rta.by_asset || {};
+  // Aggregate recent trades per-asset for avg_edge / avg_hold_s proxy (sample, not population)
+  const tradeAgg = {};
+  (S.trades || []).forEach(t => {
+    if (!['BTC','ETH','SOL','XRP'].includes(t.asset)) return;
+    const a = tradeAgg[t.asset] || { edges: [], holds: [] };
+    if (t.edge) a.edges.push(t.edge);
+    a.holds.push(0); // no settled-to-entry delta in snapshot; leave 0
+    tradeAgg[t.asset] = a;
+  });
+  // Build per-asset equity curve from real_trade_analytics.cumulative_pnl if present, split by asset is unavailable.
+  const cumPnl = Array.isArray((d.real_trade_analytics||{}).cumulative_pnl) ? d.real_trade_analytics.cumulative_pnl : [];
+  const globalEquity = cumPnl.slice(-30).map(p => num(p.cum_pnl, 0));
   S.perf15m = {};
   ['BTC','ETH','SOL','XRP'].forEach(k => {
     const v = perAsset[k] || {};
-    const trades = num(v.trades, num(v.n, 0));
+    const trades = num(v.count, 0);
     const wins = num(v.wins, 0);
+    const agg = tradeAgg[k] || { edges: [], holds: [] };
+    const avgEdge = agg.edges.length ? agg.edges.reduce((a,b)=>a+b,0) / agg.edges.length : 0;
     S.perf15m[k] = {
-      signals: num(v.signals, 0),
+      signals: trades, // no per-asset signal count; mirror trades as lower-bound
       trades: trades,
       wins: wins,
-      avg_edge: num(v.avg_edge, 0),
-      avg_hold_s: num(v.avg_hold_s, 0),
-      best_tier: v.best_tier || '—',
-      pnl_cents: num(v.pnl_cents, 0),
-      equity: Array.isArray(v.equity) && v.equity.length ? v.equity : [0, 0],
+      avg_edge: avgEdge,
+      avg_hold_s: 0,   // not in snapshot
+      best_tier: '—',  // decided_contracts_by_tier is global, not per-asset
+      pnl_cents: num(v.net_pnl, 0),
+      equity: globalEquity.length >= 2 ? globalEquity : [0, num(v.net_pnl, 0)],
     };
   });
 
@@ -528,6 +578,12 @@ function adaptSnapshot(d) {
     cooldown: S.lc.cooldown_active ? 'ON' : 'OFF',
     streak: (S.streak > 0 ? S.streak : num(d.consecutive_losses, 0)) + (S.streak > 0 ? 'W' : 'L'),
   };
+
+  // Lifetime cumulative PnL series (for LifetimePnl chart)
+  S.lifetimeSeries = Array.isArray((d.real_trade_analytics||{}).cumulative_pnl) ? d.real_trade_analytics.cumulative_pnl : [];
+  S.lifetimeTotalTrades = (d.real_trade_analytics?.by_asset)
+    ? Object.values(d.real_trade_analytics.by_asset).reduce((s,v)=>s+num(v.count,0),0)
+    : (S.wins + S.losses);
 
   S._running = (d.bot_status === 'running' || d.bot_status === true || !!d.timestamp) && !d.balance_stale;
   S._observation = !!d.observation_mode;
@@ -635,7 +691,7 @@ function App() {
         {/* ── II · THE CLIMB ── */}
         <Section chapter="ב" label="The climb" hebrew="עליה" story="Every dollar since day one. The long arc of the account." meta={S._timestamp ? new Date(S._timestamp).toLocaleDateString() : 'since inception'}>
           <Row>
-            <LifetimePnl deposit={S.deposit}/>
+            <LifetimePnl deposit={S.deposit} series={S.lifetimeSeries} totalTrades={S.lifetimeTotalTrades}/>
           </Row>
           <Row>
             <AllTimePerformance balance={S.balance} deposit={S.deposit} peak={S.peak} wins={S.wins} losses={S.losses} sharpe={S.risk.sharpe_30d} profitFactor={S.risk.profit_factor} maxDD={S.risk.max_drawdown_pct}/>

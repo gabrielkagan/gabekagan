@@ -1,7 +1,19 @@
 // Lifetime P&L chart — cleaner, single y-axis, minimal chrome.
 
-function LifetimePnl({ deposit = 500 }) {
+function LifetimePnl({ deposit = 500, series, totalTrades }) {
+  // series: array of {ts, cum_pnl} from real_trade_analytics.cumulative_pnl, or
+  //         array of {ts, bal} from balance_history_4h. If absent, falls back to synthetic curve.
   const data = React.useMemo(() => {
+    if (Array.isArray(series) && series.length >= 2) {
+      return series.map(row => {
+        const date = new Date(row.ts);
+        let pnl;
+        if (typeof row.cum_pnl === 'number') pnl = row.cum_pnl / 100;
+        else if (typeof row.bal === 'number') pnl = row.bal - deposit;
+        else pnl = 0;
+        return { date, bal: +(deposit + pnl).toFixed(2), pnl: +pnl.toFixed(2) };
+      }).filter(r => !isNaN(r.date.getTime()));
+    }
     const days = 56;
     const start = new Date(2026, 1, 24);
     let bal = deposit;
@@ -21,7 +33,7 @@ function LifetimePnl({ deposit = 500 }) {
       rows.push({ date: d, bal: +bal.toFixed(2), pnl: +(bal - deposit).toFixed(2) });
     }
     return rows;
-  }, [deposit]);
+  }, [deposit, series]);
 
   const [range, setRange] = React.useState('ALL');
   const [unit, setUnit] = React.useState('$');
@@ -36,9 +48,9 @@ function LifetimePnl({ deposit = 500 }) {
     return data.filter(d => d.date >= cutoff);
   }, [data, range]);
 
-  const total = filtered[filtered.length - 1].pnl;
+  const total = filtered.length ? filtered[filtered.length - 1].pnl : 0;
   const returnPct = (total / deposit) * 100;
-  const trades = 2485;
+  const trades = typeof totalTrades === 'number' ? totalTrades : 2485;
   const profit = total >= 0;
   const lineColor = profit ? '#34d399' : '#fb7185';
 
