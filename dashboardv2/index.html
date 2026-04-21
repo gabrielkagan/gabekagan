@@ -90,6 +90,7 @@
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
 
 <script type="text/babel" src="Pills.jsx"></script>
@@ -618,10 +619,13 @@ function App() {
     let cancelled = false;
     (async () => {
       try {
-        console.log('[v2] importing supabase client...');
-        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-        console.log('[v2] supabase imported, creating client...');
-        const sb = createClient(
+        if (!window.supabase || !window.supabase.createClient) {
+          console.error('[v2] window.supabase not loaded — UMD bundle failed');
+          if (!cancelled) setStatus('SB_MISSING');
+          return;
+        }
+        console.log('[v2] creating supabase client...');
+        const sb = window.supabase.createClient(
           'https://srbdajecmkjxinmcozxl.supabase.co',
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyYmRhamVjbWtqeGlubWNvenhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNDMxOTQsImV4cCI6MjA4NzcxOTE5NH0.8x_ipm0KI9cBoTL7flHqGtDZLseGMIlZp1X2020XpJw'
         );
