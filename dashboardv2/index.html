@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kalshi Bot Dashboard v2 — Gabe Kagan</title>
+<link rel="icon" href="../favicon.ico">
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+  @keyframes kbBlink { 0%,100% {opacity:1} 50% {opacity:.3} }
+  @keyframes kbCellIn { from {opacity:0; transform:translateY(6px)} to {opacity:1; transform:none} }
+
+  html, body { margin:0; padding:0; }
+  body {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(197,168,85,.04), transparent 60%),
+      radial-gradient(900px 500px at 90% 10%, rgba(167,139,250,.03), transparent 55%),
+      var(--bg-0);
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.03'/></svg>");
+    mix-blend-mode: overlay;
+  }
+
+  .page { max-width: 1720px; margin: 0 auto; padding: 10px 16px 60px; position: relative; z-index: 2; }
+  .stack { display: flex; flex-direction: column; gap: 10px; }
+  .row { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; align-items: stretch; }
+  .row > * { min-height: 0; animation: kbCellIn .4s ease-out both; }
+
+  /* Torah banner — match v1 */
+  .torah-banner {
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    padding: 10px 24px;
+    background: linear-gradient(90deg, rgba(167,139,250,0.04) 0%, rgba(56,189,248,0.04) 100%);
+    border-bottom: 1px solid var(--violet-border);
+    min-height: 38px; text-align: center; position: relative; z-index: 3;
+  }
+  .torah-hebrew { font-family: var(--hebrew); font-size: 13px; font-weight: 400; color: var(--violet-0); direction: rtl; unicode-bidi: isolate; line-height: 1.6; }
+  .torah-sep    { color: var(--border-2); font-size: 10px; }
+  .torah-english{ font-family: var(--sans); font-size: 11.5px; font-style: italic; color: var(--text-1); line-height: 1.5; }
+  .torah-source { font-family: var(--mono); font-size: 9px; font-weight: 600; color: var(--text-3); letter-spacing: 0.8px; text-transform: uppercase; white-space: nowrap; }
+  @media (max-width: 700px) { .torah-banner { flex-direction: column; gap: 4px; padding: 8px 16px; } .torah-sep { display: none; } }
+
+  /* v2 badge strip */
+  .v2-badge-strip {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    padding: 6px 16px;
+    background: linear-gradient(90deg, rgba(16,185,129,.04), rgba(56,189,248,.04));
+    border-bottom: 1px solid var(--border-0);
+    font-family: var(--mono); font-size: 10px; color: var(--text-3);
+    letter-spacing: 1px; text-transform: uppercase; position: relative; z-index: 3;
+  }
+  .v2-badge-strip .v2-pill {
+    padding: 2px 8px; background: rgba(167,139,250,.1); color: var(--violet-0);
+    border: 1px solid rgba(167,139,250,.25); border-radius: 3px; font-weight: 700;
+  }
+  .v2-badge-strip a { color: var(--text-2); text-decoration: none; border-bottom: 1px dashed var(--border-1); }
+  .v2-badge-strip a:hover { color: var(--text-0); }
+
+  @media (max-width: 1100px) {
+    .row { grid-template-columns: repeat(6, 1fr); }
+    [style*="span 3"], [style*="span 4"], [style*="span 6"], [style*="span 9"] { grid-column: span 6 !important; }
+  }
+  @media (max-width: 700px) {
+    .row { grid-template-columns: 1fr; gap: 10px; }
+    .page { padding: 10px 12px 60px; }
+    [style*="gridColumn"], [style*="span"] { grid-column: 1 / -1 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="torah-banner" id="torahBanner">
+  <span class="torah-hebrew" id="torahHe"></span>
+  <span class="torah-sep">&#9670;</span>
+  <span class="torah-english" id="torahEn"></span>
+  <span class="torah-source" id="torahSrc"></span>
+</div>
+
+<div class="v2-badge-strip">
+  <span class="v2-pill">DASHBOARD V2</span>
+  <span>Claude Design redesign · experimental</span>
+  <span>·</span>
+  <a href="../dashboard/">switch to v1</a>
+</div>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="Pills.jsx"></script>
+<script type="text/babel" src="Chrome.jsx"></script>
+<script type="text/babel" src="Cells.jsx"></script>
+<script type="text/babel" src="Advanced.jsx"></script>
+<script type="text/babel" src="Soul.jsx"></script>
+<script type="text/babel" src="LifetimePnl.jsx"></script>
+<script type="text/babel" src="FifteenMinPerf.jsx"></script>
+
+<script type="text/babel">
+// ═══════════════════════════════════════════════════════════════════════
+// TORAH QUOTE (copied verbatim from dashboard v1 — same daily rotation)
+// ═══════════════════════════════════════════════════════════════════════
+const TORAH_QUOTES = [
+  { ref: "Pirkei_Avot.1.2", src: "Pirkei Avot 1:2" },
+  { ref: "Pirkei_Avot.1.3", src: "Pirkei Avot 1:3" },
+  { ref: "Pirkei_Avot.1.6", src: "Pirkei Avot 1:6" },
+  { ref: "Pirkei_Avot.1.14", src: "Pirkei Avot 1:14" },
+  { ref: "Pirkei_Avot.2.4", src: "Pirkei Avot 2:4" },
+  { ref: "Pirkei_Avot.2.5", src: "Pirkei Avot 2:5" },
+  { ref: "Pirkei_Avot.2.16", src: "Pirkei Avot 2:16" },
+  { ref: "Pirkei_Avot.2.21", src: "Pirkei Avot 2:21" },
+  { ref: "Pirkei_Avot.3.17", src: "Pirkei Avot 3:17" },
+  { ref: "Pirkei_Avot.4.1", src: "Pirkei Avot 4:1" },
+  { ref: "Pirkei_Avot.4.2", src: "Pirkei Avot 4:2" },
+  { ref: "Pirkei_Avot.4.3", src: "Pirkei Avot 4:3" },
+  { ref: "Pirkei_Avot.4.23", src: "Pirkei Avot 4:23" },
+  { ref: "Pirkei_Avot.5.20", src: "Pirkei Avot 5:20" },
+  { ref: "Mishlei.3.5", src: "Mishlei 3:5" },
+  { ref: "Mishlei.3.6", src: "Mishlei 3:6" },
+  { ref: "Mishlei.3.9", src: "Mishlei 3:9" },
+  { ref: "Mishlei.10.22", src: "Mishlei 10:22" },
+  { ref: "Mishlei.11.1", src: "Mishlei 11:1" },
+  { ref: "Mishlei.11.24", src: "Mishlei 11:24" },
+  { ref: "Mishlei.13.11", src: "Mishlei 13:11" },
+  { ref: "Mishlei.14.29", src: "Mishlei 14:29" },
+  { ref: "Mishlei.16.3", src: "Mishlei 16:3" },
+  { ref: "Mishlei.16.9", src: "Mishlei 16:9" },
+  { ref: "Mishlei.16.32", src: "Mishlei 16:32" },
+  { ref: "Mishlei.19.21", src: "Mishlei 19:21" },
+  { ref: "Mishlei.20.24", src: "Mishlei 20:24" },
+  { ref: "Mishlei.21.5", src: "Mishlei 21:5" },
+  { ref: "Mishlei.22.1", src: "Mishlei 22:1" },
+  { ref: "Mishlei.24.16", src: "Mishlei 24:16" },
+  { ref: "Mishlei.27.1", src: "Mishlei 27:1" },
+  { ref: "Mishlei.28.20", src: "Mishlei 28:20" },
+  { ref: "Psalms.23.1", src: "Tehillim 23:1" },
+  { ref: "Psalms.23.4", src: "Tehillim 23:4" },
+  { ref: "Psalms.27.14", src: "Tehillim 27:14" },
+  { ref: "Psalms.31.25", src: "Tehillim 31:25" },
+  { ref: "Psalms.34.10", src: "Tehillim 34:10" },
+  { ref: "Psalms.37.3", src: "Tehillim 37:3" },
+  { ref: "Psalms.37.5", src: "Tehillim 37:5" },
+  { ref: "Psalms.46.2", src: "Tehillim 46:2" },
+  { ref: "Psalms.55.23", src: "Tehillim 55:23" },
+  { ref: "Psalms.90.12", src: "Tehillim 90:12" },
+  { ref: "Psalms.118.24", src: "Tehillim 118:24" },
+  { ref: "Psalms.121.1", src: "Tehillim 121:1" },
+  { ref: "Psalms.127.1", src: "Tehillim 127:1" },
+  { ref: "Psalms.128.2", src: "Tehillim 128:2" },
+  { ref: "Psalms.145.16", src: "Tehillim 145:16" },
+  { ref: "Genesis.1.1", src: "Bereishit 1:1" },
+  { ref: "Genesis.12.2", src: "Bereishit 12:2" },
+  { ref: "Genesis.28.15", src: "Bereishit 28:15" },
+  { ref: "Genesis.39.2", src: "Bereishit 39:2" },
+  { ref: "Deuteronomy.8.18", src: "Devarim 8:18" },
+  { ref: "Deuteronomy.15.10", src: "Devarim 15:10" },
+  { ref: "Deuteronomy.28.6", src: "Devarim 28:6" },
+  { ref: "Deuteronomy.30.19", src: "Devarim 30:19" },
+  { ref: "Leviticus.19.36", src: "Vayikra 19:36" },
+  { ref: "Isaiah.26.4", src: "Yeshayahu 26:4" },
+  { ref: "Jeremiah.17.7", src: "Yirmiyahu 17:7" },
+  { ref: "Jeremiah.29.11", src: "Yirmiyahu 29:11" },
+  { ref: "Ecclesiastes.3.1", src: "Kohelet 3:1" },
+  { ref: "Ecclesiastes.5.9", src: "Kohelet 5:9" },
+  { ref: "Ecclesiastes.7.14", src: "Kohelet 7:14" },
+  { ref: "Ecclesiastes.11.6", src: "Kohelet 11:6" },
+  { embedded: true, he: "בטחון בה’ הוא לא רק לדעת שהכל הוא לטובה, אלא לחיות עם זה", en: "Trust in G-d is not merely knowing that everything is for the good — it is living with that knowledge.", src: "The Lubavitcher Rebbe" },
+  { embedded: true, he: "חשוֹב על כל העולם: אל תדאג", en: "Think good, and it will be good.", src: "The Tzemach Tzedek" },
+  { embedded: true, he: "", en: "The world says that if you can't go under an obstacle, go over it. But I say: go through it.", src: "The Lubavitcher Rebbe" },
+  { embedded: true, he: "", en: "In every descent lies the seed of a far greater ascent.", src: "The Baal Shem Tov" },
+  { embedded: true, he: "", en: "If you truly believe in G-d, you understand there is no room for worry.", src: "The Lubavitcher Rebbe" },
+  { embedded: true, he: "", en: "A person’s livelihood is decreed on Rosh Hashanah. One must do their work faithfully, and trust the outcome to Heaven.", src: "Rambam, Hilchot De'ot 5:11" },
+  { embedded: true, he: "", en: "The Torah does not demand that we be fearless. It demands that we not let fear stop us.", src: "Rav Nachman of Breslov" },
+  { embedded: true, he: "כל העולם כולו גשר צר מאד, והעיקר לעבור עליו", en: "The whole world is a very narrow bridge, and the main thing is not to be afraid at all.", src: "Rav Nachman of Breslov" },
+  { embedded: true, he: "", en: "Before every great achievement, there is a period of preparation and waiting. Do not confuse the waiting with failure.", src: "The Lubavitcher Rebbe" },
+  { embedded: true, he: "", en: "A small deed is better than a great intention.", src: "The Chofetz Chaim" },
+  { embedded: true, he: "", en: "Despair is not an option. There is always a way forward — a way that turns darkness itself into light.", src: "The Lubavitcher Rebbe" },
+  { embedded: true, he: "", en: "Patience is the companion of wisdom.", src: "Rambam" },
+  { embedded: true, he: "אין יאוש מבלי תקווה", en: "There is no despair in the world at all.", src: "Rav Nachman of Breslov" },
+  { embedded: true, he: "", en: "When a person trusts in G-d, he is surrounded by G-d’s kindness.", src: "The Chazon Ish" },
+  { embedded: true, he: "", en: "Do not be daunted by the enormity of the world’s grief. Walk humbly now. Act justly now. You are not obligated to finish the work, but neither are you free to abandon it.", src: "Pirkei Avot 2:16 (adapted)" },
+  { embedded: true, he: "", en: "Every person has a time when their mazal shines. Be ready when yours comes.", src: "Rav Yitzchak (Talmud, Shabbat 156a)" },
+  { embedded: true, he: "", en: "The righteous fall seven times and rise again.", src: "Vilna Gaon on Mishlei 24:16" },
+  { embedded: true, he: "", en: "There is nothing so whole as a broken heart.", src: "The Kotzker Rebbe" },
+  { embedded: true, he: "", en: "The old will be renewed, and the new will be made holy.", src: "Rav Kook" },
+  { embedded: true, he: "", en: "One who is patient will eventually see success.", src: "The Chofetz Chaim" },
+];
+function getDayOfYear() { const now = new Date(); const start = new Date(now.getFullYear(), 0, 0); return Math.floor((now - start) / 86400000); }
+function stripHtmlTags(html) { const tmp = document.createElement('span'); tmp.innerHTML = html; return tmp.textContent || tmp.innerText || ''; }
+async function loadTorahQuote() {
+  const dayIdx = getDayOfYear() % TORAH_QUOTES.length;
+  const q = TORAH_QUOTES[dayIdx];
+  const $ = (id) => document.getElementById(id);
+  if (q.embedded) {
+    if (q.he) $('torahHe').textContent = q.he; else $('torahHe').style.display = 'none';
+    $('torahEn').textContent = q.en;
+    $('torahSrc').textContent = '— ' + q.src;
+    return;
+  }
+  try {
+    const resp = await fetch('https://www.sefaria.org/api/texts/' + q.ref + '?context=0');
+    if (!resp.ok) throw new Error('Sefaria ' + resp.status);
+    const data = await resp.json();
+    const he = Array.isArray(data.he) ? data.he[0] : data.he;
+    const en = Array.isArray(data.text) ? data.text[0] : data.text;
+    if (he) $('torahHe').textContent = stripHtmlTags(he); else $('torahHe').style.display = 'none';
+    if (en) $('torahEn').textContent = stripHtmlTags(en);
+    $('torahSrc').textContent = '— ' + q.src;
+  } catch (err) {
+    const fb = TORAH_QUOTES.find(x => x.embedded) || TORAH_QUOTES[TORAH_QUOTES.length - 1];
+    if (fb.he) $('torahHe').textContent = fb.he; else $('torahHe').style.display = 'none';
+    $('torahEn').textContent = fb.en;
+    $('torahSrc').textContent = '— ' + fb.src;
+  }
+}
+loadTorahQuote();
+
+// ═══════════════════════════════════════════════════════════════════════
+// SNAPSHOT ADAPTER — maps real Supabase snapshot → design-component shape
+// ═══════════════════════════════════════════════════════════════════════
+function num(x, fb) { return (typeof x === 'number' && isFinite(x)) ? x : fb; }
+
+function adaptSnapshot(d) {
+  if (!d) d = {};
+  const S = {};
+
+  // Balance / PnL hero
+  S.balance  = num(d.current_balance, 0);
+  S.peak     = num(d.peak_balance, S.balance);
+  S.starting = num(d.starting_balance, 0);
+  S.deposit  = num(d.initial_deposit, 500);
+  S.daily    = num(d.daily_pnl_cents, 0);
+  S.dailyPct = num(d.daily_pnl_pct, 0);
+
+  // Win/loss
+  S.wins   = num(d.win_count, 0);
+  S.losses = num(d.loss_count, 0);
+  S.rate   = num(d.win_rate, 0);
+  S.streak = num(d.consecutive_wins, 0);
+
+  // Spot / vols — spot_prices shape is { BTC: 123.45, ... } OR { BTC: {price:…} }
+  const sp = d.spot_prices || {};
+  S.prices = {};
+  ['BTC','ETH','SOL','XRP'].forEach(k => {
+    const v = sp[k];
+    if (typeof v === 'number') S.prices[k] = v;
+    else if (v && typeof v === 'object') S.prices[k] = v.price || v.last || v.spot || 0;
+    else S.prices[k] = 0;
+  });
+  const cv = d.current_volatility || {};
+  S.vols = {};
+  ['BTC','ETH','SOL','XRP'].forEach(k => {
+    const v = cv[k] || {};
+    S.vols[k] = {
+      sigma_15m: num(v.sigma_15m, num(v.blended_rv, 0)),
+      regime: v.regime || 'low',
+    };
+  });
+
+  // Feeds — normalize {connected, last_msg_age_s}
+  const fh = d.feed_health || {};
+  const feeds = {};
+  Object.entries(fh).forEach(([k, v]) => {
+    if (!v || typeof v !== 'object') return;
+    feeds[k] = {
+      connected: !!(v.connected ?? v.is_connected ?? v.healthy),
+      last_msg_age_s: num(v.last_msg_age_s, num(v.age_s, 999)),
+    };
+  });
+  S.feeds = Object.keys(feeds).length ? feeds : {
+    coinbase:{connected:false,last_msg_age_s:999},
+    kalshi_ws:{connected:false,last_msg_age_s:999},
+  };
+
+  // Positions
+  S.positions = Array.isArray(d.active_positions) ? d.active_positions.map(p => ({
+    ticker: p.ticker || '',
+    asset: p.asset || '',
+    side: p.side || 'yes',
+    count: num(p.count, 0),
+    avg_price_cents: num(p.avg_price_cents, 0),
+    status: p.status || 'open',
+  })) : [];
+
+  // Recent trades — prefer all_products (shows weather too), fallback to 15M only
+  const rawTrades = Array.isArray(d.all_products_recent_trades) && d.all_products_recent_trades.length
+    ? d.all_products_recent_trades
+    : (Array.isArray(d.recent_trades) ? d.recent_trades : []);
+  S.trades = rawTrades.map(t => ({
+    ticker: t.ticker || '',
+    asset: t.asset || '',
+    side: t.side || 'yes',
+    count: num(t.count, 0),
+    entry_price_cents: num(t.entry_price_cents, num(t.avg_price_cents, 0)),
+    pnl_cents: num(t.pnl_cents, 0),
+    settled_at: t.settled_at || new Date().toISOString(),
+    edge: num(t.edge, 0),
+    calibrated_prob: num(t.calibrated_prob, 0),
+  }));
+
+  // Shadow strategies — pull from fifteenm_shadow if present
+  const fs = d.fifteenm_shadow || {};
+  const shadowKeys = ['A1','A2','A3','A4','a1','a2','a3','a4'];
+  const labels = { A1:'A1 RecalibratedEGARCH', A2:'A2 LightGBM', A3:'A3 EGARCH Gating', A4:'A4 LateWindow 55-74¢' };
+  const shadows = [];
+  shadowKeys.forEach(k => {
+    const v = fs[k]; if (!v || typeof v !== 'object') return;
+    const key = k.toUpperCase();
+    if (shadows.find(s => s.name.startsWith(key))) return;
+    shadows.push({
+      name: labels[key] || key,
+      signals: num(v.signals, num(v.total_signals, num(v.settled, 0))),
+      wr: num(v.wr, num(v.win_rate, 0)),
+      simPnl: num(v.sim_pnl_cents, num(v.sim_pnl, 0)),
+      status: (v.status || v.graduation?.status || 'COLLECTING').toUpperCase(),
+    });
+  });
+  S.shadows = shadows.length ? shadows : [
+    {name:'A1 RecalibratedEGARCH',signals:0,wr:0,simPnl:0,status:'COLLECTING'},
+    {name:'A2 LightGBM',signals:0,wr:0,simPnl:0,status:'COLLECTING'},
+    {name:'A3 EGARCH Gating',signals:0,wr:0,simPnl:0,status:'COLLECTING'},
+    {name:'A4 LateWindow 55-74¢',signals:0,wr:0,simPnl:0,status:'COLLECTING'},
+  ];
+
+  // Calibration — normalize {brier, ece, n_samples, status}
+  const cal = d.calibration || {};
+  S.cal = {};
+  Object.entries(cal).forEach(([k, v]) => {
+    if (!v || typeof v !== 'object') return;
+    S.cal[k] = {
+      brier: num(v.brier, 0),
+      ece: num(v.ece, 0),
+      n_samples: num(v.n_samples, num(v.n, 0)),
+      status: (v.status || 'TRAINING').toUpperCase(),
+    };
+  });
+  if (!Object.keys(S.cal).length) S.cal = {'15m':{brier:0,ece:0,n_samples:0,status:'TRAINING'}};
+
+  // Funnel
+  const ff = d.filter_funnel || {};
+  S.funnel = {
+    scanned: num(ff.scanned, 0),
+    edge_too_low: num(ff.edge_too_low, 0),
+    price_floor: num(ff.price_floor, num(ff.min_price, 0)),
+    stc_gate: num(ff.stc_gate, 0),
+    cooldown: num(ff.cooldown, 0),
+    candidate: num(ff.candidate, 0),
+  };
+
+  // Execution engine
+  const ex = d.execution_engine || d.execution_quality || {};
+  S.exec = {
+    maker_fill_rate: num(ex.maker_fill_rate, 0),
+    taker_fill_rate: num(ex.taker_fill_rate, 0),
+    avg_fill_latency_s: num(ex.avg_fill_latency_s, num((ex.avg_fill_latency_ms||0)/1000, 0)),
+    ioc_attempts_24h: num(ex.ioc_attempts_24h, 0),
+    ioc_fills_24h: num(ex.ioc_fills_24h, 0),
+  };
+
+  // Risk
+  const r = d.regime_risk_metrics || d.risk_metrics || {};
+  S.risk = {
+    sharpe_30d: num(r.sharpe_30d, num(r.sharpe, 0)),
+    max_drawdown_pct: num(r.max_drawdown_pct, num(r.max_dd_pct, 0)),
+    profit_factor: num(r.profit_factor, 0),
+    avg_win_cents: num(r.avg_win_cents, 0),
+    avg_loss_cents: num(r.avg_loss_cents, 0),
+  };
+
+  // STC performance
+  const stcp = d.stc_performance || {};
+  const stc = {};
+  Object.entries(stcp).forEach(([k, v]) => {
+    if (!v || typeof v !== 'object') return;
+    stc[k] = { n: num(v.n, 0), wr: num(v.wr, 0), pnl_cents: num(v.pnl_cents, 0), shadow_only: !!v.shadow_only };
+  });
+  S.stc = Object.keys(stc).length ? stc : {'0_300s':{n:0,wr:0,pnl_cents:0},'300_600s':{n:0,wr:0,pnl_cents:0},'600_900s':{n:0,wr:0,pnl_cents:0,shadow_only:true}};
+
+  // Active order (for OrderFlow cell)
+  const ao = d.active_order || {};
+  S.order = {
+    ticker: ao.ticker || '—',
+    mode: (ao.mode || ao.strategy || 'IDLE').toUpperCase(),
+    total: num(ao.total, num(ao.count, 0)),
+    filled: num(ao.filled, 0),
+    price: num(ao.price, num(ao.price_cents, 0)),
+    ttc: ao.ttc || ao.time_to_close || '—',
+    slip: ao.slip != null ? String(ao.slip) : '0',
+  };
+
+  // Fills tape — derive from recent_trades if no dedicated feed
+  const tapeRaw = Array.isArray(d.recent_fills) ? d.recent_fills : (S.trades.slice(0, 12));
+  S.fills = tapeRaw.slice(0, 12).map((t, i) => ({
+    t: i * 30,
+    ticker: t.ticker || '',
+    asset: t.asset || '',
+    side: t.side || 'yes',
+    qty: num(t.count, num(t.qty, 0)),
+    price: num(t.entry_price_cents, num(t.price, 0)),
+    event: t.event || 'FILL',
+    edge: t.edge != null ? t.edge : null,
+  }));
+
+  // Capital
+  const ca = d.capital_allocation || {};
+  S.alloc = {
+    BTC: num(ca.BTC, 0), ETH: num(ca.ETH, 0), SOL: num(ca.SOL, 0), XRP: num(ca.XRP, 0),
+    weather: num(ca.weather, num(ca.WEATHER, 0)),
+  };
+  S.util = num(d.capital_utilization, 0);
+
+  // Balance history → compact {ts, bal}
+  S.bhist = Array.isArray(d.balance_history) && d.balance_history.length
+    ? d.balance_history.slice(-24).map(h => ({
+        ts: (h.ts ? new Date(h.ts).toISOString().slice(11,16) : ''),
+        bal: num(h.bal, S.balance),
+      }))
+    : [{ts:'', bal:S.balance}, {ts:'', bal:S.balance}];
+
+  // Daily PnL history → {day, pnl_cents}
+  S.dpnl = Array.isArray(d.daily_pnl_history) && d.daily_pnl_history.length
+    ? d.daily_pnl_history.slice(-7).map(x => ({
+        day: x.day ? new Date(x.day).toLocaleDateString('en-US', {weekday:'short'}) : '',
+        pnl_cents: num(x.pnl_cents, 0),
+      }))
+    : ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(day => ({day, pnl_cents: 0}));
+
+  // Counterfactual
+  const cf = d.counterfactual_analysis || {};
+  S.cf = {
+    missed: num(cf.missed, num(cf.missed_pnl_cents, 0)),
+    avoided: num(cf.avoided, num(cf.avoided_pnl_cents, 0)),
+    net: num(cf.net, num(cf.net_pnl_cents, 0)),
+    buckets: Array.isArray(cf.buckets) && cf.buckets.length ? cf.buckets : [
+      {range:'75-84¢',wr:0,be:.82},{range:'85-89¢',wr:0,be:.88},
+      {range:'90-94¢',wr:0,be:.93},{range:'95-99¢',wr:0,be:.97},
+    ],
+  };
+
+  // Decided contract tiers
+  const dc = d.decided_contracts_by_tier || d.decided_contract_live || {};
+  const tiers = {};
+  ['T1','T1B','T2','T2_Z25','T2_Z2'].forEach(k => {
+    const v = dc[k] || dc[k.toLowerCase()] || {};
+    tiers[k] = { wins: num(v.wins, 0), losses: num(v.losses, 0), pnl_cents: num(v.pnl_cents, 0) };
+  });
+  S.tiers = tiers;
+
+  // Loss clustering
+  const lc = d.loss_clustering || {};
+  S.lc = {
+    cooldown_active: !!lc.cooldown_active,
+    bursts_30d: num(lc.bursts_30d, 0),
+    losses_in_bursts_30d: num(lc.losses_in_bursts_30d, 0),
+  };
+
+  // System health
+  const sh = d.system_health || {};
+  S.sys = {
+    cpu_pct: num(sh.cpu_pct, 0),
+    mem_pct: num(sh.mem_pct, 0),
+    db_size_mb: num(sh.db_size_mb, 0),
+  };
+  S.disk = num(d.disk_free_gb, 0);
+  const rl = d.rate_limits || {};
+  S.rateLimits = {
+    reads_per_sec: num(rl.reads_per_sec, 0),
+    writes_per_sec: num(rl.writes_per_sec, 0),
+    limit_reads: num(rl.limit_reads, 30),
+    limit_writes: num(rl.limit_writes, 30),
+  };
+
+  // Sports / weather observation
+  const sports = d.sports_observation || {};
+  S.sports = {
+    basketball: sports.basketball || {signals:0,wr:0},
+    baseball: sports.baseball || {signals:0,wr:0},
+    hockey: sports.hockey || {signals:0,wr:0},
+  };
+  const weather = d.weather_observation || {};
+  S.weather = {
+    cities_active: num(weather.cities_active, 0),
+    ensemble_members: num(weather.ensemble_members, 0),
+    rows_today: num(weather.rows_today, 0),
+  };
+
+  // Ask distribution
+  const ad = d.ask_distribution || {};
+  S.askdist = Array.isArray(ad.buckets) && ad.buckets.length ? ad.buckets : [
+    {range:'55-59',n:0,pct:0,sweet:false},
+    {range:'60-64',n:0,pct:0,sweet:false},
+    {range:'65-69',n:0,pct:0,sweet:true},
+    {range:'70-74',n:0,pct:0,sweet:true},
+    {range:'75-79',n:0,pct:0,sweet:false},
+  ];
+
+  // Per-asset 15M performance — pull from risk_metrics or regime_trade_analytics if present
+  const rta = d.regime_trade_analytics || d.real_trade_analytics || {};
+  const perAsset = rta.per_asset || rta.by_asset || {};
+  S.perf15m = {};
+  ['BTC','ETH','SOL','XRP'].forEach(k => {
+    const v = perAsset[k] || {};
+    const trades = num(v.trades, num(v.n, 0));
+    const wins = num(v.wins, 0);
+    S.perf15m[k] = {
+      signals: num(v.signals, 0),
+      trades: trades,
+      wins: wins,
+      avg_edge: num(v.avg_edge, 0),
+      avg_hold_s: num(v.avg_hold_s, 0),
+      best_tier: v.best_tier || '—',
+      pnl_cents: num(v.pnl_cents, 0),
+      equity: Array.isArray(v.equity) && v.equity.length ? v.equity : [0, 0],
+    };
+  });
+
+  // Status strip values
+  S.status = {
+    uptime: formatUptime(num(d.uptime_seconds, 0)),
+    next: formatCountdown(num(d.seconds_to_next_close, 0)),
+    regime: (d.current_volatility?.BTC?.regime || 'low').toUpperCase() + ' VOL',
+    kelly: num(d.drawdown_kelly_mult, 1).toFixed(2) + '×',
+    util: (num(d.capital_utilization, 0) * 100).toFixed(0) + '%',
+    cooldown: S.lc.cooldown_active ? 'ON' : 'OFF',
+    streak: (S.streak > 0 ? S.streak : num(d.consecutive_losses, 0)) + (S.streak > 0 ? 'W' : 'L'),
+  };
+
+  S._running = (d.bot_status === 'running' || d.bot_status === true || !!d.timestamp) && !d.balance_stale;
+  S._observation = !!d.observation_mode;
+  S._timestamp = d.timestamp || '';
+
+  return S;
+}
+
+function formatUptime(s) {
+  if (!s || s < 0) return '—';
+  if (s < 60) return Math.round(s)+'s';
+  if (s < 3600) return Math.round(s/60)+'m';
+  if (s < 86400) { const h = Math.floor(s/3600); const m = Math.round((s%3600)/60); return h+'h'+(m?' '+m+'m':''); }
+  return Math.floor(s/86400)+'d';
+}
+function formatCountdown(s) {
+  if (!s || s < 0) return '—';
+  const m = Math.floor(s/60), r = Math.round(s%60);
+  return m+':'+String(r).padStart(2,'0');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// APP — stateful wrapper that listens for snapshots
+// ═══════════════════════════════════════════════════════════════════════
+const EMPTY_SNAPSHOT = adaptSnapshot({});
+
+function App() {
+  const [S, setS] = React.useState(EMPTY_SNAPSHOT);
+  const [status, setStatus] = React.useState('CONNECTING');
+
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+        const sb = createClient(
+          'https://srbdajecmkjxinmcozxl.supabase.co',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyYmRhamVjbWtqeGlubWNvenhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNDMxOTQsImV4cCI6MjA4NzcxOTE5NH0.8x_ipm0KI9cBoTL7flHqGtDZLseGMIlZp1X2020XpJw'
+        );
+        const { data: row, error } = await sb.from('dashboard_state').select('data').eq('id', 1).single();
+        if (!cancelled && !error && row?.data) {
+          const parsed = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+          setS(adaptSnapshot(parsed));
+        }
+        sb.channel('dashboard-live-v2')
+          .on('postgres_changes', {
+            event: 'UPDATE', schema: 'public', table: 'dashboard_state', filter: 'id=eq.1'
+          }, (payload) => {
+            let d = payload.new?.data;
+            if (!d) return;
+            if (typeof d === 'string') { try { d = JSON.parse(d); } catch { return; } }
+            if (!cancelled) setS(adaptSnapshot(d));
+          })
+          .subscribe((st) => {
+            if (cancelled) return;
+            if (st === 'SUBSCRIBED') setStatus('LIVE');
+            else if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') setStatus('ERROR');
+            else if (st === 'CLOSED') setStatus('OFFLINE');
+          });
+      } catch (e) {
+        console.error('v2 Supabase init failed:', e);
+        if (!cancelled) setStatus('ERROR');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const running = S._running && status === 'LIVE';
+  const dd = S.peak > S.balance ? ((S.peak - S.balance) / S.peak) * 100 : 0;
+
+  return (
+    <>
+      <Header balance={S.balance} dailyPnl={S.daily} dailyPct={S.dailyPct} running={running}/>
+      <StatusStrip items={[
+        {label:'UPTIME', value:S.status.uptime},
+        {label:'NEXT',   value:S.status.next},
+        {label:'REGIME', value:S.status.regime, dot:true, dotColor: S.status.regime.startsWith('LOW') ? '#10b981' : '#fbbf24'},
+        {label:'KELLY',  value:S.status.kelly},
+        {label:'UTIL',   value:S.status.util},
+        {label:'COOLDOWN', value:S.status.cooldown, dot:true, dotColor: S.lc.cooldown_active ? '#f43f5e' : '#10b981'},
+        {label:'STREAK', value:S.status.streak, dot:true, dotColor:'#fbbf24'},
+      ]}/>
+
+      <div className="page">
+
+        {/* ── I · THE PULSE ── */}
+        <Section chapter="א" label="The pulse" hebrew="הדופק" story="Where we stand this moment — balance, streak, live pipes." meta="live">
+          <Row>
+            <TalmudHero balance={S.balance} peak={S.peak} deposit={S.deposit} daily={S.daily} dailyPct={S.dailyPct} starting={`from $${(S.starting||S.deposit).toFixed(0)}`} uptime={'up ' + S.status.uptime} drawdown={dd}/>
+            <WinLossCell wins={S.wins} losses={S.losses} rate={S.rate} streak={S.streak}/>
+          </Row>
+          <Row>
+            <SpotStrip prices={S.prices} vols={S.vols}/>
+            <FeedHealth feeds={S.feeds}/>
+            <CapitalAlloc alloc={S.alloc} util={S.util}/>
+            <OrderFlow order={S.order}/>
+          </Row>
+          {S.fills.length > 0 && (
+            <Row>
+              <LiveTradeTape fills={S.fills}/>
+            </Row>
+          )}
+        </Section>
+
+        {/* ── II · THE CLIMB ── */}
+        <Section chapter="ב" label="The climb" hebrew="עליה" story="Every dollar since day one. The long arc of the account." meta={S._timestamp ? new Date(S._timestamp).toLocaleDateString() : 'since inception'}>
+          <Row>
+            <LifetimePnl deposit={S.deposit}/>
+          </Row>
+          <Row>
+            <AllTimePerformance balance={S.balance} deposit={S.deposit} peak={S.peak} wins={S.wins} losses={S.losses} sharpe={S.risk.sharpe_30d} profitFactor={S.risk.profit_factor} maxDD={S.risk.max_drawdown_pct}/>
+            <EquitySparkline history={S.bhist} balance={S.balance}/>
+            <DailyPnlBars days={S.dpnl}/>
+          </Row>
+        </Section>
+
+        {/* ── III · THE EDGE ── */}
+        <Section chapter="ג" label="The edge" hebrew="יתרון" story="Which markets and setups are feeding the win rate." meta="per-asset">
+          <Row>
+            <FifteenMinPerformance data={S.perf15m}/>
+          </Row>
+          <Row>
+            <Counterfactual cf={S.cf}/>
+            <DecidedContractTiers tiers={S.tiers}/>
+          </Row>
+          <Row>
+            <STCPerformance stc={S.stc}/>
+            <AskDistribution dist={S.askdist}/>
+          </Row>
+        </Section>
+
+        {/* ── IV · THE ACTION ── */}
+        <Section chapter="ד" label="The action" hebrew="מעשה" story={`${S.positions.length} positions open across two market families.`} meta="live">
+          <Row>
+            <PositionsCell positions={S.positions} title="15-min crypto · BTC / ETH / SOL / XRP" span={12} filter={p => ['BTC','ETH','SOL','XRP'].includes(p.asset)}/>
+          </Row>
+          <Row>
+            <PositionsCell positions={S.positions} title="Weather · daily hi/lo temperature" span={12} filter={p => String(p.asset).endsWith('_TEMP')}/>
+          </Row>
+        </Section>
+
+        {/* ── V · THE DISCIPLINE ── */}
+        <Section chapter="ה" label="The discipline" hebrew="משמעת" story="Risk limits holding, calibration honest, system steady." meta="guardrails">
+          <Row>
+            <RiskMetrics r={S.risk}/>
+            <ExecEngineCell exec={S.exec}/>
+            <CalibrationCell cal={S.cal}/>
+          </Row>
+          <Row>
+            <FunnelCell funnel={S.funnel}/>
+            <LossClustering lc={S.lc}/>
+            <SystemHealth sys={S.sys} disk={S.disk} rate={S.rateLimits}/>
+          </Row>
+        </Section>
+
+        {/* ── VI · THE LAB ── */}
+        <Section chapter="ו" label="The lab" hebrew="מעבדה" story="Paper-traded strategies probing for tomorrow's edge." meta="not live">
+          <Row>
+            {S.shadows.map((sh, i) => <ShadowStratCell key={i} {...sh}/>)}
+          </Row>
+          <Row>
+            <ObservationMode sports={S.sports} weather={S.weather}/>
+          </Row>
+        </Section>
+
+        {/* ── VII · THE LEDGER ── */}
+        <Section chapter="ז" label="The ledger" hebrew="ספר" story="Every trade the bot settled in the last 24 hours." meta={`settled · ${S.trades.length} rows`}>
+          <Row>
+            <RecentTrades trades={S.trades}/>
+          </Row>
+        </Section>
+
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body></html>
