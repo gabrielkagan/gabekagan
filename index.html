@@ -3,20 +3,33 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Gabe Kagan — Product manager, builder, and advisor in fintech and applied AI. I ship production systems.">
-  <meta name="keywords" content="Gabe Kagan, product manager, builder, consulting, advisor, fintech, payments, fraud, applied AI">
+  <meta name="description" content="Gabe Kagan — Builder in fintech and applied AI. Solo-shipped production systems including a live prediction-market trading bot, an AI assistant on Meta smart glasses, and a personal RAG over a decade of messages.">
+  <meta name="keywords" content="Gabe Kagan, builder, fintech, payments, fraud, applied AI, prediction markets, Kalshi">
   <meta name="author" content="Gabe Kagan">
   <title>Gabe Kagan</title>
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Gabe Kagan — Builder · Fintech & AI">
+  <meta property="og:description" content="I build production systems alone. By day: payments and fraud at a fintech. By night: a live trading bot, an AI assistant in my Meta glasses, a RAG over 11 years of my own messages.">
+  <meta property="og:url" content="https://gabekagan.io/">
+  <meta property="og:image" content="https://gabekagan.io/img/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Gabe Kagan — Builder · Fintech & AI">
+  <meta name="twitter:description" content="I build production systems alone. A live trading bot, AI on my glasses, a RAG over a decade of messages.">
+  <meta name="twitter:image" content="https://gabekagan.io/img/og.png">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
+
+  <a href="#main" class="skip-link">Skip to content</a>
 
   <!-- Navigation -->
   <nav class="nav" role="navigation" aria-label="Main navigation">
@@ -29,7 +42,7 @@
       </button>
       <ul class="nav-links">
         <li><a href="#about">About</a></li>
-        <li><a href="#portfolio">Projects</a></li>
+        <li><a href="#projects">Projects</a></li>
         <li><a href="#consulting">Consulting</a></li>
         <li><a href="#resume">Resume</a></li>
         <li><a href="#contact">Contact</a></li>
@@ -37,17 +50,19 @@
     </div>
   </nav>
 
+  <main id="main">
+
   <!-- Hero -->
   <section class="hero" id="hero">
     <div class="container">
       <div class="hero-content">
-        <span class="hero-label">Builder &middot; Product Manager &middot; Fintech &amp; AI</span>
-        <h1>I <span class="accent">build</span> products. I <span class="accent">ship</span> code. I <span class="accent">solve</span> problems.</h1>
+        <span class="hero-label">Builder · Fintech &amp; AI</span>
+        <h1>I build production systems alone.</h1>
         <p class="hero-description">
-          Product management in payments and fraud by day. On the side I build &mdash; most recently a live prediction-market trading bot running against real markets. Open to select consulting and advisory projects.
+          By day: payments and fraud at a fintech. By night: a live trading bot, an AI assistant in my Meta glasses, a RAG over 11 years of my own messages.
         </p>
         <div class="hero-actions">
-          <a href="#portfolio" class="btn btn-primary">View my work</a>
+          <a href="#projects" class="btn btn-primary">View my work</a>
           <a href="#consulting" class="btn btn-secondary">Work with me</a>
         </div>
       </div>
@@ -63,7 +78,7 @@
     <div class="container">
       <div class="about-grid">
         <div class="about-image reveal">
-          <img src="img/gabeone1.png" alt="Gabe Kagan" loading="lazy">
+          <img src="img/gabeone1.png" alt="Gabe Kagan" fetchpriority="high">
         </div>
         <div class="about-text">
           <div class="section-header reveal">
@@ -71,23 +86,23 @@
             <h2>Hello, I'm Gabe.</h2>
           </div>
           <p class="reveal">
-            I've spent the past ten years working across the payments stack — from underwriting and risk decisioning to funds availability and fraud controls — at fintech companies of varying scale.
+            I'm a product manager in payments and fraud — ten years across underwriting, risk decisioning, funds availability, and the systems that decide whether transactions clear. I work at fintech companies of varying scale.
           </p>
           <p class="reveal">
-            Outside the day job I build things to solve problems I care about. I lean on AI coding tools heavily &mdash; the Kalshi bot below is 10K+ lines, entirely solo, running live on a VPS I manage myself. I think the most valuable engineers right now are the ones who know how to use these tools to ship production systems alone. That's the craft I'm trying to sharpen.
+            Outside the day job I build things end-to-end, by myself. The Kalshi bot below is <strong>150K+ lines</strong> of Python running live on a VPS I manage. The personal knowledge base reads my own messages and answers questions about them. The Meta glasses see what I see. I lean heavily on AI coding tools — I think the most valuable engineers right now are the ones who use them to ship production systems alone, and that's the craft I'm trying to sharpen.
           </p>
           <div class="about-stats reveal">
             <div class="stat">
-              <div class="stat-value">Payments</div>
-              <div class="stat-label">Domain</div>
+              <div class="stat-value">10 yrs</div>
+              <div class="stat-label">Payments</div>
             </div>
             <div class="stat">
-              <div class="stat-value">Fraud</div>
-              <div class="stat-label">Specialty</div>
+              <div class="stat-value">3 live</div>
+              <div class="stat-label">Side projects</div>
             </div>
             <div class="stat">
-              <div class="stat-value">Product</div>
-              <div class="stat-label">Craft</div>
+              <div class="stat-value">Real</div>
+              <div class="stat-label">Capital in market</div>
             </div>
           </div>
         </div>
@@ -95,13 +110,13 @@
     </div>
   </section>
 
-  <!-- Portfolio -->
-  <section class="portfolio" id="portfolio">
+  <!-- Projects -->
+  <section class="portfolio" id="projects">
     <div class="container">
       <div class="section-header reveal">
-        <span class="section-label">Portfolio</span>
+        <span class="section-label">Projects</span>
         <h2>Selected Work</h2>
-        <p>Live products, research, and things I build to ship quickly.</p>
+        <p>Live products and personal builds. Each card links to a deeper writeup.</p>
       </div>
       <div class="portfolio-grid reveal-stagger">
 
@@ -111,13 +126,23 @@
             <img src="img/projects/kalshi-bot/hero.svg" alt="Kalshi Prediction Market Bot — live performance" class="project-card-image" loading="lazy">
           </div>
           <div class="project-card-body">
-            <span class="project-card-tag">Live</span>
+            <div class="project-card-meta">
+              <span class="project-card-tag">Live</span>
+              <span class="project-card-meta-sep">·</span>
+              <span class="project-card-date">2026</span>
+            </div>
             <h3 class="project-card-title">Kalshi Prediction Market Bot</h3>
             <p class="project-card-description">Automated trading system for CFTC-regulated event contracts. EGARCH volatility model, Kelly-sized positions, calibrated probabilities — running live with real capital.</p>
-            <a href="portfolio/kalshi-bot/" class="project-card-link">
-              View performance
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </a>
+            <div class="project-card-links">
+              <a href="portfolio/kalshi-bot/" class="project-card-link">
+                View performance
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+              </a>
+              <a href="portfolio/kalshi-bot/white-paper.pdf" target="_blank" rel="noopener" class="project-card-link secondary">
+                White paper
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v9M4 7l4 4 4-4M2 14h12"/></svg>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -127,13 +152,23 @@
             <img src="img/projects/visionclaw/cover.png" alt="VisionClaw — AI assistant running on Meta smart glasses" class="project-card-image" loading="lazy">
           </div>
           <div class="project-card-body">
-            <span class="project-card-tag">Personal</span>
+            <div class="project-card-meta">
+              <span class="project-card-tag">Personal</span>
+              <span class="project-card-meta-sep">·</span>
+              <span class="project-card-date">Apr 2026</span>
+            </div>
             <h3 class="project-card-title">VisionClaw — JARVIS in my glasses</h3>
             <p class="project-card-description">Real-time AI assistant on my Oakley Meta HSTN glasses. Streams what I see and hear to Gemini Live, which talks back and can take actions on my behalf. Built on the open-source VisionClaw + Meta Wearables DAT SDK.</p>
-            <a href="portfolio/visionclaw/" class="project-card-link">
-              How I built it
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </a>
+            <div class="project-card-links">
+              <a href="portfolio/visionclaw/" class="project-card-link">
+                How I built it
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+              </a>
+              <a href="https://github.com/sseanliu/VisionClaw" target="_blank" rel="noopener" class="project-card-link secondary">
+                Upstream
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -143,64 +178,63 @@
             <img src="img/projects/personal-kb/hero.svg" alt="Personal Knowledge Base — pipeline diagram" class="project-card-image" loading="lazy">
           </div>
           <div class="project-card-body">
-            <span class="project-card-tag">Personal</span>
+            <div class="project-card-meta">
+              <span class="project-card-tag">Personal</span>
+              <span class="project-card-meta-sep">·</span>
+              <span class="project-card-date">Apr 2026</span>
+            </div>
             <h3 class="project-card-title">Personal Knowledge Base</h3>
             <p class="project-card-description">A RAG over 11 years of my own iMessages, WhatsApp, and email — 168,000 messages, queryable in plain English. Then a second pass that distills it all into a written portrait. 100% local if you want it.</p>
-            <a href="portfolio/personal-kb/" class="project-card-link">
-              How I built it
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </a>
+            <div class="project-card-links">
+              <a href="portfolio/personal-kb/" class="project-card-link">
+                How I built it
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+              </a>
+              <a href="https://github.com/gabrielkagan/knowledge-base" target="_blank" rel="noopener" class="project-card-link secondary">
+                Source
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+              </a>
+            </div>
           </div>
         </div>
 
-        <!-- Markov Chain Stock Prediction -->
-        <div class="project-card reveal">
-          <div class="project-card-image-wrapper">
-            <img src="img/projects/assignment-tracking/md5.png" alt="Stock Market Prediction" class="project-card-image" loading="lazy">
-          </div>
-          <div class="project-card-body">
-            <span class="project-card-tag">Research</span>
-            <h3 class="project-card-title">Markov Chain Stock Prediction</h3>
-            <p class="project-card-description">Discrete-time Markov chain model for securities trading, applying stochastic processes to predict market state transitions.</p>
-            <a href="img/projects/assignment-tracking/DTMC_Report.pdf" target="_blank" rel="noopener" class="project-card-link">
-              Read paper
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </a>
-          </div>
-        </div>
+      </div>
 
-        <!-- Quantum Mechanics -->
-        <div class="project-card reveal">
-          <div class="project-card-image-wrapper">
-            <img src="img/projects/quantum-mechanics/instagram-sketch-template.png" alt="Quantum Mechanics Research" class="project-card-image" loading="lazy">
-          </div>
-          <div class="project-card-body">
-            <span class="project-card-tag">Research</span>
-            <h3 class="project-card-title">Quantum Mechanics Research</h3>
-            <p class="project-card-description">Mathematical examination of the two-slit experiment, analyzing wave function behavior and quantum probability distributions.</p>
-            <a href="img/projects/honors-thesis/Quantum-Mechanics.pdf" target="_blank" rel="noopener" class="project-card-link">
-              Read paper
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      <!-- Earlier work compact list -->
+      <div class="earlier-work reveal">
+        <div class="earlier-work-header">Earlier work</div>
+        <ul class="earlier-list">
+          <li>
+            <a href="https://github.com/gabrielkagan/DTMC_Trader" target="_blank" rel="noopener">
+              <span class="e-tag">Research</span>
+              <span class="e-title">Markov Chain Stock Prediction</span>
+              <span class="e-year">2018</span>
+              <span class="e-arrow">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+              </span>
             </a>
-          </div>
-        </div>
-
-        <!-- NovaInterior -->
-        <div class="project-card reveal">
-          <div class="project-card-image-wrapper">
-            <img src="img/projects/sigep-umass/nova.PNG" alt="NovaInterior.com" class="project-card-image" loading="lazy">
-          </div>
-          <div class="project-card-body">
-            <span class="project-card-tag">Development</span>
-            <h3 class="project-card-title">NovaInterior.com</h3>
-            <p class="project-card-description">E-commerce web development for a furniture retailer — full-stack build including product catalog, cart system, and checkout flow.</p>
-            <a href="http://novainterior.com/" target="_blank" rel="noopener" class="project-card-link">
-              Visit site
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </li>
+          <li>
+            <a href="img/projects/honors-thesis/Quantum-Mechanics.pdf" target="_blank" rel="noopener">
+              <span class="e-tag">Research</span>
+              <span class="e-title">Quantum Mechanics — Two-Slit Experiment</span>
+              <span class="e-year">2018</span>
+              <span class="e-arrow">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+              </span>
             </a>
-          </div>
-        </div>
-
+          </li>
+          <li>
+            <a href="http://novainterior.com/" target="_blank" rel="noopener">
+              <span class="e-tag">Development</span>
+              <span class="e-title">NovaInterior.com — E-commerce build</span>
+              <span class="e-year">2017</span>
+              <span class="e-arrow">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+              </span>
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   </section>
@@ -210,8 +244,8 @@
     <div class="container">
       <div class="section-header reveal">
         <span class="section-label">Work with me</span>
-        <h2>Builder first. Consultant and advisor when it fits.</h2>
-        <p>I take select consulting and advisory engagements when the problem's interesting. Here's what I help with.</p>
+        <h2>Builder first. Consultant when it fits.</h2>
+        <p>I take a few engagements a quarter when the problem's interesting. Here's where I help most.</p>
       </div>
 
       <div class="consulting-grid reveal-stagger">
@@ -222,18 +256,19 @@
 
         <div class="consulting-card reveal">
           <h3>Fintech systems</h3>
-          <p>Ten years across payments, fraud, and trading &mdash; production risk-decisioning at a proptech payments company, fraud systems in fintech, and a live Kalshi bot running solo. I can advise on product decisions where payments meet ML, or get hands-on with risk and fraud work.</p>
+          <p>Ten years across payments, fraud, and trading — production risk-decisioning at a proptech payments company, fraud systems in fintech, and a live Kalshi bot running solo. I can advise on product decisions where payments meet ML, or get hands-on with risk and fraud work.</p>
         </div>
 
         <div class="consulting-card reveal">
           <h3>Stuck problems</h3>
-          <p>Sometimes you don't need a team &mdash; you need someone to read the code, understand the constraint, and propose a fix. I'll spend a few hours, write it up, give you a path. No retainer.</p>
+          <p>Sometimes you don't need a team — you need someone to read the code, understand the constraint, and propose a fix. I'll spend a few hours, write it up, give you a path. No retainer.</p>
         </div>
       </div>
 
       <div class="consulting-cta reveal">
-        <p>Always open to a discovery call.</p>
-        <a href="mailto:me@gabekagan.io" class="btn btn-primary">me@gabekagan.io</a>
+        <p class="consulting-cta-line">I take a few of these a quarter.</p>
+        <a href="https://calendly.com/me-gabekagan/30min" target="_blank" rel="noopener" class="btn btn-primary">Book a 30-min call</a>
+        <p class="consulting-cta-secondary">or email <a href="mailto:me@gabekagan.io">me@gabekagan.io</a></p>
       </div>
     </div>
   </section>
@@ -246,8 +281,8 @@
           <span class="section-label">Resume</span>
           <h2>Experience &amp; Education</h2>
         </div>
-        <p>Download my resume for more on my experience across payments, fraud, and product.</p>
-        <a href="placeholder.pdf" target="_blank" rel="noopener" class="btn btn-primary">Download Resume</a>
+        <p>My professional history lives on LinkedIn — full timeline across payments, fraud, and product.</p>
+        <a href="https://www.linkedin.com/in/gabriel-kagan/" target="_blank" rel="noopener" class="btn btn-primary">View on LinkedIn</a>
       </div>
     </div>
   </section>
@@ -273,8 +308,8 @@
             </a>
           </li>
           <li>
-            <a href="https://twitch.tv/snuggles617" target="_blank" rel="noopener" aria-label="Twitch">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+            <a href="https://x.com/GabeKagan" target="_blank" rel="noopener" aria-label="X (Twitter)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             </a>
           </li>
           <li>
@@ -287,10 +322,12 @@
     </div>
   </section>
 
+  </main>
+
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
-      <p>&copy; <span class="current-year"></span> Gabe Kagan &middot; <a href="https://github.com/gabrielkagan" target="_blank" rel="noopener">Source on GitHub</a></p>
+      <p>&copy; <span class="current-year"></span> Gabe Kagan · <a href="https://github.com/gabrielkagan" target="_blank" rel="noopener">Source on GitHub</a></p>
     </div>
   </footer>
 
