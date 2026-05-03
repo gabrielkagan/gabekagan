@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" font-family="-apple-system, 'Inter', sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0c1018"/>
+      <stop offset="1" stop-color="#06080d"/>
+    </linearGradient>
+    <linearGradient id="srcGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e2a3d"/>
+      <stop offset="1" stop-color="#162132"/>
+    </linearGradient>
+    <linearGradient id="procGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d2540"/>
+      <stop offset="1" stop-color="#171d33"/>
+    </linearGradient>
+    <linearGradient id="storeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a2e1a"/>
+      <stop offset="1" stop-color="#2a2113"/>
+    </linearGradient>
+    <linearGradient id="askGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a3d2a"/>
+      <stop offset="1" stop-color="#1f2d1f"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5a6a82"/>
+    </marker>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="40" y="42" fill="#9fb3c8" font-size="11" font-weight="500" letter-spacing="2.4" text-transform="uppercase">PERSONAL KNOWLEDGE BASE — PIPELINE</text>
+  <line x1="40" y1="58" x2="760" y2="58" stroke="#243044" stroke-width="1"/>
+
+  <!-- Column headers -->
+  <text x="100" y="92" fill="#64748b" font-size="10" font-weight="500" letter-spacing="1.5">SOURCES</text>
+  <text x="320" y="92" fill="#64748b" font-size="10" font-weight="500" letter-spacing="1.5">PIPELINE</text>
+  <text x="540" y="92" fill="#64748b" font-size="10" font-weight="500" letter-spacing="1.5">STORE</text>
+  <text x="690" y="92" fill="#64748b" font-size="10" font-weight="500" letter-spacing="1.5">QUERY</text>
+
+  <!-- Sources -->
+  <g>
+    <rect x="40" y="110" width="180" height="56" rx="6" fill="url(#srcGrad)" stroke="#2e3d55" stroke-width="1"/>
+    <text x="56" y="135" fill="#e8a838" font-family="'IBM Plex Mono', monospace" font-size="11">chat.db</text>
+    <text x="56" y="153" fill="#9fb3c8" font-size="12">iMessage</text>
+
+    <rect x="40" y="178" width="180" height="56" rx="6" fill="url(#srcGrad)" stroke="#2e3d55" stroke-width="1"/>
+    <text x="56" y="203" fill="#e8a838" font-family="'IBM Plex Mono', monospace" font-size="11">ChatStorage.sqlite</text>
+    <text x="56" y="221" fill="#9fb3c8" font-size="12">WhatsApp</text>
+
+    <rect x="40" y="246" width="180" height="56" rx="6" fill="url(#srcGrad)" stroke="#2e3d55" stroke-width="1"/>
+    <text x="56" y="271" fill="#e8a838" font-family="'IBM Plex Mono', monospace" font-size="11">~/Library/Mail/</text>
+    <text x="56" y="289" fill="#9fb3c8" font-size="12">Apple Mail (.emlx)</text>
+  </g>
+
+  <!-- Arrows: sources -> pipeline -->
+  <path d="M 220 138 L 280 198" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 220 206 L 280 206" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 220 274 L 280 214" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Pipeline (3 stacked) -->
+  <g>
+    <rect x="280" y="124" width="180" height="44" rx="6" fill="url(#procGrad)" stroke="#3b4a6a" stroke-width="1"/>
+    <text x="370" y="143" fill="#e2e8f0" font-size="13" font-weight="500" text-anchor="middle">parser</text>
+    <text x="370" y="159" fill="#64748b" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">SQLite + .emlx</text>
+
+    <rect x="280" y="184" width="180" height="44" rx="6" fill="url(#procGrad)" stroke="#3b4a6a" stroke-width="1"/>
+    <text x="370" y="203" fill="#e2e8f0" font-size="13" font-weight="500" text-anchor="middle">chunker</text>
+    <text x="370" y="219" fill="#64748b" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">30-min windows</text>
+
+    <rect x="280" y="244" width="180" height="44" rx="6" fill="url(#procGrad)" stroke="#3b4a6a" stroke-width="1"/>
+    <text x="370" y="263" fill="#e2e8f0" font-size="13" font-weight="500" text-anchor="middle">embedder</text>
+    <text x="370" y="279" fill="#64748b" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">MiniLM (local)</text>
+  </g>
+
+  <!-- Vertical arrows down the pipeline -->
+  <path d="M 370 168 L 370 184" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 370 228 L 370 244" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Pipeline -> Store -->
+  <path d="M 460 266 L 520 206" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Store -->
+  <g>
+    <rect x="520" y="178" width="140" height="80" rx="6" fill="url(#storeGrad)" stroke="#5a4a26" stroke-width="1"/>
+    <text x="590" y="207" fill="#e8a838" font-size="14" font-weight="600" text-anchor="middle">ChromaDB</text>
+    <text x="590" y="226" fill="#cbb88a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">vector index</text>
+    <text x="590" y="244" fill="#9c8a5e" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">cosine, on-disk</text>
+  </g>
+
+  <!-- Store -> Query -->
+  <path d="M 660 218 L 700 218" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Ask interface -->
+  <g>
+    <rect x="700" y="178" width="60" height="80" rx="6" fill="url(#askGrad)" stroke="#3a5a3a" stroke-width="1"/>
+    <text x="730" y="207" fill="#9be89b" font-family="'IBM Plex Mono', monospace" font-size="11" text-anchor="middle">kb</text>
+    <text x="730" y="225" fill="#9be89b" font-family="'IBM Plex Mono', monospace" font-size="11" text-anchor="middle">ask</text>
+    <text x="730" y="248" fill="#5a8a5a" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">CLI</text>
+  </g>
+
+  <!-- LLM box bottom -->
+  <g>
+    <rect x="540" y="320" width="180" height="62" rx="6" fill="url(#procGrad)" stroke="#3b4a6a" stroke-width="1"/>
+    <text x="630" y="343" fill="#e2e8f0" font-size="13" font-weight="500" text-anchor="middle">LLM (your choice)</text>
+    <text x="630" y="361" fill="#64748b" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">Ollama / Qwen / OpenAI / …</text>
+    <text x="630" y="375" fill="#5a6a82" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">OpenAI-compat API</text>
+  </g>
+
+  <!-- ask -> LLM -->
+  <path d="M 720 258 Q 720 295 670 320" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- LLM -> answer -->
+  <text x="540" y="357" fill="#9be89b" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="end">answer →</text>
+
+  <!-- Stats footer -->
+  <line x1="40" y1="402" x2="760" y2="402" stroke="#243044" stroke-width="1"/>
+  <text x="40" y="425" fill="#9fb3c8" font-family="'IBM Plex Mono', monospace" font-size="11">168,000 messages</text>
+  <text x="200" y="425" fill="#5a6a82" font-family="'IBM Plex Mono', monospace" font-size="11">·</text>
+  <text x="220" y="425" fill="#9fb3c8" font-family="'IBM Plex Mono', monospace" font-size="11">11 years</text>
+  <text x="320" y="425" fill="#5a6a82" font-family="'IBM Plex Mono', monospace" font-size="11">·</text>
+  <text x="340" y="425" fill="#9fb3c8" font-family="'IBM Plex Mono', monospace" font-size="11">40+ relationships</text>
+  <text x="500" y="425" fill="#5a6a82" font-family="'IBM Plex Mono', monospace" font-size="11">·</text>
+  <text x="520" y="425" fill="#9fb3c8" font-family="'IBM Plex Mono', monospace" font-size="11">100% local-capable</text>
+  <text x="760" y="425" fill="#5a6a82" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="end">v0.1</text>
+</svg>

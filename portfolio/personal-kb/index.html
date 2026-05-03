@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Knowledge Base — RAG over my own messages · Gabriel Kagan</title>
+<meta name="description" content="I built a personal RAG over 11 years of my own iMessages, WhatsApp, and email — 168,000 messages, queryable in plain English. Then a second pass that distills it into a written portrait of who I actually am.">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Personal Knowledge Base — RAG over my own messages">
+<meta property="og:description" content="168,000 messages, 11 years, queryable in plain English. Karpathy-style self-portrait built from private data.">
+<meta property="og:url" content="https://gabekagan.io/portfolio/personal-kb/">
+<meta property="og:image" content="https://gabekagan.io/img/projects/personal-kb/hero.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Personal Knowledge Base — RAG over my own messages">
+<meta name="twitter:description" content="168,000 messages, 11 years, queryable in plain English.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg-0: #06080d;
+  --bg-1: #0c1018;
+  --bg-2: #121822;
+  --border-1: #243044;
+  --border-2: #2e3d55;
+  --text-0: #ffffff;
+  --text-1: #e2e8f0;
+  --text-2: #9fb3c8;
+  --text-3: #64748b;
+  --accent: #E8A838;
+  --green-0: #10b981;
+  --blue-0: #60a5fa;
+  --font-display: 'Frank Ruhl Libre', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', Menlo, monospace;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg-0);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+}
+
+.backlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  text-decoration: none;
+  margin-bottom: 32px;
+  transition: color 0.15s;
+}
+.backlink:hover { color: var(--text-1); }
+
+header {
+  margin-bottom: 48px;
+  border-bottom: 1px solid var(--border-1);
+  padding-bottom: 32px;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-0);
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+.subtitle {
+  font-size: 18px;
+  color: var(--text-2);
+  max-width: 600px;
+}
+
+/* Hero stats grid */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin: 48px 0;
+}
+.stat {
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 6px;
+  padding: 20px;
+}
+.stat-val {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+
+/* Figure */
+figure {
+  margin: 48px 0;
+}
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border-1);
+  background: var(--bg-1);
+}
+figcaption {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* Prose */
+.prose h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-0);
+  margin-bottom: 16px;
+  margin-top: 64px;
+  letter-spacing: -0.01em;
+}
+.prose h2:first-child { margin-top: 0; }
+.prose h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-0);
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+.prose p {
+  margin-bottom: 16px;
+  max-width: 640px;
+  color: var(--text-1);
+}
+.prose p strong { color: var(--text-0); font-weight: 600; }
+.prose a { color: var(--blue-0); text-decoration: underline; text-decoration-color: var(--border-2); text-underline-offset: 3px; }
+.prose a:hover { text-decoration-color: var(--blue-0); }
+.prose ul {
+  margin-bottom: 16px;
+  padding-left: 20px;
+  max-width: 640px;
+}
+.prose li {
+  margin-bottom: 8px;
+  color: var(--text-1);
+}
+.prose li::marker { color: var(--accent); }
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 3px;
+  padding: 1px 6px;
+  color: var(--text-0);
+}
+
+.callout {
+  background: var(--bg-1);
+  border-left: 3px solid var(--accent);
+  padding: 16px 20px;
+  border-radius: 0 6px 6px 0;
+  margin: 24px 0;
+  max-width: 640px;
+}
+.callout p { margin-bottom: 0; color: var(--text-2); font-size: 15px; }
+.callout p strong { color: var(--text-0); }
+
+.privacy-callout {
+  background: var(--bg-1);
+  border-left: 3px solid var(--green-0);
+  padding: 16px 20px;
+  border-radius: 0 6px 6px 0;
+  margin: 24px 0;
+  max-width: 640px;
+}
+.privacy-callout p { margin-bottom: 0; color: var(--text-2); font-size: 15px; }
+.privacy-callout p strong { color: var(--green-0); font-weight: 600; }
+
+/* Code block */
+pre {
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 6px;
+  padding: 16px 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-1);
+  overflow-x: auto;
+  margin: 16px 0;
+  max-width: 640px;
+}
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* Stack grid */
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+.stack-item {
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 6px;
+  padding: 16px;
+}
+.stack-item-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.stack-item-name {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-0);
+  font-weight: 500;
+}
+
+footer {
+  margin-top: 96px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-1);
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.7;
+}
+footer p { margin-bottom: 12px; max-width: 640px; }
+footer a { color: var(--text-2); text-decoration: underline; text-decoration-color: var(--border-2); }
+footer a:hover { color: var(--text-1); }
+
+@media (max-width: 640px) {
+  .container { padding: 32px 20px 64px; }
+  h1 { font-size: 32px; }
+  .subtitle { font-size: 16px; }
+  header { margin-bottom: 32px; padding-bottom: 24px; }
+  .prose h2 { font-size: 22px; margin-top: 48px; }
+  figure { margin: 32px 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<a href="/" class="backlink">← Back to portfolio</a>
+
+<header>
+  <div class="eyebrow">Personal Project</div>
+  <h1>Personal Knowledge Base</h1>
+  <p class="subtitle">A queryable RAG over 11 years of my own messages, then a written portrait distilled from the data.</p>
+</header>
+
+<figure>
+  <img src="../../img/projects/personal-kb/hero.svg" alt="Pipeline diagram: chat.db, WhatsApp, and Mail flow into a parser, chunker, embedder, and into a local ChromaDB. The kb ask CLI retrieves chunks and sends them to an LLM of your choice.">
+  <figcaption>The pipeline. Sources on the left, retrieval on the right, an LLM at the bottom.</figcaption>
+</figure>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-val">168k</div>
+    <div class="stat-label">Messages</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">11</div>
+    <div class="stat-label">Years</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">40+</div>
+    <div class="stat-label">Relationships</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">100%</div>
+    <div class="stat-label">Local-capable</div>
+  </div>
+</div>
+
+<section class="prose">
+  <h2>What I built</h2>
+  <p>Two systems, on top of the same data.</p>
+  <p><strong>The first</strong> is a small Python tool that reads my local Apple data — <code>~/Library/Messages/chat.db</code> for iMessage, <code>ChatStorage.sqlite</code> for WhatsApp, <code>~/Library/Mail/</code> for email — chunks the conversations sensibly, embeds everything into a local vector database, and lets me ask natural-language questions about my own message history. Plain English in, dated and cited answers out.</p>
+  <p><strong>The second</strong> is what came after. I took the same corpus and used an LLM to do something different — not <em>retrieve</em> it but <em>distill</em> it. The output is an Obsidian vault with about a hundred markdown files: who I am, who matters to me, how my voice has changed, what I've consistently said vs. what I tell people I believe. A written portrait built from 11 years of unguarded text.</p>
+
+  <div class="callout">
+    <p><strong>The Karpathy frame.</strong> Andrej Karpathy described it well: there's a gap between the version of yourself you describe to people and the version that comes through across years of low-stakes communication. The first version is curated. The second one is data. I wanted to see the second one.</p>
+  </div>
+
+  <h2>Why I built it</h2>
+  <p>Two reasons, one practical, one deeper.</p>
+  <p>The practical one: my message history is the most concentrated record of my actual life that exists. Conversations with family and friends going back to college, every job decision I talked through, every relationship as it unfolded, every business idea I floated and discarded. None of it indexed. None of it searchable. It just sits in Apple's databases on my machine, growing every day, completely opaque to me. That bothered me. It's <em>my</em> data and I couldn't do anything with it.</p>
+  <p>The deeper one: I wanted to see who I actually am, not who I describe myself as. I think most people would be surprised by what 11 years of their own text reveals — patterns in how they talk, who they reach out to when, what they consistently care about, what they've quietly outgrown. I built the second system because the first one wasn't enough. Search lets you look up a fact. Distillation lets you see a shape.</p>
+
+  <h2>How it works</h2>
+  <p>The pipeline is small but each step has a real engineering decision behind it.</p>
+
+  <h3>Reading the data</h3>
+  <p>iMessage stores everything in a SQLite database at <code>~/Library/Messages/chat.db</code>. The schema isn't documented and has some quirks worth knowing about: timestamps live in Apple's epoch (seconds since 2001-01-01) <em>or</em> nanoseconds-since-2001 depending on iOS version, so the parser sniffs the magnitude and converts. Reactions ("tapbacks") are stored as separate messages with <code>associated_message_type</code> in the 2000–3005 range — those get filtered out because they pollute search. Group chats vs. DMs are distinguished by <code>style=43</code> vs <code>45</code>. Sender attribution requires joining through <code>chat_message_join</code>, not the simpler <code>handle_id</code>, because outgoing messages have no handle. WhatsApp uses a similar SQLite store. Apple Mail is `.emlx` files in a deep folder hierarchy.</p>
+
+  <h3>Chunking</h3>
+  <p>Naive chunking by message would lose context — a single text rarely makes sense alone. Instead the chunker groups messages into <strong>30-minute activity windows</strong>: anything within half an hour of the previous message is the same conversation. If a window goes too long, it splits at token boundaries. Email threads get chunked per-message, with long messages split on paragraph breaks.</p>
+
+  <h3>Embedding and retrieval</h3>
+  <p>Everything goes into <strong>ChromaDB</strong> using the default <code>all-MiniLM-L6-v2</code> embedder. That model runs on CPU, locally, no API key — important for the privacy story. Chunk IDs are content-hashed so re-ingesting later is idempotent. Query time: cosine similarity, top-N retrieval, optional filters by source or person.</p>
+
+  <h3>The LLM step</h3>
+  <p>The retrieved chunks get sent as context to an LLM that generates the answer. The tool speaks the OpenAI chat-completions API, which has become the de-facto standard — so the same code works against OpenAI, Anthropic, OpenRouter, or any local model server (Ollama, LM Studio, vLLM). The default config points at a local Ollama running Qwen 2.5, which means the entire pipeline can run with zero data leaving the machine.</p>
+
+  <h3>The second pass — distillation</h3>
+  <p>Building the written portrait is a separate workflow. The retrieval system answers narrow questions ("what did I say about X"), but distilling 11 years of conversation into structured prose required a different shape — many passes, with verification. I built the vault iteratively: extract a topic, audit the extraction by querying the raw SQL ground truth, fix attribution errors (it's easy to misattribute lines in group chats), repeat. Four rounds of audits in total. The audit work is most of the project; the writing is the easy part.</p>
+
+  <h2>The stack</h2>
+  <div class="stack-grid">
+    <div class="stack-item">
+      <div class="stack-item-label">Language</div>
+      <div class="stack-item-name">Python 3.9+</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Sources</div>
+      <div class="stack-item-name">SQLite (Apple chat.db)</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Vector store</div>
+      <div class="stack-item-name">ChromaDB</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Embeddings</div>
+      <div class="stack-item-name">all-MiniLM-L6-v2</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">LLM</div>
+      <div class="stack-item-name">OpenAI-compat (any)</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Output</div>
+      <div class="stack-item-name">Obsidian vault</div>
+    </div>
+  </div>
+
+  <h2>What it accomplished</h2>
+  <ul>
+    <li><strong>I can ask questions about my own life and get cited answers.</strong> "What did I say to my parents about the job offer in 2023?" gets a real answer with dates.</li>
+    <li><strong>I have a written self-portrait</strong> — about a hundred markdown files in an Obsidian vault, distilled from the corpus, kept private. It's not a product. It's for me.</li>
+    <li><strong>I caught patterns I didn't know I had</strong> — including some I'm not proud of, which is the point. You can't fix what you can't see.</li>
+    <li><strong>The parsing/RAG code is open-source</strong> — anyone can build their own. <a href="https://github.com/gabrielkagan/knowledge-base" target="_blank" rel="noopener">github.com/gabrielkagan/knowledge-base</a>.</li>
+  </ul>
+
+  <h2>Privacy</h2>
+  <div class="privacy-callout">
+    <p><strong>Nothing about my actual data is on this page.</strong> No excerpts, no names from the vault, no message content. The corpus and the distilled vault stay on my machine, encrypted, never synced. The page describes the system, not the contents — and the open-source code on GitHub ships with no data either. If you want a knowledge base of <em>your</em> messages, you build your own. That's the whole point.</p>
+  </div>
+</section>
+
+<footer>
+  <p><strong>Source:</strong> <a href="https://github.com/gabrielkagan/knowledge-base" target="_blank" rel="noopener">github.com/gabrielkagan/knowledge-base</a> — the parser + chunker + retrieval CLI. MIT licensed. Brings no data; you point it at your own machine.</p>
+  <p><strong>Reading:</strong> <a href="https://karpathy.ai/" target="_blank" rel="noopener">Andrej Karpathy</a> on the gap between described-self and revealed-self. <a href="https://www.trychroma.com/" target="_blank" rel="noopener">ChromaDB</a> for the vector store. <a href="https://ollama.com/" target="_blank" rel="noopener">Ollama</a> for the local LLM.</p>
+  <p>Built by <a href="https://gabekagan.io">Gabriel Kagan</a>. <a href="mailto:gabrielkagan@gmail.com">Get in touch</a> if you're working on personal-data tools.</p>
+</footer>
+
+</div>
+</body>
+</html>
