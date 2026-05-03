@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VisionClaw — JARVIS in my glasses · Gabriel Kagan</title>
+<meta name="description" content="A real-time AI assistant running on my Oakley Meta HSTN smart glasses. See what I see, hear what I say, take actions on my behalf — built on Gemini Live and the open-source VisionClaw project.">
+
+<!-- Open Graph / social preview -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="VisionClaw — JARVIS in my glasses">
+<meta property="og:description" content="Real-time AI assistant running on my Meta smart glasses, built on Gemini Live + the open-source VisionClaw project.">
+<meta property="og:url" content="https://gabekagan.io/portfolio/visionclaw/">
+<meta property="og:image" content="https://gabekagan.io/img/projects/visionclaw/cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="VisionClaw — JARVIS in my glasses">
+<meta name="twitter:description" content="Real-time AI assistant running on my Meta smart glasses.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg-0: #06080d;
+  --bg-1: #0c1018;
+  --bg-2: #121822;
+  --border-1: #243044;
+  --border-2: #2e3d55;
+  --text-0: #ffffff;
+  --text-1: #e2e8f0;
+  --text-2: #9fb3c8;
+  --text-3: #64748b;
+  --accent: #E8A838;
+  --blue-0: #60a5fa;
+  --font-display: 'Frank Ruhl Libre', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', Menlo, monospace;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg-0);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+}
+
+/* Back link */
+.backlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  text-decoration: none;
+  margin-bottom: 32px;
+  transition: color 0.15s;
+}
+.backlink:hover { color: var(--text-1); }
+
+header {
+  margin-bottom: 48px;
+  border-bottom: 1px solid var(--border-1);
+  padding-bottom: 32px;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-0);
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+.subtitle {
+  font-size: 18px;
+  color: var(--text-2);
+  max-width: 600px;
+}
+
+/* Figure / image blocks */
+figure {
+  margin: 48px 0;
+}
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border-1);
+  background: var(--bg-1);
+}
+figure.icon-figure {
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+figcaption {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* Prose */
+.prose h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-0);
+  margin-bottom: 16px;
+  margin-top: 64px;
+  letter-spacing: -0.01em;
+}
+.prose h2:first-child { margin-top: 0; }
+.prose h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-0);
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+.prose p {
+  margin-bottom: 16px;
+  max-width: 640px;
+  color: var(--text-1);
+}
+.prose p strong { color: var(--text-0); font-weight: 600; }
+.prose a { color: var(--blue-0); text-decoration: underline; text-decoration-color: var(--border-2); text-underline-offset: 3px; }
+.prose a:hover { text-decoration-color: var(--blue-0); }
+.prose ul {
+  margin-bottom: 16px;
+  padding-left: 20px;
+  max-width: 640px;
+}
+.prose li {
+  margin-bottom: 8px;
+  color: var(--text-1);
+}
+.prose li::marker { color: var(--accent); }
+
+.callout {
+  background: var(--bg-1);
+  border-left: 3px solid var(--accent);
+  padding: 16px 20px;
+  border-radius: 0 6px 6px 0;
+  margin: 24px 0;
+  max-width: 640px;
+}
+.callout p { margin-bottom: 0; color: var(--text-2); font-size: 15px; }
+
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+.stack-item {
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 6px;
+  padding: 16px;
+}
+.stack-item-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.stack-item-name {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-0);
+  font-weight: 500;
+}
+
+footer {
+  margin-top: 96px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-1);
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.7;
+}
+footer p { margin-bottom: 12px; max-width: 640px; }
+footer a { color: var(--text-2); text-decoration: underline; text-decoration-color: var(--border-2); }
+footer a:hover { color: var(--text-1); }
+
+@media (max-width: 640px) {
+  .container { padding: 32px 20px 64px; }
+  h1 { font-size: 32px; }
+  .subtitle { font-size: 16px; }
+  header { margin-bottom: 32px; padding-bottom: 24px; }
+  .prose h2 { font-size: 22px; margin-top: 48px; }
+  figure { margin: 32px 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<a href="/" class="backlink">← Back to portfolio</a>
+
+<header>
+  <div class="eyebrow">Personal Project</div>
+  <h1>VisionClaw — JARVIS in my glasses</h1>
+  <p class="subtitle">A real-time AI assistant running on my Oakley Meta HSTN smart glasses. See what I see, hear what I say, take actions on my behalf.</p>
+</header>
+
+<figure>
+  <img src="../../img/projects/visionclaw/cover.png" alt="A man wearing Meta smart glasses asks the AI assistant to dim a lamp">
+  <figcaption>The pitch: ask out loud, the glasses see what you see, the AI handles it.</figcaption>
+</figure>
+
+<section class="prose">
+  <h2>What it is</h2>
+  <p>I wanted to know how close we are to <strong>Tony Stark's JARVIS</strong> — an assistant that actually lives with you, sees what you're looking at, and can do things on your behalf without you reaching for a phone. Turns out: pretty close.</p>
+  <p>VisionClaw runs as an iOS app on my iPhone, paired to my <strong>Oakley Meta HSTN</strong> glasses. The glasses stream their camera and microphone to the phone. The phone forwards them in real time to <strong>Google's Gemini Live API</strong>. Gemini sees what I see, hears what I say, and talks back — out loud, through the glasses' speakers.</p>
+  <p>I can ask things like:</p>
+  <ul>
+    <li><em>"What am I looking at?"</em> — Gemini describes the scene through the glasses' camera</li>
+    <li><em>"Add milk to my shopping list"</em> — routed through a local agent that actually does it</li>
+    <li><em>"Send a message to John saying I'll be late"</em> — drafted and sent via WhatsApp/iMessage</li>
+    <li><em>"Search for the best coffee shops nearby"</em> — web search, results spoken back</li>
+  </ul>
+
+  <div class="callout">
+    <p>The voice loop is the whole experience. No screen, no typing. You just talk and it answers. The first time it actually worked I sat in my car for ten minutes asking it questions like a kid with a new toy.</p>
+  </div>
+</section>
+
+<figure class="icon-figure">
+  <img src="../../img/projects/visionclaw/app-icon.jpg" alt="VisionClaw app installed on my iPhone home screen">
+  <figcaption>Installed on my iPhone after a Cmd+R from Xcode.</figcaption>
+</figure>
+
+<section class="prose">
+  <h2>How it works</h2>
+  <p>The interesting part is that none of this is "AI on the glasses." The Meta glasses are a sensor and a speaker — the brain lives on the phone (and in the cloud).</p>
+</section>
+
+<figure>
+  <img src="../../img/projects/visionclaw/architecture.png" alt="Architecture diagram: Glasses feed Gemini Live for real-time perception, which delegates to OpenClaw for execution">
+  <figcaption>Two layers: Gemini Live handles perception and conversation, a local agent handles real-world actions.</figcaption>
+</figure>
+
+<section class="prose">
+  <p>The pipeline:</p>
+  <ul>
+    <li><strong>Glasses</strong> capture video (~24fps) and audio. Both stream to the iOS app over the Meta Wearables DAT SDK.</li>
+    <li><strong>iOS app</strong> throttles the video to ~1 frame per second, JPEG-encodes it, and pushes audio + frames to Gemini Live over a single WebSocket. Audio is bidirectional — Gemini's reply comes back as PCM audio that plays through the glasses' speakers.</li>
+    <li><strong>Gemini Live</strong> handles everything in one shot — speech recognition, understanding, vision, response generation, speech synthesis. No separate STT or TTS step. Latency is low enough to feel like a conversation.</li>
+    <li><strong>OpenClaw</strong> (optional) runs locally on my Mac and gives Gemini a single <code>execute</code> tool call. When I ask for an action, Gemini decides what to do, calls <code>execute(task: "…")</code>, and OpenClaw uses its 56+ skills to actually carry it out — messaging apps, web search, smart home, notes, reminders.</li>
+  </ul>
+
+  <h3>The stack</h3>
+  <div class="stack-grid">
+    <div class="stack-item">
+      <div class="stack-item-label">Hardware</div>
+      <div class="stack-item-name">Oakley Meta HSTN</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Glasses SDK</div>
+      <div class="stack-item-name">Meta Wearables DAT</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">AI</div>
+      <div class="stack-item-name">Gemini Live API</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Agent</div>
+      <div class="stack-item-name">OpenClaw (local)</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">App</div>
+      <div class="stack-item-name">Swift / iOS 17</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Build</div>
+      <div class="stack-item-name">Xcode 15</div>
+    </div>
+  </div>
+</section>
+
+<section class="prose">
+  <h2>What I actually built</h2>
+  <p>The app itself is the open-source <a href="https://github.com/sseanliu/VisionClaw" target="_blank" rel="noopener">VisionClaw</a> project — credit where it's due. What I did was get the whole stack working end-to-end on my hardware:</p>
+  <ul>
+    <li>Cloned the repo, opened it in Xcode, wired up my Gemini API key</li>
+    <li>Paired the glasses through the Meta AI app's hidden Developer Mode (you have to tap the version number five times, like a Konami code)</li>
+    <li>Sideloaded the app to my iPhone and got the audio/video round-trip working</li>
+    <li>Stood up OpenClaw locally so the assistant could actually <em>do</em> things, not just describe them</li>
+  </ul>
+  <p>It's not a product. It's me proving to myself — and now, to you — that the pieces are here. The "ambient AI" thing isn't five years away. You can wire it together this weekend.</p>
+
+  <h2>Why this matters</h2>
+  <p>Smart glasses have been a punchline for a decade. What changed is the model on the other end of the wire. Gemini Live is the first time real-time multimodal voice + vision feels like talking to a person, not querying a database. The glasses are just the form factor that finally makes it natural — no phone in your hand, no screen between you and the world.</p>
+  <p>I think a lot of "AI products" people are trying to build right now look like apps because we don't have a better paradigm yet. This is what comes next.</p>
+</section>
+
+<footer>
+  <p><strong>Project links:</strong> <a href="https://github.com/sseanliu/VisionClaw" target="_blank" rel="noopener">VisionClaw on GitHub</a> · <a href="https://ai.google.dev/gemini-api/docs/live" target="_blank" rel="noopener">Gemini Live API</a> · <a href="https://github.com/facebook/meta-wearables-dat-ios" target="_blank" rel="noopener">Meta Wearables DAT SDK</a> · <a href="https://github.com/nichochar/openclaw" target="_blank" rel="noopener">OpenClaw</a></p>
+  <p>Built by <a href="https://gabekagan.io">Gabriel Kagan</a>. <a href="mailto:gabrielkagan@gmail.com">Get in touch</a> if you're working on something in this space.</p>
+</footer>
+
+</div>
+</body>
+</html>
