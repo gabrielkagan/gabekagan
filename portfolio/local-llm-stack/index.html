@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local LLM Stack — a cheap inference tier below Claude · Gabriel Kagan</title>
+<meta name="description" content="A local LLM stack for a 24 GB MacBook: stdlib proxy with fallback chains, a council pseudo-model, per-model RAM budgets, prompt cache, and JSONL telemetry. The cheap tier below Claude — not a replacement.">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Local LLM Stack — a cheap inference tier below Claude">
+<meta property="og:description" content="Stdlib proxy, fallback chains, prompt cache, RAM budget, telemetry. A cheap tier below Claude on a 24 GB MacBook.">
+<meta property="og:url" content="https://gabekagan.io/portfolio/local-llm-stack/">
+<meta property="og:image" content="https://gabekagan.io/img/projects/local-llm-stack/hero.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Local LLM Stack — a cheap inference tier below Claude">
+<meta name="twitter:description" content="Stdlib proxy, fallback chains, prompt cache, RAM budget, telemetry. The cheap tier below Claude on a 24 GB MacBook.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg-0: #06080d;
+  --bg-1: #0c1018;
+  --bg-2: #121822;
+  --border-1: #243044;
+  --border-2: #2e3d55;
+  --text-0: #ffffff;
+  --text-1: #e2e8f0;
+  --text-2: #9fb3c8;
+  --text-3: #64748b;
+  --accent: #E8A838;
+  --green-0: #10b981;
+  --blue-0: #60a5fa;
+  --font-display: 'Frank Ruhl Libre', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', Menlo, monospace;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg-0);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+}
+
+.backlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  text-decoration: none;
+  margin-bottom: 32px;
+  transition: color 0.15s;
+}
+.backlink:hover { color: var(--text-1); }
+
+header {
+  margin-bottom: 48px;
+  border-bottom: 1px solid var(--border-1);
+  padding-bottom: 32px;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-0);
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+.subtitle {
+  font-size: 18px;
+  color: var(--text-2);
+  max-width: 600px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin: 48px 0;
+}
+.stat {
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 6px;
+  padding: 20px;
+}
+.stat-val {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+
+figure {
+  margin: 48px 0;
+}
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border-1);
+  background: var(--bg-1);
+}
+figcaption {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  text-align: center;
+  margin-top: 12px;
+}
+
+.prose h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-0);
+  margin-bottom: 16px;
+  margin-top: 64px;
+  letter-spacing: -0.01em;
+}
+.prose h2:first-child { margin-top: 0; }
+.prose h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-0);
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+.prose p {
+  margin-bottom: 16px;
+  max-width: 640px;
+  color: var(--text-1);
+}
+.prose p strong { color: var(--text-0); font-weight: 600; }
+.prose a { color: var(--blue-0); text-decoration: underline; text-decoration-color: var(--border-2); text-underline-offset: 3px; }
+.prose a:hover { text-decoration-color: var(--blue-0); }
+.prose ul {
+  margin-bottom: 16px;
+  padding-left: 20px;
+  max-width: 640px;
+}
+.prose li {
+  margin-bottom: 8px;
+  color: var(--text-1);
+}
+.prose li::marker { color: var(--accent); }
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 3px;
+  padding: 1px 6px;
+  color: var(--text-0);
+}
+
+.callout {
+  background: var(--bg-1);
+  border-left: 3px solid var(--accent);
+  padding: 16px 20px;
+  border-radius: 0 6px 6px 0;
+  margin: 24px 0;
+  max-width: 640px;
+}
+.callout p { margin-bottom: 0; color: var(--text-2); font-size: 15px; }
+.callout p strong { color: var(--text-0); }
+
+pre {
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 6px;
+  padding: 16px 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-1);
+  overflow-x: auto;
+  margin: 16px 0;
+  max-width: 640px;
+}
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+.stack-item {
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 6px;
+  padding: 16px;
+}
+.stack-item-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.stack-item-name {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-0);
+  font-weight: 500;
+}
+
+footer {
+  margin-top: 96px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-1);
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.7;
+}
+footer p { margin-bottom: 12px; max-width: 640px; }
+footer a { color: var(--text-2); text-decoration: underline; text-decoration-color: var(--border-2); }
+footer a:hover { color: var(--text-1); }
+
+@media (max-width: 640px) {
+  .container { padding: 32px 20px 64px; }
+  h1 { font-size: 32px; }
+  .subtitle { font-size: 16px; }
+  header { margin-bottom: 32px; padding-bottom: 24px; }
+  .prose h2 { font-size: 22px; margin-top: 48px; }
+  figure { margin: 32px 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<a href="/" class="backlink">← Back to portfolio</a>
+
+<header>
+  <div class="eyebrow">Personal Project</div>
+  <h1>Local LLM Stack</h1>
+  <p class="subtitle">A cheap inference tier on a 24 GB MacBook — stdlib proxy, fallback chains, prompt cache, and just enough telemetry to know what's working. The tier <em>below</em> Claude, not a replacement for it.</p>
+</header>
+
+<figure>
+  <img src="../../img/projects/local-llm-stack/hero.svg" alt="Architecture diagram: ask CLI, OpenCode, and cron jobs all hit a local proxy on port 11436, which forwards to Ollama and llama-swap and writes telemetry to a JSONL log and SQLite cache.">
+  <figcaption>Clients on the left, the proxy in the middle doing the orchestration, backends on the right. Telemetry hangs off the proxy.</figcaption>
+</figure>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-val">24 GB</div>
+    <div class="stat-label">RAM budget</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">~250</div>
+    <div class="stat-label">LOC proxy</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">8</div>
+    <div class="stat-label">Logical models</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">$0</div>
+    <div class="stat-label">Marginal cost</div>
+  </div>
+</div>
+
+<section class="prose">
+  <h2>What I built</h2>
+  <p>A small stack that lets me run real LLM work on my MacBook for zero marginal cost — and decide when each request is worth the higher Claude tier and when it isn't.</p>
+  <p>Three pieces. <strong>A 250-line stdlib Python proxy</strong> on <code>:11436</code> that speaks the OpenAI chat-completions API and forwards to Ollama (and a deferred llama.cpp backend for heavier weights). <strong>An <code>ask</code> CLI</strong> for one-shot prompts, with a SQLite prompt cache and a JSONL telemetry log so I can see what's actually being used. <strong>A council pseudo-model</strong> that runs two members in parallel and a stronger chairman to synthesize, for the harder questions where I want a second opinion before I trust an answer.</p>
+  <p>The whole thing is opinionated. I don't auto-route. I pick the tier explicitly: <code>ask --9b</code>, <code>ask --think</code>, <code>ask --heavy</code>, <code>ask --council</code>. The proxy doesn't try to be smart about which model to use — it just makes the model I asked for actually work, and tells me if it had to fall back to a smaller one.</p>
+
+  <h2>Why I built it</h2>
+  <p>The real reason is cost discipline.</p>
+  <p>I'm running an algorithmic trading bot on Kalshi, and a chunk of the work it spawns is <em>mechanical</em>: format this digest, summarize this log, classify this news headline, write a one-line commit message. That work doesn't need a frontier model. Sending it to Claude is paying a Michelin-star kitchen to make toast. So I built a tier <em>below</em> Claude — fast enough for the cheap work, present enough to actually use it instead of defaulting to the API. The local stack is the cheap tier; Claude is reserved for the work that actually needs it.</p>
+  <p>The on-the-go angle is a real but secondary benefit. I'm often in cafes, on planes, on hotel wifi — the bot's primary machine is a VPS, but my development laptop is a MacBook, and being able to run real inference on it without the API working is genuinely useful. The hard requirement, though, was cost — making the cheap tier good enough that I'd actually reach for it instead of habitually defaulting to Claude for things it didn't need.</p>
+
+  <div class="callout">
+    <p><strong>Never bet against the model.</strong> Boris Cherny's framing for Claude Code: any scaffolding you build to boost performance 10–20% becomes obsolete when the next model handles it natively. So this stack is deliberately thin. The proxy is one file. There's no auto-routing classifier, no quality detector, no clever orchestration framework. The model picks the answer; I pick the tier.</p>
+  </div>
+
+  <h2>The 24 GB constraint</h2>
+  <p>The interesting engineering is the hardware budget. macOS plus everything I have open eats 12–16 GB before any model loads, which leaves roughly 8–12 GB for inference. A 9B model in Q4 is 6.6 GB. A 30B coder is 18 GB. Both can't be resident at once. Anything I do has to respect that.</p>
+  <p>So every logical model in the proxy has a <code>keep_alive</code> policy. The interactive 9B is held warm for 15 minutes — sporadic <code>ask</code> calls don't pay cold-start latency, which is the difference between a tool I reach for and a tool I don't. The 30B coder evicts in 30 seconds, because it can't be allowed to squat on RAM that the interactive tier needs. Smaller models have shorter warmth too. None of this is rocket science, but if you don't think about it the experience degrades silently and you stop using the stack.</p>
+  <p>There's also a stress test in the repo — fire concurrent prompts at <code>fast-9b</code> and <code>coder-30b</code> at the same time, watch Ollama RSS and macOS pageouts, see if the system thrashes. It does, sometimes, when the 30B is loading. That's known. I don't pretend it doesn't.</p>
+
+  <h2>Orchestration patterns</h2>
+  <p>Two patterns layered into the proxy, both lifted from the literature, neither novel.</p>
+
+  <h3>Steinberger-style fallback chains</h3>
+  <p>Every model has a fallback list. <code>fast-9b → fast-3b → fast-1b</code>. If a request fails (timeout, HTTP error, connection drop), the proxy retries down the chain. Importantly the fallback crosses model <em>families</em> — if 9B fails because of RAM pressure or a runner crash, the next attempt hits a different runtime. Same-blob fallback would hit the same broken state.</p>
+  <p>The fallback isn't smart — it's reliability, not routing. And critically, it's <em>surfaced</em>: when a request gets demoted, the proxy returns an <code>X-Served-By</code> header and the <code>ask</code> CLI prints <code>[degraded: fast-9b → fast-1b]</code> to stderr. That way I know the answer came from a smaller model and can re-run when 9B is healthy. Silent demotion is worse than honest failure.</p>
+
+  <h3>Karpathy-style council</h3>
+  <p>For harder questions, <code>ask --council "..."</code> runs two members in parallel (the same 9B at temperature 0.7, for self-consistency-style sampling diversity), then a stronger chairman (the thinking-mode 9B) reads both responses anonymized as Response A and Response B and synthesizes a single final answer. Members can be the same model with sampled diversity; the chairman is deliberately stronger so the synthesis adds something a member couldn't.</p>
+  <p>It's not magic. It's a pattern from Karpathy's nanoChat work — running the same model multiple times with temperature, then composing. It helps on questions where I want the model to argue with itself before I trust the output. For trivial questions it's overkill and I don't use it.</p>
+
+  <h2>Telemetry &amp; cache</h2>
+  <p>This part I added late, after staring at a dashboard of <em>nothing</em> and realizing I had no idea whether the local stack was actually paying off.</p>
+  <p>Every <code>ask</code> call now writes one line to <code>~/.local/share/ask/log.jsonl</code>: timestamp, model requested, model actually served, prompt hash, prompt and response sizes, latency, whether the cache hit, whether the request was demoted, exit code. One <code>jq</code> query over a week of data tells me everything that matters: what models I actually use, how often the cache helps, how often demotion fires, where the latency goes.</p>
+  <p>The cache is a SQLite table keyed on <code>sha256(model + prompt)</code> with a 30-day TTL. Misses run inference; hits return in under 5 milliseconds. For repetitive cron work — the digest format that runs hourly, the news classifier that hits the same headlines — this is concentrated win. For interactive work the hit rate is near zero, and that's fine. The cache earns its keep on the cron side. The council is excluded (intentionally stochastic).</p>
+
+  <pre><code>{"ts":1777978067.96,"model":"fast-9b","served_by":"fast-9b",
+ "prompt_hash":"775a61d9","prompt_chars":22,"response_chars":2,
+ "latency_s":0.003,"cache_hit":true,"demoted":false,"exit_code":0}</code></pre>
+
+  <h2>The stack</h2>
+  <div class="stack-grid">
+    <div class="stack-item">
+      <div class="stack-item-label">Hardware</div>
+      <div class="stack-item-name">M4 Pro · 24 GB</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Proxy</div>
+      <div class="stack-item-name">Python stdlib · 250 LOC</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Backends</div>
+      <div class="stack-item-name">Ollama + llama.cpp HEAD</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Primary model</div>
+      <div class="stack-item-name">Qwen 3.5 9B (Q4)</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Cache</div>
+      <div class="stack-item-name">SQLite · sha256 keys</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Telemetry</div>
+      <div class="stack-item-name">JSONL · jq-friendly</div>
+    </div>
+  </div>
+
+  <h2>What it gets me</h2>
+  <ul>
+    <li><strong>A real cheap tier I actually reach for.</strong> Mechanical work goes to <code>ask</code>; the hard work still goes to Claude. The point isn't to replace Claude — it's to stop sending toast to the Michelin kitchen.</li>
+    <li><strong>Inference that works on a plane.</strong> Same code, same CLI, no API key required. It's not a marketing point — it's a real situation a few times a year.</li>
+    <li><strong>Visibility into my own usage.</strong> The JSONL log answers questions I couldn't answer before: which model do I actually use, what does the cache hit rate look like, how often does the fallback chain fire. Without that, every optimization is theological.</li>
+    <li><strong>A demonstration that thin scaffolding wins.</strong> No framework, no daemon-zoo, no auto-routing. ~250 lines of stdlib Python, a SQLite cache, a JSONL log. The model does the hard part; the infrastructure stays out of its way.</li>
+  </ul>
+</section>
+
+<footer>
+  <p><strong>Source:</strong> <a href="https://github.com/gabrielkagan/local-llm-stack" target="_blank" rel="noopener">github.com/gabrielkagan/local-llm-stack</a> — proxy, ask CLI, bench harness, stress test. MIT licensed. Targets a 24 GB Mac but trivially portable.</p>
+  <p><strong>Reading:</strong> Boris Cherny on <a href="https://newsletter.pragmaticengineer.com/p/building-claude-code-with-boris-cherny" target="_blank" rel="noopener">building Claude Code</a> (the "never bet against the model" framing). Andrej Karpathy on <a href="https://github.com/karpathy/nanochat" target="_blank" rel="noopener">nanoChat</a> (the council pattern). <a href="https://ollama.com/" target="_blank" rel="noopener">Ollama</a> for the runtime.</p>
+  <p>Built by <a href="https://gabekagan.io">Gabriel Kagan</a>. <a href="mailto:gabrielkagan@gmail.com">Get in touch</a> if you're building local-first inference and want to compare notes.</p>
+</footer>
+
+</div>
+</body>
+</html>
