@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vitals — a personal health data layer with a model-agnostic AI coach · Gabriel Kagan</title>
-<meta name="description" content="Vitals: pull Oura, Renpho, and 10+ years of iMessage behavioral signals into a local SQLite. A model-agnostic persona contract turns any LLM — Claude, GPT, Gemini, or a local 9B — into a quantitative fitness coach.">
+<title>Vitals — a three-layer personal-data stack for an AI fitness coach · Gabriel Kagan</title>
+<meta name="description" content="Vitals: a three-layer stack. Pull biometrics + a decade of iMessage signals into one local SQLite. Derive trustworthy training-load analytics — zones, TRIMP, HRV gates — from raw samples. Point any LLM at it via a model-agnostic persona contract.">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Vitals — a personal health data layer with a model-agnostic AI coach">
-<meta property="og:description" content="Pull biometrics, body composition, and a decade of message signals into one local SQLite. A persona contract turns any LLM into a quantitative fitness coach.">
+<meta property="og:title" content="Vitals — a three-layer personal-data stack for an AI fitness coach">
+<meta property="og:description" content="Pull, derive, coach. Three layers: a sync layer for biometrics + message signals, a derivation layer that turns 3.4M sensor samples into trustworthy analytics, and a persona contract that turns any LLM into a quantitative coach who consults both.">
 <meta property="og:url" content="https://gabekagan.io/portfolio/vitals/">
 <meta property="og:image" content="https://gabekagan.io/img/projects/vitals/hero.svg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Vitals — a personal health data layer with a model-agnostic AI coach">
-<meta name="twitter:description" content="Pull biometrics, body composition, and a decade of message signals into one local SQLite. A persona contract turns any LLM into a quantitative fitness coach.">
+<meta name="twitter:title" content="Vitals — a three-layer personal-data stack for an AI fitness coach">
+<meta name="twitter:description" content="Pull, derive, coach. Three layers: sync biometrics + message signals into one SQLite, derive trustworthy training-load analytics, then point any LLM at it via a model-agnostic persona contract.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -289,12 +289,12 @@ footer a:hover { color: var(--text-1); }
 <header>
   <div class="eyebrow">Personal Project</div>
   <h1>Vitals</h1>
-  <p class="subtitle">A personal health data layer with a model-agnostic persona contract on top. Pull biometrics, body composition, and a decade of message behavioral signals into one local SQLite — then point any LLM at it.</p>
+  <p class="subtitle">Pull, derive, coach. Three layers — a sync layer for biometrics and message signals, a derivation layer that turns 3.4 million raw sensor samples into trustworthy analytics, and a persona contract that turns any LLM into a quantitative coach who consults both.</p>
 </header>
 
 <figure>
-  <img src="../../img/projects/vitals/hero.svg" alt="Architecture diagram: Oura Ring, Renpho scale, and iMessage flow through pluggable adapters into a local SQLite. A model-agnostic persona contract (coach.md) drives any LLM — Claude, GPT, Gemini, or a local 9B — to query the store before answering.">
-  <figcaption>Sources on the left, adapters and store in the middle, persona + LLM on the right.</figcaption>
+  <img src="../../img/projects/vitals/hero.svg" alt="Architecture diagram: Oura Ring, Renpho scale, and iMessage flow through pluggable adapters into a local SQLite. A derivation layer materializes analytics tables on top. A model-agnostic persona contract (coach.md) drives any LLM — Claude, GPT, Gemini, or a local 9B — to query the derived tables before answering.">
+  <figcaption>Sources on the left, adapters and derived tables in the middle, persona + LLM on the right.</figcaption>
 </figure>
 
 <div class="stats">
@@ -305,6 +305,10 @@ footer a:hover { color: var(--text-1); }
   <div class="stat">
     <div class="stat-val">3.4M</div>
     <div class="stat-label">HR samples</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">6</div>
+    <div class="stat-label">Derivation modules</div>
   </div>
   <div class="stat">
     <div class="stat-val">10.8 yrs</div>
@@ -318,56 +322,71 @@ footer a:hover { color: var(--text-1); }
 
 <section class="prose">
   <h2>What I built</h2>
-  <p>Two pieces, joined at a SQLite file.</p>
-  <p><strong>A pull layer.</strong> Adapter classes for Oura (biometrics, sleep, workouts, 5-minute HR), Renpho (body composition since 2020), and an iMessage roll-up that turns ten years of <code>chat.db</code> into per-day behavioral signals — late-night message volume, reply latency percentiles, sleep/alcohol/conflict/intimacy keyword counts, max 5-minute burst. Each adapter is idempotent on a natural key with a 2-day overlap on re-pulls. Launchd runs the sync twice a day. There are no webhooks and nothing leaves the machine.</p>
-  <p><strong>A persona contract.</strong> A single markdown file (<code>coach.md</code>) that tells whatever LLM you load it into: <em>your role is a quantitative fitness coach; query the database before answering; cite specific values and rolling baselines; coach with a recommendation, don't just narrate the numbers; cross-reference across tables when relevant.</em> The contract is model-agnostic — it's the system prompt for OpenAI, the system instruction for Gemini, the <code>--system</code> flag for an Ollama-served local 9B, or the <code>CLAUDE.md</code> when working in Claude Code. The LLM is interchangeable; the contract is the actual artifact.</p>
+  <p>Three layers, joined at a SQLite file.</p>
+  <p><strong>Layer 1 — a pull layer.</strong> Adapter classes for Oura (biometrics, sleep, workouts, sub-minute HR during efforts), Renpho (body composition since 2020), and an iMessage roll-up that turns ten years of <code>chat.db</code> into per-day behavioral signals — late-night message volume, reply latency percentiles, sleep/alcohol/conflict/intimacy keyword counts, max 5-minute burst. Each adapter is idempotent on a natural key with a 2-day overlap on re-pulls. Launchd runs the sync twice a day. No webhooks; nothing leaves the machine.</p>
+  <p><strong>Layer 2 — a derivation layer.</strong> Six analysis modules that materialize trustworthy derived tables on top of the raw samples — personal HR zones (versioned, because fitness drifts), per-day time-in-zone with cadence-aware weights, Banister TRIMP and Coggan CTL/ATL/TSB curves, HR-only session reconstruction independent of the wearable's own workout tags, cardiac-drift analysis on long steady-state efforts, recovery-load regressions with block-bootstrap CIs and BH-FDR correction. The agent never reads raw HR samples directly — it consults the derived tables. This is the layer I didn't know I was missing until I built it.</p>
+  <p><strong>Layer 3 — a persona contract.</strong> A single markdown file (<code>coach.md</code>) that tells whatever LLM you load it into: <em>your role is a quantitative fitness coach; query the derivation tables before answering; cite specific values and rolling baselines; coach with a recommendation, don't just narrate the numbers; cross-reference across tables when relevant.</em> The contract is model-agnostic — it's the system prompt for OpenAI, the system instruction for Gemini, the <code>--system</code> flag for an Ollama-served local 9B, or the <code>CLAUDE.md</code> when working in Claude Code. The LLM is interchangeable; the contract pointed at the derived tables is the actual artifact.</p>
 
   <h2>Why I built it</h2>
-  <p>The same problem keeps showing up in consumer health products. The "AI coach" sounds confident but has no data underneath, so it hallucinates plausible-sounding generalities — <em>"your sleep seems okay lately, try to get more rest."</em> Useless. The data is sitting in five different SaaS silos, and the chatbot can't see any of it.</p>
-  <p>Most of what I wanted from an AI coach was the opposite: <strong>be quantitative or be quiet.</strong> Tell me readiness 70 vs 30-day baseline 73, recovery index 40, body temp deviation +0.43°F vs 10-day rolling average, recommend zone-2 instead of another moderate stair session. That requires the data to be in one queryable place and the agent to be instructed to actually look at it. Once both of those exist, the model doesn't really matter — frontier or a 9B local — they all become useful coaches.</p>
-  <p>The second motivation was the cross-domain join. I had separately built a roll-up of ten years of iMessage signals for an <a href="../personal-kb/">earlier project</a>, and adding it to the same SQLite opens questions a single-domain health app can't answer: <em>"did I drink the night my HRV crashed?"</em>, <em>"how does my reply latency on the phone track with my next-day readiness?"</em>, <em>"is there a pattern in my late-night message bursts before low-recovery mornings?"</em></p>
+  <p>Even with the pull layer and the persona contract, the agent was wrong.</p>
+  <p>When I asked it <em>"is my training elite?"</em> it answered confidently: <em>"99.8% moderate intensity, 0% hard time, you live entirely in the gray zone."</em> All three numbers were wrong by factors of five to fifty. Not roughly wrong — categorically wrong. And it was confident.</p>
+  <p>The proximate cause was a timezone bug. I'd joined heart-rate samples (stored in UTC with a <code>Z</code> suffix) against workout windows (stored in local time with <code>±HH:MM</code> offsets) by string comparison. ISO 8601 strings with different offsets don't compare moments in time — they're just strings, and the lexicographic compare is meaningless across offsets. The join silently dropped most samples inside workout windows. The agent dutifully ratified the corrupt analysis and I had to retract three paragraphs of confident coaching to myself.</p>
+  <p>The deeper cause was that the only signal cheap enough for an agent to grab on demand was Oura's pre-computed <code>intensity</code> field — a coarse per-workout label that turns out to be ground-truth-disconnected. The pull layer gives an agent raw sensor data. The persona contract instructs the agent to query before answering. Neither layer is sufficient when the cheapest query returns a misleading number, because that's the answer the model will use.</p>
+  <p>What was missing was the layer in the middle. A derivation tier that takes 3.4 million raw samples and produces a small set of trustworthy tables — proper zone-time, proper training load, HRV gates anchored on personal baselines — that the agent reads <em>instead of</em> reaching for whatever pre-computed shortcut the upstream vendor happened to ship. That's Layer 2. It exists because Layer 3 was demonstrably wrong without it.</p>
 
   <div class="callout">
-    <p><strong>The persona contract is the unlock, not the data layer.</strong> Anyone can wire up an Oura adapter — it's a few hours of API work. The interesting part is the markdown file that turns whatever LLM you're using into a coach who's required to query before answering. Strip the model out of the loop and the contract still describes the desired agent behavior. That makes it portable across model generations and across providers.</p>
+    <p><strong>The derivation layer is the unlock.</strong> The pull layer gives the agent data. The persona contract gives it instructions. Neither makes the agent <em>correct</em>. The derived tables are what make the agent's answers trustworthy — they're the single source of truth the contract points at. Strip the model out of the loop and the derivation layer is what describes what the agent <em>is for</em>.</p>
   </div>
 
   <h2>How it works</h2>
 
-  <h3>The pull layer</h3>
+  <h3>Layer 1 — the pull layer</h3>
   <p>Each source — Oura, Renpho, iMessage — is its own subpackage exposing a <code>sync_*</code> function with a shared shape: read the cursor from <code>sync_state</code>, pull with a 2-day overlap because upstream APIs sometimes back-fill late, upsert into the source's table keyed on a natural key (day, document <code>id</code>, or <code>(timestamp, source)</code>), update <code>sync_state</code>. Re-running a sync is always safe and idempotent. The contract is convention, not an ABC — a new source is a new subpackage plus three lines in <code>cli.py</code>.</p>
-  <p>The raw API JSON is kept in a <code>raw_json</code> column on every table. If the schema misses a field I want later, <code>json_extract(raw_json, '$.path')</code> gets it without a re-sync. Heart-rate samples are stored at the API's native 5-minute granularity, which works out to about 3.4 million rows over four years on a single Oura account — well within SQLite's comfort zone, queryable with no index gymnastics.</p>
+  <p>The raw API JSON is kept in a <code>raw_json</code> column on every table. If the schema misses a field I want later, <code>json_extract(raw_json, '$.path')</code> gets it without a re-sync. Heart-rate samples come in at the API's native cadence — about 45 seconds during workouts, 12 minutes at rest, which works out to roughly 3.4 million rows over four years on a single Oura account. Well within SQLite's comfort zone, queryable with no index gymnastics.</p>
 
-  <h3>The persona contract</h3>
+  <h3>Layer 2 — the derivation layer</h3>
+  <p>Six analysis modules in <code>src/health/analysis/</code>, each materializing its own derived table:</p>
+  <ul>
+    <li><strong><code>hr_clean.py</code></strong> — TZ-correct UTC sample loader, gap-aware time weights (60-second cap for workout-source samples, 600-second cap for rest/awake; <em>never</em> extend across a gap), per-sample local-day assignment from the nearest sleep-period offset. The unglamorous foundation everything else depends on.</li>
+    <li><strong><code>zones.py</code></strong> → <code>zone_config</code>. Personal HRmax (rolling 365-day robust max, requires ≥3 sustained samples), HRrest (5th percentile of sleep <code>lowest_heart_rate</code>), LTHR (peak 30-min rolling-average HR). Karvonen %HRR and Friel %LTHR zones. Versioned — fitness drifts, so zones get a new row every six months or whenever a boundary moves ≥2 bpm.</li>
+    <li><strong><code>daily_load.py</code></strong> → <code>daily_load</code>. One row per local day with weighted time-in-zone, Banister exp-weighted TRIMP, Edwards zone-sum TRIMP, and Coggan CTL/ATL/TSB curves. Idempotent rebuild; the EWMAs are explicitly seeded from the prior row so partial rebuilds preserve history.</li>
+    <li><strong><code>sessions.py</code></strong> → <code>hr_session</code>. Reconstructs sessions from HR alone, independent of the wearable's own workout tags. Smooths bpm, identifies sustained elevation, merges adjacent bouts, matches against logged workouts by temporal IoU. Surfaced that 51% of my real sessions over a 90-day window were unlogged.</li>
+    <li><strong><code>decoupling.py</code></strong> — cardiac drift on long sub-threshold sessions. Honest naming: without a power signal, this is HR drift over time, not true Pa:HR. Still useful as an aerobic-base field indicator under the Uphill Athlete framework.</li>
+    <li><strong><code>recovery_coupling.py</code></strong> — pre-registered hypothesis tests for daily training load against next-day HRV, RHR, and readiness. Block-bootstrap 95% CIs (14-day block, n=10,000 resamples) and BH-FDR correction across the hypothesis family. Three of seven were significant in the expected direction; four were null, including chronic-load measures — evidence that my system has adapted to high baseline volume.</li>
+  </ul>
+  <p>Plus an HRV autoregulation gate (<code>hrv_swc.py</code>) implementing the Plews-Buchheit smallest-worthwhile-change framework. Daily green / yellow / red verdict against a personal 60-day baseline (travel days excluded — TZ shifts perturb HRV mechanically), with explicit detection of the "rMSSD-CV rising while mean falling" pattern that flags non-functional overreaching. Backtested over my prior 90 days, the gate would have told me to back off on 44 of them. I trained over 100 TRIMP on every single one. Adherence: zero. Building the gate didn't change my training, but it made the cost legible — that's what derivation layers do.</p>
+
+  <h3>Layer 3 — the persona contract</h3>
   <p>The whole "agent" is a markdown file. An abbreviated excerpt:</p>
   <pre><code># Vitals — Coach Persona
 
 You are a fitness coach and quantitative health analyst.
 
-When asked anything about recovery, training, body composition,
-or how those metrics interact with other domains:
+When asked anything about recovery, training, body
+composition, or how those metrics interact:
 
-1. Query the actual data first. Open data/health.db and look
-   at recent rows. Never speculate when the numbers are right
-   there.
+1. Query the derivation tables first — daily_load,
+   hr_session, hrv_verdict, zone_config, protocol_state.
+   Never re-aggregate raw sensor data on the fly.
 2. Be quantitative. Cite specific values, % changes,
-   day-over-day deltas. No "your sleep seems okay lately"
-   — give the score, the 7d trend, the rolling baseline.
-3. Coach, don't just report. After the numbers, give a
-   concrete recommendation.
+   day-over-day deltas. No "your sleep seems okay" —
+   give the score, the 7d trend, the rolling baseline.
+3. Coach, don't just report. After the numbers, give
+   a concrete recommendation.
 4. Cross-reference. Sleep, HRV, body temperature, and
-   message-derived stress signals interact. Surface lagged
-   correlations across tables when relevant.</code></pre>
-  <p>That's the full contract — it fits in a screenshot. Loaded into Claude Code it lives as <code>CLAUDE.md</code>. Pasted into the OpenAI Responses API as a system message, the same words work. Fed to a local Qwen 3.5 9B via the <a href="../local-llm-stack/">local LLM stack</a> as the system prompt, ditto. The contract is what makes the agent useful; the model is the interpreter.</p>
+   message-derived stress signals interact. Surface
+   lagged correlations across tables when relevant.</code></pre>
+  <p>That's the full contract — it fits in a screenshot. Loaded into Claude Code it lives as <code>CLAUDE.md</code>. Pasted into the OpenAI Responses API as a system message, the same words work. Fed to a local Qwen 3.5 9B via the <a href="../local-llm-stack/">local LLM stack</a> as the system prompt, ditto. The contract names which derived tables to consult and forbids re-computation on the fly; the derivation layer ensures the answer to that consultation is trustworthy. The contract plus the derivation layer plus a model: that's the agent.</p>
 
   <h3>Cross-domain joins</h3>
-  <p>Because every source lands in the same SQLite, every cross-domain question is a one-line query the agent runs and cites. The figure below plots a random sample of 200 days from the corpus — late-night messages sent vs. next-day HRV. Each dot is one day. The lower-right cluster is the kind of pattern that's invisible to a single-domain app: high late-night phone activity followed by depressed next-day autonomic recovery. The agent finds these when asked; it doesn't need a separate analytics dashboard.</p>
+  <p>Because every source lands in the same SQLite — and the derivation layer materializes its outputs to the same place — every cross-domain question is a one-line query the agent runs and cites. The figure below plots a random sample of 200 days from the corpus — late-night messages sent vs. next-day HRV. Each dot is one day. The lower-right cluster is the kind of pattern that's invisible to a single-domain app: high late-night phone activity followed by depressed next-day autonomic recovery. The agent finds these when asked; it doesn't need a separate analytics dashboard.</p>
   <figure>
     <img src="../../img/projects/vitals/scatter.svg" alt="Scatter plot: late-night messages sent (x-axis) vs next-day HRV in ms (y-axis). 200 sampled days across 2024–2026. Most points cluster at zero late-night messages with HRV spread across 20–110. High-late-night-message days (10+) skew toward lower HRV values.">
     <figcaption>Sampled cross-domain join: messages × biometrics. Real anonymized data, no dates or contact identifiers.</figcaption>
   </figure>
 
   <h3>Local and pull-based</h3>
-  <p>The whole stack is sync httpx, SQLite, and launchd. No webhooks, no daemon, no VPS, no cloud function. The trade-off is real — there's no real-time signal — and it's the right one, because the data is daily-grain anyway and the cloud APIs deliver intraday HR at 5-minute resolution at best. Real-time would be theatrical, not useful. Two cron firings a day catches everything that matters and the entire system runs in user-space on one laptop.</p>
+  <p>The whole stack is sync httpx, SQLite, pandas/numpy, and launchd. No webhooks, no daemon, no VPS, no cloud function. The trade-off is real — there's no real-time signal — and it's the right one, because the data is daily-grain anyway and the cloud APIs deliver intraday HR at sub-minute resolution only during detected workouts. Real-time would be theatrical, not useful. Two cron firings a day catches everything that matters and the entire system runs in user-space on one laptop.</p>
 
   <h2>The stack</h2>
   <div class="stack-grid">
@@ -378,6 +397,10 @@ or how those metrics interact with other domains:
     <div class="stack-item">
       <div class="stack-item-label">Storage</div>
       <div class="stack-item-name">SQLite (local)</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Compute</div>
+      <div class="stack-item-name">pandas · numpy</div>
     </div>
     <div class="stack-item">
       <div class="stack-item-label">HTTP</div>
@@ -399,10 +422,11 @@ or how those metrics interact with other domains:
 
   <h2>What it gets me</h2>
   <ul>
-    <li><strong>A coach that's forced to be quantitative.</strong> Asking "how am I feeling today?" returns readiness score, sleep contributors, body-temp deviation vs 10-day average, and a concrete recommendation. The contract forbids it from waving its hands.</li>
+    <li><strong>A coach that's quantitative <em>and</em> correct.</strong> Asking "how am I feeling today?" returns readiness score, sleep contributors, body-temp deviation vs 10-day average, and a concrete recommendation — all sourced from derived tables the agent can cite. The contract forbids hand-waving; the derivation layer forbids the cheap-shortcut wrong answer.</li>
+    <li><strong>Falsifiable training protocols.</strong> On top of the derivation tables sits a pyramidal-distribution polarization protocol — explicit phases (deload → re-anchor → rebuild), HRV-gated daily prescriptions, and pre-registered exit criteria evaluated automatically against <code>daily_load</code>, <code>hrv_verdict</code>, and the readiness panel. The protocol either works against measurable criteria or it doesn't. No vibes.</li>
     <li><strong>Cross-domain answers a single health app can't give.</strong> "Why was my recovery index 40 last night?" pulls body temp, recent workout load, late-night message count, and alcohol keyword mentions in one query and answers with citations.</li>
-    <li><strong>Provider-independence.</strong> When Claude 5 ships or I want to run on the plane, I swap the model. The persona contract, the data layer, and the CLI don't change. The agent is the contract, not the vendor.</li>
-    <li><strong>A reference implementation for the broader pattern.</strong> Plug in Whoop instead of Oura, a Withings scale instead of Renpho, an Apple Health export instead of iMessage — the sync shape is the same, the persona contract still applies. <a href="https://github.com/gabrielkagan/vitals" target="_blank" rel="noopener">github.com/gabrielkagan/vitals</a> ships the abstracted version.</li>
+    <li><strong>Provider-independence.</strong> When the next-generation model ships or I want to run on the plane, I swap it out. The persona contract, the derivation modules, the data layer, and the CLI don't change. The agent is the contract pointed at the derived tables; the vendor is just the interpreter.</li>
+    <li><strong>A reference implementation for the broader pattern.</strong> Plug in Whoop instead of Oura, a Withings scale instead of Renpho, an Apple Health export instead of iMessage — the sync shape is the same, the derivation tables sit on top, the persona contract still applies. <a href="https://github.com/gabrielkagan/vitals" target="_blank" rel="noopener">github.com/gabrielkagan/vitals</a> ships the abstracted version.</li>
   </ul>
 
   <h2>Privacy</h2>
