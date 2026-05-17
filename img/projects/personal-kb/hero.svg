@@ -1,125 +1,251 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" font-family="-apple-system, 'Inter', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace" role="img" aria-labelledby="pkb-hero-title pkb-hero-desc">
+  <title id="pkb-hero-title">Personal Knowledge Base — text as portrait</title>
+  <desc id="pkb-hero-desc">Left: a wall of redacted message bubbles representing 11 years of correspondence. Middle: a parse/embed/retrieve/distill funnel. Right: a written portrait page with statistical patterns extracted from the corpus.</desc>
+
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0c1018"/>
+      <stop offset="0" stop-color="#0e131c"/>
       <stop offset="1" stop-color="#06080d"/>
     </linearGradient>
-    <linearGradient id="srcGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1e2a3d"/>
-      <stop offset="1" stop-color="#162132"/>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0e16"/>
+      <stop offset="1" stop-color="#070a11"/>
     </linearGradient>
-    <linearGradient id="procGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1d2540"/>
-      <stop offset="1" stop-color="#171d33"/>
+    <linearGradient id="portraitPaper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#181b22"/>
+      <stop offset="1" stop-color="#10141a"/>
     </linearGradient>
-    <linearGradient id="storeGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#3a2e1a"/>
-      <stop offset="1" stop-color="#2a2113"/>
+    <linearGradient id="funnel" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#E8A838" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#E8A838" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#E8A838" stop-opacity="0"/>
     </linearGradient>
-    <linearGradient id="askGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2a3d2a"/>
-      <stop offset="1" stop-color="#1f2d1f"/>
-    </linearGradient>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-      <path d="M0,0 L10,5 L0,10 z" fill="#5a6a82"/>
-    </marker>
+    <filter id="paperShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feOffset dx="0" dy="2" in="blur" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
 
-  <rect width="800" height="450" fill="url(#bg)"/>
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#bg)"/>
 
-  <!-- Title -->
-  <text x="40" y="42" fill="#9fb3c8" font-size="11" font-weight="500" letter-spacing="2.4" text-transform="uppercase">PERSONAL KNOWLEDGE BASE — PIPELINE</text>
-  <line x1="40" y1="58" x2="760" y2="58" stroke="#243044" stroke-width="1"/>
+  <!-- Title bar -->
+  <g font-size="11" letter-spacing="2">
+    <text x="32" y="38" fill="#E8A838" font-weight="600">PERSONAL KB</text>
+    <text x="118" y="38" fill="#3a4866">·</text>
+    <text x="130" y="38" fill="#e2e8f0">11 YEARS OF TEXT → A WRITTEN PORTRAIT</text>
+  </g>
+  <g font-size="10" letter-spacing="1.5" text-anchor="end">
+    <text x="768" y="38">
+      <tspan fill="#64748b">MSGS</tspan>
+      <tspan fill="#ffffff" font-weight="600" dx="6">168K</tspan>
+      <tspan fill="#3a4866" dx="10">·</tspan>
+      <tspan fill="#64748b" dx="10">THREADS</tspan>
+      <tspan fill="#ffffff" font-weight="600" dx="6">40+</tspan>
+      <tspan fill="#3a4866" dx="10">·</tspan>
+      <tspan fill="#64748b" dx="10">LOCAL</tspan>
+      <tspan fill="#ffffff" font-weight="600" dx="6">100%</tspan>
+    </text>
+  </g>
+  <line x1="32" y1="52" x2="768" y2="52" stroke="#1a2233" stroke-width="1"/>
 
-  <!-- Column headers -->
-  <text x="100" y="92" fill="#64748b" font-size="10" font-weight="500" letter-spacing="1.5">SOURCES</text>
-  <text x="320" y="92" fill="#64748b" font-size="10" font-weight="500" letter-spacing="1.5">PIPELINE</text>
-  <text x="540" y="92" fill="#64748b" font-size="10" font-weight="500" letter-spacing="1.5">STORE</text>
-  <text x="690" y="92" fill="#64748b" font-size="10" font-weight="500" letter-spacing="1.5">QUERY</text>
-
-  <!-- Sources -->
+  <!-- ============== LEFT: REDACTED MESSAGE FIELD ============== -->
   <g>
-    <rect x="40" y="110" width="180" height="56" rx="6" fill="url(#srcGrad)" stroke="#2e3d55" stroke-width="1"/>
-    <text x="56" y="135" fill="#e8a838" font-family="'IBM Plex Mono', monospace" font-size="11">chat.db</text>
-    <text x="56" y="153" fill="#9fb3c8" font-size="12">iMessage</text>
+    <rect x="32" y="68" width="338" height="380" fill="url(#panel)" stroke="#1e2738" stroke-width="1"/>
+    <text x="48" y="92" font-size="9" letter-spacing="2" fill="#9fb3c8">CORPUS</text>
+    <text x="48" y="106" font-size="8" letter-spacing="1.5" fill="#3a4866">iMESSAGE · WHATSAPP · MAIL · 168K MSGS</text>
 
-    <rect x="40" y="178" width="180" height="56" rx="6" fill="url(#srcGrad)" stroke="#2e3d55" stroke-width="1"/>
-    <text x="56" y="203" fill="#e8a838" font-family="'IBM Plex Mono', monospace" font-size="11">ChatStorage.sqlite</text>
-    <text x="56" y="221" fill="#9fb3c8" font-size="12">WhatsApp</text>
+    <!-- Year markers floating in background -->
+    <g font-size="34" letter-spacing="3" fill="#10141c" font-weight="700">
+      <text x="46" y="200">2015</text>
+      <text x="216" y="280">2020</text>
+      <text x="80" y="400">2024</text>
+    </g>
 
-    <rect x="40" y="246" width="180" height="56" rx="6" fill="url(#srcGrad)" stroke="#2e3d55" stroke-width="1"/>
-    <text x="56" y="271" fill="#e8a838" font-family="'IBM Plex Mono', monospace" font-size="11">~/Library/Mail/</text>
-    <text x="56" y="289" fill="#9fb3c8" font-size="12">Apple Mail (.emlx)</text>
+    <!-- Redacted chat bubbles. Each bubble holds horizontal bars instead of text.
+         Received: left-aligned, slate fill. Sent: right-aligned, gold-tinted.
+         Bars represent words/tokens at varying widths. -->
+
+    <!-- bubble 1 (received) -->
+    <g>
+      <rect x="48"  y="128" rx="9" ry="9" width="120" height="20" fill="#1a2030"/>
+      <rect x="58"  y="138" width="20" height="3" fill="#3a4866"/>
+      <rect x="82"  y="138" width="34" height="3" fill="#3a4866"/>
+      <rect x="120" y="138" width="38" height="3" fill="#3a4866"/>
+    </g>
+
+    <!-- bubble 2 (sent) -->
+    <g>
+      <rect x="200" y="156" rx="9" ry="9" width="76" height="20" fill="#332210" stroke="#5a3f1a" stroke-width="0.5"/>
+      <rect x="210" y="166" width="26" height="3" fill="#7a5520"/>
+      <rect x="240" y="166" width="28" height="3" fill="#7a5520"/>
+    </g>
+
+    <!-- bubble 3 (received, longer) -->
+    <g>
+      <rect x="48"  y="184" rx="9" ry="9" width="178" height="20" fill="#1a2030"/>
+      <rect x="58"  y="194" width="24" height="3" fill="#3a4866"/>
+      <rect x="86"  y="194" width="48" height="3" fill="#3a4866"/>
+      <rect x="138" y="194" width="22" height="3" fill="#3a4866"/>
+      <rect x="164" y="194" width="56" height="3" fill="#3a4866"/>
+    </g>
+
+    <!-- bubble 4 (sent, long) -->
+    <g>
+      <rect x="120" y="222" rx="9" ry="9" width="208" height="20" fill="#332210" stroke="#5a3f1a" stroke-width="0.5"/>
+      <rect x="130" y="232" width="36" height="3" fill="#7a5520"/>
+      <rect x="170" y="232" width="28" height="3" fill="#7a5520"/>
+      <rect x="202" y="232" width="44" height="3" fill="#7a5520"/>
+      <rect x="250" y="232" width="68" height="3" fill="#7a5520"/>
+    </g>
+
+    <!-- bubble 5 (received, short) -->
+    <g>
+      <rect x="48"  y="250" rx="9" ry="9" width="56" height="20" fill="#1a2030"/>
+      <rect x="58"  y="260" width="38" height="3" fill="#3a4866"/>
+    </g>
+
+    <!-- bubble 6 (received) -->
+    <g>
+      <rect x="48"  y="278" rx="9" ry="9" width="94" height="20" fill="#1a2030"/>
+      <rect x="58"  y="288" width="30" height="3" fill="#3a4866"/>
+      <rect x="92"  y="288" width="42" height="3" fill="#3a4866"/>
+    </g>
+
+    <!-- bubble 7 (sent, medium) -->
+    <g>
+      <rect x="172" y="306" rx="9" ry="9" width="156" height="20" fill="#332210" stroke="#5a3f1a" stroke-width="0.5"/>
+      <rect x="182" y="316" width="46" height="3" fill="#7a5520"/>
+      <rect x="232" y="316" width="32" height="3" fill="#7a5520"/>
+      <rect x="268" y="316" width="50" height="3" fill="#7a5520"/>
+    </g>
+
+    <!-- bubble 8 (received, very short) -->
+    <g>
+      <rect x="48"  y="334" rx="9" ry="9" width="40" height="20" fill="#1a2030"/>
+      <rect x="58"  y="344" width="22" height="3" fill="#3a4866"/>
+    </g>
+
+    <!-- bubble 9 (sent, short) -->
+    <g>
+      <rect x="252" y="362" rx="9" ry="9" width="76" height="20" fill="#332210" stroke="#5a3f1a" stroke-width="0.5"/>
+      <rect x="262" y="372" width="24" height="3" fill="#7a5520"/>
+      <rect x="290" y="372" width="30" height="3" fill="#7a5520"/>
+    </g>
+
+    <!-- bubble 10 (received) -->
+    <g>
+      <rect x="48"  y="390" rx="9" ry="9" width="138" height="20" fill="#1a2030"/>
+      <rect x="58"  y="400" width="28" height="3" fill="#3a4866"/>
+      <rect x="90"  y="400" width="38" height="3" fill="#3a4866"/>
+      <rect x="132" y="400" width="44" height="3" fill="#3a4866"/>
+    </g>
+
+    <!-- bubble 11 (sent, medium) -->
+    <g>
+      <rect x="200" y="418" rx="9" ry="9" width="128" height="20" fill="#332210" stroke="#5a3f1a" stroke-width="0.5"/>
+      <rect x="210" y="428" width="34" height="3" fill="#7a5520"/>
+      <rect x="248" y="428" width="28" height="3" fill="#7a5520"/>
+      <rect x="280" y="428" width="38" height="3" fill="#7a5520"/>
+    </g>
   </g>
 
-  <!-- Arrows: sources -> pipeline -->
-  <path d="M 220 138 L 280 198" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
-  <path d="M 220 206 L 280 206" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
-  <path d="M 220 274 L 280 214" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
-
-  <!-- Pipeline (3 stacked) -->
+  <!-- ============== MIDDLE: FUNNEL ============== -->
   <g>
-    <rect x="280" y="124" width="180" height="44" rx="6" fill="url(#procGrad)" stroke="#3b4a6a" stroke-width="1"/>
-    <text x="370" y="143" fill="#e2e8f0" font-size="13" font-weight="500" text-anchor="middle">parser</text>
-    <text x="370" y="159" fill="#64748b" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">SQLite + .emlx</text>
+    <path d="M 374,160 L 432,220 L 432,296 L 374,356 Z" fill="url(#funnel)" stroke="#5a3f1a" stroke-width="0.5" stroke-opacity="0.4"/>
 
-    <rect x="280" y="184" width="180" height="44" rx="6" fill="url(#procGrad)" stroke="#3b4a6a" stroke-width="1"/>
-    <text x="370" y="203" fill="#e2e8f0" font-size="13" font-weight="500" text-anchor="middle">chunker</text>
-    <text x="370" y="219" fill="#64748b" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">30-min windows</text>
+    <g font-size="8" letter-spacing="2.5" fill="#9fb3c8" text-anchor="middle">
+      <text x="403" y="184">PARSE</text>
+      <text x="403" y="206">EMBED</text>
+      <text x="403" y="252">RETRIEVE</text>
+      <text x="403" y="296">RANK</text>
+      <text x="403" y="332">DISTILL</text>
+    </g>
 
-    <rect x="280" y="244" width="180" height="44" rx="6" fill="url(#procGrad)" stroke="#3b4a6a" stroke-width="1"/>
-    <text x="370" y="263" fill="#e2e8f0" font-size="13" font-weight="500" text-anchor="middle">embedder</text>
-    <text x="370" y="279" fill="#64748b" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">MiniLM (local)</text>
+    <g fill="#E8A838">
+      <circle cx="380" cy="170" r="1.4" opacity="0.7"/>
+      <circle cx="392" cy="200" r="1.2" opacity="0.5"/>
+      <circle cx="412" cy="232" r="1.4" opacity="0.8"/>
+      <circle cx="400" cy="270" r="1.2" opacity="0.6"/>
+      <circle cx="416" cy="312" r="1.5" opacity="0.9"/>
+      <circle cx="404" cy="340" r="1.3" opacity="0.7"/>
+    </g>
+
+    <path d="M 432,258 L 446,258 M 442,254 L 446,258 L 442,262" stroke="#E8A838" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 
-  <!-- Vertical arrows down the pipeline -->
-  <path d="M 370 168 L 370 184" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
-  <path d="M 370 228 L 370 244" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
-
-  <!-- Pipeline -> Store -->
-  <path d="M 460 266 L 520 206" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
-
-  <!-- Store -->
+  <!-- ============== RIGHT: STATISTICAL PORTRAIT PAGE ============== -->
   <g>
-    <rect x="520" y="178" width="140" height="80" rx="6" fill="url(#storeGrad)" stroke="#5a4a26" stroke-width="1"/>
-    <text x="590" y="207" fill="#e8a838" font-size="14" font-weight="600" text-anchor="middle">ChromaDB</text>
-    <text x="590" y="226" fill="#cbb88a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">vector index</text>
-    <text x="590" y="244" fill="#9c8a5e" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">cosine, on-disk</text>
+    <rect x="456" y="68" width="312" height="380" fill="url(#portraitPaper)" stroke="#2e3d55" stroke-width="1" filter="url(#paperShadow)"/>
+
+    <!-- Page header -->
+    <g>
+      <text x="472" y="94" font-size="9" letter-spacing="2.5" fill="#9fb3c8">PORTRAIT</text>
+      <text x="528" y="94" font-size="9" letter-spacing="2.5" fill="#3a4866">— STATISTICAL</text>
+      <text x="752" y="94" font-size="8" letter-spacing="1.5" fill="#3a4866" text-anchor="end">PAGE 1 / 12</text>
+      <line x1="472" y1="104" x2="752" y2="104" stroke="#2e3d55" stroke-width="0.5"/>
+    </g>
+
+    <!-- Intro line -->
+    <g font-family="'Frank Ruhl Libre', 'Iowan Old Style', Georgia, serif" font-size="13">
+      <text x="472" y="132" fill="#64748b" letter-spacing="0.5" font-style="italic">Patterns the corpus produces. No quotes,</text>
+      <text x="472" y="148" fill="#64748b" letter-spacing="0.5" font-style="italic">no contents — just structural signatures.</text>
+    </g>
+
+    <!-- Stat rows: a label + a big number with a small chart hint -->
+    <g>
+      <!-- Row 1 -->
+      <line x1="472" y1="172" x2="752" y2="172" stroke="#2e3d55" stroke-width="0.5" stroke-opacity="0.5"/>
+      <text x="472" y="194" font-size="8" letter-spacing="1.5" fill="#64748b">MEDIAN SENT LENGTH</text>
+      <text x="752" y="194" font-size="20" font-family="'Frank Ruhl Libre', Georgia, serif" fill="#e2e8f0" text-anchor="end" font-weight="500">7 words</text>
+
+      <!-- Row 2 -->
+      <line x1="472" y1="206" x2="752" y2="206" stroke="#2e3d55" stroke-width="0.5" stroke-opacity="0.5"/>
+      <text x="472" y="228" font-size="8" letter-spacing="1.5" fill="#64748b">MOST-USED OPENER</text>
+      <text x="752" y="228" font-size="20" font-family="'Frank Ruhl Libre', Georgia, serif" fill="#e2e8f0" text-anchor="end" font-weight="500" font-style="italic">"hey"</text>
+
+      <!-- Row 3 -->
+      <line x1="472" y1="240" x2="752" y2="240" stroke="#2e3d55" stroke-width="0.5" stroke-opacity="0.5"/>
+      <text x="472" y="262" font-size="8" letter-spacing="1.5" fill="#64748b">REPLY LATENCY P50</text>
+      <text x="752" y="262" font-size="20" font-family="'Frank Ruhl Libre', Georgia, serif" fill="#e2e8f0" text-anchor="end" font-weight="500">14 min</text>
+
+      <!-- Row 4 -->
+      <line x1="472" y1="274" x2="752" y2="274" stroke="#2e3d55" stroke-width="0.5" stroke-opacity="0.5"/>
+      <text x="472" y="296" font-size="8" letter-spacing="1.5" fill="#64748b">TOP 5 CONTACTS · % VOLUME</text>
+      <text x="752" y="296" font-size="20" font-family="'Frank Ruhl Libre', Georgia, serif" fill="#E8A838" text-anchor="end" font-weight="500">41%</text>
+
+      <!-- Row 5 -->
+      <line x1="472" y1="308" x2="752" y2="308" stroke="#2e3d55" stroke-width="0.5" stroke-opacity="0.5"/>
+      <text x="472" y="330" font-size="8" letter-spacing="1.5" fill="#64748b">LATE-NIGHT CONCENTRATION</text>
+      <text x="752" y="330" font-size="20" font-family="'Frank Ruhl Libre', Georgia, serif" fill="#e2e8f0" text-anchor="end" font-weight="500" font-style="italic">Mar–Apr</text>
+
+      <!-- Row 6 -->
+      <line x1="472" y1="342" x2="752" y2="342" stroke="#2e3d55" stroke-width="0.5" stroke-opacity="0.5"/>
+      <text x="472" y="364" font-size="8" letter-spacing="1.5" fill="#64748b">MEDIAN BURST · 5-MIN WINDOW</text>
+      <text x="752" y="364" font-size="20" font-family="'Frank Ruhl Libre', Georgia, serif" fill="#e2e8f0" text-anchor="end" font-weight="500">3 msgs</text>
+
+      <line x1="472" y1="376" x2="752" y2="376" stroke="#2e3d55" stroke-width="0.5" stroke-opacity="0.5"/>
+    </g>
+
+    <!-- Caption -->
+    <g font-family="'Frank Ruhl Libre', 'Iowan Old Style', Georgia, serif" font-size="12">
+      <text x="472" y="402" fill="#9fb3c8" letter-spacing="0.3" font-style="italic">A self-portrait by way of statistics —</text>
+      <text x="472" y="418" fill="#9fb3c8" letter-spacing="0.3" font-style="italic">no individual message ever leaves the machine.</text>
+    </g>
+
+    <!-- Footer signature -->
+    <g>
+      <line x1="472" y1="430" x2="752" y2="430" stroke="#2e3d55" stroke-width="0.5"/>
+      <text x="472" y="442" font-size="8" letter-spacing="1.5" fill="#3a4866">DISTILLED FROM 168K MESSAGES · 11 YEARS · LOCAL ONLY</text>
+    </g>
   </g>
 
-  <!-- Store -> Query -->
-  <path d="M 660 218 L 700 218" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
+  <!-- Bottom signature -->
+  <text x="32" y="478" font-size="8" fill="#3a4866" letter-spacing="2">INGEST  →  DISTILL  →  KNOW</text>
+  <text x="768" y="478" font-size="8" fill="#3a4866" letter-spacing="2" text-anchor="end">RAG · CHROMADB · LOCAL EMBEDDINGS</text>
 
-  <!-- Ask interface -->
-  <g>
-    <rect x="700" y="178" width="60" height="80" rx="6" fill="url(#askGrad)" stroke="#3a5a3a" stroke-width="1"/>
-    <text x="730" y="207" fill="#9be89b" font-family="'IBM Plex Mono', monospace" font-size="11" text-anchor="middle">kb</text>
-    <text x="730" y="225" fill="#9be89b" font-family="'IBM Plex Mono', monospace" font-size="11" text-anchor="middle">ask</text>
-    <text x="730" y="248" fill="#5a8a5a" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">CLI</text>
-  </g>
-
-  <!-- LLM box bottom -->
-  <g>
-    <rect x="540" y="320" width="180" height="62" rx="6" fill="url(#procGrad)" stroke="#3b4a6a" stroke-width="1"/>
-    <text x="630" y="343" fill="#e2e8f0" font-size="13" font-weight="500" text-anchor="middle">LLM (your choice)</text>
-    <text x="630" y="361" fill="#64748b" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">Ollama / Qwen / OpenAI / …</text>
-    <text x="630" y="375" fill="#5a6a82" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">OpenAI-compat API</text>
-  </g>
-
-  <!-- ask -> LLM -->
-  <path d="M 720 258 Q 720 295 670 320" stroke="#5a6a82" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
-
-  <!-- LLM -> answer -->
-  <text x="540" y="357" fill="#9be89b" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="end">answer →</text>
-
-  <!-- Stats footer -->
-  <line x1="40" y1="402" x2="760" y2="402" stroke="#243044" stroke-width="1"/>
-  <text x="40" y="425" fill="#9fb3c8" font-family="'IBM Plex Mono', monospace" font-size="11">168,000 messages</text>
-  <text x="200" y="425" fill="#5a6a82" font-family="'IBM Plex Mono', monospace" font-size="11">·</text>
-  <text x="220" y="425" fill="#9fb3c8" font-family="'IBM Plex Mono', monospace" font-size="11">11 years</text>
-  <text x="320" y="425" fill="#5a6a82" font-family="'IBM Plex Mono', monospace" font-size="11">·</text>
-  <text x="340" y="425" fill="#9fb3c8" font-family="'IBM Plex Mono', monospace" font-size="11">40+ relationships</text>
-  <text x="500" y="425" fill="#5a6a82" font-family="'IBM Plex Mono', monospace" font-size="11">·</text>
-  <text x="520" y="425" fill="#9fb3c8" font-family="'IBM Plex Mono', monospace" font-size="11">100% local-capable</text>
-  <text x="760" y="425" fill="#5a6a82" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="end">v0.1</text>
 </svg>
