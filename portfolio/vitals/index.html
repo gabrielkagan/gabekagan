@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vitals — a personal health data layer with a model-agnostic AI coach · Gabriel Kagan</title>
+<meta name="description" content="Vitals: pull Oura, Renpho, and 10+ years of iMessage behavioral signals into a local SQLite. A model-agnostic persona contract turns any LLM — Claude, GPT, Gemini, or a local 9B — into a quantitative fitness coach.">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Vitals — a personal health data layer with a model-agnostic AI coach">
+<meta property="og:description" content="Pull biometrics, body composition, and a decade of message signals into one local SQLite. A persona contract turns any LLM into a quantitative fitness coach.">
+<meta property="og:url" content="https://gabekagan.io/portfolio/vitals/">
+<meta property="og:image" content="https://gabekagan.io/img/projects/vitals/hero.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Vitals — a personal health data layer with a model-agnostic AI coach">
+<meta name="twitter:description" content="Pull biometrics, body composition, and a decade of message signals into one local SQLite. A persona contract turns any LLM into a quantitative fitness coach.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg-0: #06080d;
+  --bg-1: #0c1018;
+  --bg-2: #121822;
+  --border-1: #243044;
+  --border-2: #2e3d55;
+  --text-0: #ffffff;
+  --text-1: #e2e8f0;
+  --text-2: #9fb3c8;
+  --text-3: #64748b;
+  --accent: #E8A838;
+  --green-0: #10b981;
+  --blue-0: #60a5fa;
+  --font-display: 'Frank Ruhl Libre', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', Menlo, monospace;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg-0);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+}
+
+.backlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  text-decoration: none;
+  margin-bottom: 32px;
+  transition: color 0.15s;
+}
+.backlink:hover { color: var(--text-1); }
+
+header {
+  margin-bottom: 48px;
+  border-bottom: 1px solid var(--border-1);
+  padding-bottom: 32px;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-0);
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+.subtitle {
+  font-size: 18px;
+  color: var(--text-2);
+  max-width: 640px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin: 48px 0;
+}
+.stat {
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 6px;
+  padding: 20px;
+}
+.stat-val {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+
+figure {
+  margin: 48px 0;
+}
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border-1);
+  background: var(--bg-1);
+}
+figcaption {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  text-align: center;
+  margin-top: 12px;
+}
+
+.prose h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-0);
+  margin-bottom: 16px;
+  margin-top: 64px;
+  letter-spacing: -0.01em;
+}
+.prose h2:first-child { margin-top: 0; }
+.prose h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-0);
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+.prose p {
+  margin-bottom: 16px;
+  max-width: 640px;
+  color: var(--text-1);
+}
+.prose p strong { color: var(--text-0); font-weight: 600; }
+.prose a { color: var(--blue-0); text-decoration: underline; text-decoration-color: var(--border-2); text-underline-offset: 3px; }
+.prose a:hover { text-decoration-color: var(--blue-0); }
+.prose ul {
+  margin-bottom: 16px;
+  padding-left: 20px;
+  max-width: 640px;
+}
+.prose li {
+  margin-bottom: 8px;
+  color: var(--text-1);
+}
+.prose li::marker { color: var(--accent); }
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 3px;
+  padding: 1px 6px;
+  color: var(--text-0);
+}
+
+.callout {
+  background: var(--bg-1);
+  border-left: 3px solid var(--accent);
+  padding: 16px 20px;
+  border-radius: 0 6px 6px 0;
+  margin: 24px 0;
+  max-width: 640px;
+}
+.callout p { margin-bottom: 0; color: var(--text-2); font-size: 15px; }
+.callout p strong { color: var(--text-0); }
+
+.privacy-callout {
+  background: var(--bg-1);
+  border-left: 3px solid var(--green-0);
+  padding: 16px 20px;
+  border-radius: 0 6px 6px 0;
+  margin: 24px 0;
+  max-width: 640px;
+}
+.privacy-callout p { margin-bottom: 0; color: var(--text-2); font-size: 15px; }
+.privacy-callout p strong { color: var(--text-0); }
+
+pre {
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 6px;
+  padding: 16px 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-1);
+  overflow-x: auto;
+  margin: 16px 0;
+  max-width: 640px;
+}
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+.stack-item {
+  background: var(--bg-1);
+  border: 1px solid var(--border-1);
+  border-radius: 6px;
+  padding: 16px;
+}
+.stack-item-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.stack-item-name {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-0);
+  font-weight: 500;
+}
+
+footer {
+  margin-top: 96px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-1);
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.7;
+}
+footer p { margin-bottom: 12px; max-width: 640px; }
+footer a { color: var(--text-2); text-decoration: underline; text-decoration-color: var(--border-2); }
+footer a:hover { color: var(--text-1); }
+
+@media (max-width: 640px) {
+  .container { padding: 32px 20px 64px; }
+  h1 { font-size: 32px; }
+  .subtitle { font-size: 16px; }
+  header { margin-bottom: 32px; padding-bottom: 24px; }
+  .prose h2 { font-size: 22px; margin-top: 48px; }
+  figure { margin: 32px 0; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<a href="/" class="backlink">← Back to portfolio</a>
+
+<header>
+  <div class="eyebrow">Personal Project</div>
+  <h1>Vitals</h1>
+  <p class="subtitle">A personal health data layer with a model-agnostic persona contract on top. Pull biometrics, body composition, and a decade of message behavioral signals into one local SQLite — then point any LLM at it.</p>
+</header>
+
+<figure>
+  <img src="../../img/projects/vitals/hero.svg" alt="Architecture diagram: Oura Ring, Renpho scale, and iMessage flow through pluggable adapters into a local SQLite. A model-agnostic persona contract (coach.md) drives any LLM — Claude, GPT, Gemini, or a local 9B — to query the store before answering.">
+  <figcaption>Sources on the left, adapters and store in the middle, persona + LLM on the right.</figcaption>
+</figure>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-val">1,527</div>
+    <div class="stat-label">Days biometric</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">3.4M</div>
+    <div class="stat-label">HR samples</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">10.8 yrs</div>
+    <div class="stat-label">Message signals</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">100%</div>
+    <div class="stat-label">Local</div>
+  </div>
+</div>
+
+<section class="prose">
+  <h2>What I built</h2>
+  <p>Two pieces, joined at a SQLite file.</p>
+  <p><strong>A pull layer.</strong> Adapter classes for Oura (biometrics, sleep, workouts, 5-minute HR), Renpho (body composition since 2020), and an iMessage roll-up that turns ten years of <code>chat.db</code> into per-day behavioral signals — late-night message volume, reply latency percentiles, sleep/alcohol/conflict/intimacy keyword counts, max 5-minute burst. Each adapter is idempotent on a natural key with a 2-day overlap on re-pulls. Launchd runs the sync twice a day. There are no webhooks and nothing leaves the machine.</p>
+  <p><strong>A persona contract.</strong> A single markdown file (<code>coach.md</code>) that tells whatever LLM you load it into: <em>your role is a quantitative fitness coach; query the database before answering; cite specific values and rolling baselines; coach with a recommendation, don't just narrate the numbers; cross-reference across tables when relevant.</em> The contract is model-agnostic — it's the system prompt for OpenAI, the system instruction for Gemini, the <code>--system</code> flag for an Ollama-served local 9B, or the <code>CLAUDE.md</code> when working in Claude Code. The LLM is interchangeable; the contract is the actual artifact.</p>
+
+  <h2>Why I built it</h2>
+  <p>The same problem keeps showing up in consumer health products. The "AI coach" sounds confident but has no data underneath, so it hallucinates plausible-sounding generalities — <em>"your sleep seems okay lately, try to get more rest."</em> Useless. The data is sitting in five different SaaS silos, and the chatbot can't see any of it.</p>
+  <p>Most of what I wanted from an AI coach was the opposite: <strong>be quantitative or be quiet.</strong> Tell me readiness 70 vs 30-day baseline 73, recovery index 40, body temp deviation +0.43°F vs 10-day rolling average, recommend zone-2 instead of another moderate stair session. That requires the data to be in one queryable place and the agent to be instructed to actually look at it. Once both of those exist, the model doesn't really matter — frontier or a 9B local — they all become useful coaches.</p>
+  <p>The second motivation was the cross-domain join. I had separately built a roll-up of ten years of iMessage signals for an <a href="../personal-kb/">earlier project</a>, and adding it to the same SQLite opens questions a single-domain health app can't answer: <em>"did I drink the night my HRV crashed?"</em>, <em>"how does my reply latency on the phone track with my next-day readiness?"</em>, <em>"is there a pattern in my late-night message bursts before low-recovery mornings?"</em></p>
+
+  <div class="callout">
+    <p><strong>The persona contract is the unlock, not the data layer.</strong> Anyone can wire up an Oura adapter — it's a few hours of API work. The interesting part is the markdown file that turns whatever LLM you're using into a coach who's required to query before answering. Strip the model out of the loop and the contract still describes the desired agent behavior. That makes it portable across model generations and across providers.</p>
+  </div>
+
+  <h2>How it works</h2>
+
+  <h3>The pull layer</h3>
+  <p>Each source — Oura, Renpho, iMessage — is its own subpackage exposing a <code>sync_*</code> function with a shared shape: read the cursor from <code>sync_state</code>, pull with a 2-day overlap because upstream APIs sometimes back-fill late, upsert into the source's table keyed on a natural key (day, document <code>id</code>, or <code>(timestamp, source)</code>), update <code>sync_state</code>. Re-running a sync is always safe and idempotent. The contract is convention, not an ABC — a new source is a new subpackage plus three lines in <code>cli.py</code>.</p>
+  <p>The raw API JSON is kept in a <code>raw_json</code> column on every table. If the schema misses a field I want later, <code>json_extract(raw_json, '$.path')</code> gets it without a re-sync. Heart-rate samples are stored at the API's native 5-minute granularity, which works out to about 3.4 million rows over four years on a single Oura account — well within SQLite's comfort zone, queryable with no index gymnastics.</p>
+
+  <h3>The persona contract</h3>
+  <p>The whole "agent" is a markdown file. An abbreviated excerpt:</p>
+  <pre><code># Vitals — Coach Persona
+
+You are a fitness coach and quantitative health analyst.
+
+When asked anything about recovery, training, body composition,
+or how those metrics interact with other domains:
+
+1. Query the actual data first. Open data/health.db and look
+   at recent rows. Never speculate when the numbers are right
+   there.
+2. Be quantitative. Cite specific values, % changes,
+   day-over-day deltas. No "your sleep seems okay lately"
+   — give the score, the 7d trend, the rolling baseline.
+3. Coach, don't just report. After the numbers, give a
+   concrete recommendation.
+4. Cross-reference. Sleep, HRV, body temperature, and
+   message-derived stress signals interact. Surface lagged
+   correlations across tables when relevant.</code></pre>
+  <p>That's the full contract — it fits in a screenshot. Loaded into Claude Code it lives as <code>CLAUDE.md</code>. Pasted into the OpenAI Responses API as a system message, the same words work. Fed to a local Qwen 3.5 9B via the <a href="../local-llm-stack/">local LLM stack</a> as the system prompt, ditto. The contract is what makes the agent useful; the model is the interpreter.</p>
+
+  <h3>Cross-domain joins</h3>
+  <p>Because every source lands in the same SQLite, every cross-domain question is a one-line query the agent runs and cites. The figure below plots a random sample of 200 days from the corpus — late-night messages sent vs. next-day HRV. Each dot is one day. The lower-right cluster is the kind of pattern that's invisible to a single-domain app: high late-night phone activity followed by depressed next-day autonomic recovery. The agent finds these when asked; it doesn't need a separate analytics dashboard.</p>
+  <figure>
+    <img src="../../img/projects/vitals/scatter.svg" alt="Scatter plot: late-night messages sent (x-axis) vs next-day HRV in ms (y-axis). 200 sampled days across 2024–2026. Most points cluster at zero late-night messages with HRV spread across 20–110. High-late-night-message days (10+) skew toward lower HRV values.">
+    <figcaption>Sampled cross-domain join: messages × biometrics. Real anonymized data, no dates or contact identifiers.</figcaption>
+  </figure>
+
+  <h3>Local and pull-based</h3>
+  <p>The whole stack is sync httpx, SQLite, and launchd. No webhooks, no daemon, no VPS, no cloud function. The trade-off is real — there's no real-time signal — and it's the right one, because the data is daily-grain anyway and the cloud APIs deliver intraday HR at 5-minute resolution at best. Real-time would be theatrical, not useful. Two cron firings a day catches everything that matters and the entire system runs in user-space on one laptop.</p>
+
+  <h2>The stack</h2>
+  <div class="stack-grid">
+    <div class="stack-item">
+      <div class="stack-item-label">Language</div>
+      <div class="stack-item-name">Python 3.11</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Storage</div>
+      <div class="stack-item-name">SQLite (local)</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">HTTP</div>
+      <div class="stack-item-name">httpx · sync</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Scheduler</div>
+      <div class="stack-item-name">launchd · 2× daily</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Reference sources</div>
+      <div class="stack-item-name">Oura v2 · Renpho · iMessage</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-label">Agent</div>
+      <div class="stack-item-name">Any LLM via coach.md</div>
+    </div>
+  </div>
+
+  <h2>What it gets me</h2>
+  <ul>
+    <li><strong>A coach that's forced to be quantitative.</strong> Asking "how am I feeling today?" returns readiness score, sleep contributors, body-temp deviation vs 10-day average, and a concrete recommendation. The contract forbids it from waving its hands.</li>
+    <li><strong>Cross-domain answers a single health app can't give.</strong> "Why was my recovery index 40 last night?" pulls body temp, recent workout load, late-night message count, and alcohol keyword mentions in one query and answers with citations.</li>
+    <li><strong>Provider-independence.</strong> When Claude 5 ships or I want to run on the plane, I swap the model. The persona contract, the data layer, and the CLI don't change. The agent is the contract, not the vendor.</li>
+    <li><strong>A reference implementation for the broader pattern.</strong> Plug in Whoop instead of Oura, a Withings scale instead of Renpho, an Apple Health export instead of iMessage — the sync shape is the same, the persona contract still applies. <a href="https://github.com/gabrielkagan/vitals" target="_blank" rel="noopener">github.com/gabrielkagan/vitals</a> ships the abstracted version.</li>
+  </ul>
+
+  <h2>Privacy</h2>
+  <div class="privacy-callout">
+    <p><strong>Nothing on this page is identifying.</strong> The scatter is real but anonymized — no dates, no contact IDs, no names. The corpus and the agent's outputs stay on my machine, encrypted, never synced anywhere. The open-source repo ships with no data either. If you want a vitals corpus of <em>your</em> body and your messages, you point the adapters at your own accounts on your own laptop. That's the whole architecture.</p>
+  </div>
+</section>
+
+<footer>
+  <p><strong>Source:</strong> <a href="https://github.com/gabrielkagan/vitals" target="_blank" rel="noopener">github.com/gabrielkagan/vitals</a> — adapter ABC, Oura/Renpho reference adapters, the <code>coach.md</code> contract, launchd plist, CLI. MIT licensed. Ships with no data; brings none.</p>
+  <p><strong>Related:</strong> <a href="../local-llm-stack/">Local LLM Stack</a> is the cheap inference tier this can be pointed at on a plane or for privacy. <a href="../personal-kb/">Personal Knowledge Base</a> is where the iMessage signal-extraction pattern originated.</p>
+  <p>Built by <a href="https://gabekagan.io">Gabriel Kagan</a>. <a href="mailto:me@gabekagan.io">Get in touch</a> if you're building personal-data agents and want to compare notes.</p>
+</footer>
+
+</div>
+</body>
+</html>
