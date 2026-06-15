@@ -384,23 +384,40 @@ section { padding: var(--section-padding) 0; }
   align-items: center;
 }
 
-.about-image { position: relative; }
+.about-image {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border-1);
+  /* figure emerges from a dark→amber glow instead of floating on the page */
+  background:
+    radial-gradient(108% 68% at 50% 110%, rgba(232, 168, 56, 0.22), transparent 62%),
+    linear-gradient(180deg, var(--bg-2) 0%, var(--bg-0) 100%);
+}
 
 .about-image img {
-  border-radius: 6px;
+  position: relative;
+  z-index: 1;
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
+  object-position: center top;
 }
 
+/* settle the cutout into the panel: fade the white halo up top, ground it at the base */
 .about-image::after {
   content: '';
   position: absolute;
-  inset: 8px -8px -8px 8px;
-  border: 1px solid var(--accent);
-  border-radius: 6px;
-  opacity: 0.25;
-  z-index: -1;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 8, 13, 0.6) 0%,
+    rgba(6, 8, 13, 0) 24%,
+    rgba(6, 8, 13, 0) 70%,
+    rgba(6, 8, 13, 0.5) 100%
+  );
 }
 
 .about-text p {
