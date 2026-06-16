@@ -22,7 +22,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/main.css">
@@ -55,21 +55,35 @@
   <!-- Hero -->
   <section class="hero" id="hero">
     <div class="container">
-      <div class="hero-content">
-        <span class="hero-label">Builder · Fintech &amp; AI</span>
-        <h1>I turn ideas into systems that <span class="accent">run in production</span>.</h1>
-        <p class="hero-description">
-          By day, payments and fraud at a fintech. By night, I ship: a live trading bot moving real capital, an AI assistant in my Meta glasses, a RAG over 11 years of my own messages. Real systems, real users.
-        </p>
-        <div class="hero-actions">
-          <a href="#projects" class="btn btn-primary">View my work</a>
-          <a href="#consulting" class="btn btn-secondary">Work with me</a>
+      <div class="terminal hero-terminal reveal visible">
+        <div class="terminal-bar">
+          <span class="terminal-dot dot-red"></span>
+          <span class="terminal-dot dot-amber"></span>
+          <span class="terminal-dot dot-green"></span>
+          <span class="terminal-title">gabe@kagan: ~</span>
+        </div>
+        <div class="terminal-body" id="hero-terminal-body">
+          <p class="term-line"><span class="term-prompt">gabe@kagan:~$</span> whoami</p>
+          <p class="term-out">Gabe Kagan — I build production systems for fun. A few of them even make money.</p>
+
+          <p class="term-line"><span class="term-prompt">gabe@kagan:~$</span> cat pitch.txt</p>
+          <p class="term-out">By day: payments &amp; fraud at a fintech. By night: a live trading bot moving <span class="hl">real capital</span>, an AI assistant living in my Meta glasses, and a RAG over 11 years of my own messages. Real systems, real users, real money.</p>
+
+          <p class="term-line"><span class="term-prompt">gabe@kagan:~$</span> ls ~/live</p>
+          <p class="term-out term-files">
+            <a href="#projects">kalshi-bot/</a><a href="#projects">visionclaw/</a><a href="#projects">personal-kb/</a><a href="#projects">vitals/</a><a href="#projects">local-llm-stack/</a>
+          </p>
+
+          <p class="term-line"><span class="term-prompt">gabe@kagan:~$</span> <span class="term-typed" id="hero-typed"></span><span class="cursor" aria-hidden="true"></span></p>
         </div>
       </div>
-    </div>
-    <div class="hero-scroll" aria-hidden="true">
-      <span>Scroll</span>
-      <div class="hero-scroll-line"></div>
+
+      <div class="hero-actions">
+        <a href="#projects" class="btn btn-primary">./view-work</a>
+        <a href="#consulting" class="btn btn-secondary">./work-with-me</a>
+      </div>
+
+      <p class="hero-hint" aria-hidden="true">psst — type <kbd>help</kbd> anywhere on this page</p>
     </div>
   </section>
 
@@ -77,16 +91,13 @@
   <section class="about" id="about">
     <div class="container">
       <div class="about-grid">
-        <div class="about-image reveal">
-          <img src="img/gabeone1.png" alt="Gabe Kagan" fetchpriority="high">
-        </div>
         <div class="about-text">
           <div class="section-header reveal">
-            <span class="section-label">About</span>
-            <h2>Hello, I'm Gabe.</h2>
+            <span class="section-label">cat about.md</span>
+            <h2>Hi, I'm Gabe. 👋</h2>
           </div>
           <p class="reveal">
-            I'm a product manager in payments and fraud — ten years across underwriting, risk decisioning, funds availability, and the systems that decide whether transactions clear. I work at fintech companies of varying scale.
+            I'm a product manager in payments and fraud — ten years deep in underwriting, risk decisioning, funds availability, and the unglamorous systems that quietly decide whether your transaction clears. I've done this at fintechs big and small.
           </p>
           <p class="reveal">
             Outside the day job I build things end to end — from the data layer to the deploy. The Kalshi bot below is <strong>150K+ lines</strong> of Python running live on a VPS I manage. The personal knowledge base reads my own messages and answers questions about them. The Meta glasses see what I see. I lean heavily on modern AI tooling to move fast, and I'm at my best when I can own a problem from idea to production — whether I'm driving it myself or <strong>embedded with a team</strong>.
@@ -106,6 +117,39 @@
             </div>
           </div>
         </div>
+
+        <aside class="about-panel reveal" aria-label="Systems currently running">
+          <div class="about-panel-head">
+            <span class="about-panel-label">Currently running</span>
+            <span class="about-panel-live"><span class="live-dot"></span>live</span>
+          </div>
+          <ul class="about-panel-list">
+            <li>
+              <span class="sys-name">Kalshi Bot</span>
+              <span class="sys-note">Prediction-market trading · real capital</span>
+            </li>
+            <li>
+              <span class="sys-name">VisionClaw</span>
+              <span class="sys-note">An AI that sees what my Meta glasses see</span>
+            </li>
+            <li>
+              <span class="sys-name">Personal KB</span>
+              <span class="sys-note">RAG over 168K of my own messages</span>
+            </li>
+            <li>
+              <span class="sys-name">Vitals</span>
+              <span class="sys-note">An AI health coach wired to my own data</span>
+            </li>
+            <li>
+              <span class="sys-name">Local LLM Stack</span>
+              <span class="sys-note">A cheap inference tier that lives below Claude</span>
+            </li>
+          </ul>
+          <a href="#projects" class="about-panel-cta">
+            See the builds
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </a>
+        </aside>
       </div>
     </div>
   </section>
@@ -114,9 +158,9 @@
   <section class="portfolio" id="projects">
     <div class="container">
       <div class="section-header reveal">
-        <span class="section-label">Projects</span>
-        <h2>Selected Work</h2>
-        <p>Live products and personal builds. Each card links to a deeper writeup.</p>
+        <span class="section-label">ls ~/projects</span>
+        <h2>The Builds</h2>
+        <p>Things I built that actually run. Click in for the gory details.</p>
       </div>
       <div class="portfolio-grid reveal-stagger">
 
@@ -295,9 +339,9 @@
   <section class="consulting" id="consulting">
     <div class="container">
       <div class="section-header reveal">
-        <span class="section-label">Work with me</span>
+        <span class="section-label">./work-with-me</span>
         <h2>Builder first. Consultant when it fits.</h2>
-        <p>I take a few engagements a quarter when the problem's interesting. Here's where I help most.</p>
+        <p>I take a few engagements a quarter, usually when the problem is weird enough to be interesting. Here's where I'm most useful.</p>
       </div>
 
       <div class="consulting-grid reveal-stagger">
@@ -330,10 +374,10 @@
     <div class="container">
       <div class="resume-content reveal">
         <div class="section-header">
-          <span class="section-label">Resume</span>
+          <span class="section-label">cat resume.pdf</span>
           <h2>Experience &amp; Education</h2>
         </div>
-        <p>My professional history lives on LinkedIn — full timeline across payments, fraud, and product.</p>
+        <p>The formal timeline lives on LinkedIn — payments, fraud, and product, with noticeably fewer jokes.</p>
         <a href="https://www.linkedin.com/in/gabriel-kagan/" target="_blank" rel="noopener" class="btn btn-primary">View on LinkedIn</a>
       </div>
     </div>
@@ -344,8 +388,8 @@
     <div class="container">
       <div class="contact-content reveal">
         <div class="section-header">
-          <span class="section-label">Contact</span>
-          <h2>Let's connect.</h2>
+          <span class="section-label">./say-hello</span>
+          <h2>Let's build something.</h2>
         </div>
         <a href="mailto:me@gabekagan.io" class="contact-email">me@gabekagan.io</a>
         <ul class="social-links">
@@ -379,7 +423,7 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
-      <p>&copy; <span class="current-year"></span> Gabe Kagan · <a href="https://github.com/gabrielkagan" target="_blank" rel="noopener">Source on GitHub</a></p>
+      <p>&copy; <span class="current-year"></span> Gabe Kagan · hand-built with vanilla JS and too much coffee · <a href="https://github.com/gabrielkagan" target="_blank" rel="noopener">Source on GitHub</a></p>
     </div>
   </footer>
 
